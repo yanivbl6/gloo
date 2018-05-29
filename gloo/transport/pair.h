@@ -36,6 +36,9 @@ class Pair {
   virtual std::unique_ptr<Buffer>
   createRecvBuffer(int slot, void* ptr, size_t size) = 0;
 
+
+#if 0
+
   // Send from the specified buffer to remote side of pair.
   virtual void send(
       UnboundBuffer* buf,
@@ -49,6 +52,16 @@ class Pair {
       uint64_t tag,
       size_t offset = 0,
       size_t nbytes = 0) = 0;
+
+#endif
+
+  int p2p(void*,size_t,unsigned int, unsigned int);
+
+#if 0
+  bool hasSync;
+  Buffer srcBuf;
+  Buffer dstBuf;
+#endif
 };
 
 } // namespace transport

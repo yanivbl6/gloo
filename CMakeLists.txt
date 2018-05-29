@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 project(gloo CXX C)
 
+
+add_definitions(
+    -Wfatal-errors
+    )
+
 set(GLOO_VERSION_MAJOR 0)
 set(GLOO_VERSION_MINOR 5)
 set(GLOO_VERSION_PATCH 0)
@@ -18,11 +23,11 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 # Build target options
 option(BUILD_TEST "Build test binary (requires gtest)" OFF)
-option(BUILD_BENCHMARK "Build benchmark binary (requires hiredis)" OFF)
+option(BUILD_BENCHMARK "Build benchmark binary (requires hiredis)" ON)
 
 # Option defaults (so they can be overwritten before declaring the option)
-set(USE_REDIS_DEFAULT OFF)
-set(USE_IBVERBS_DEFAULT OFF)
+set(USE_REDIS_DEFAULT ON)
+set(USE_IBVERBS_DEFAULT ON)
 set(USE_NCCL_DEFAULT OFF)
 
 # Options
