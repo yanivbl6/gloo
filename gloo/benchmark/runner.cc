@@ -22,10 +22,14 @@
 
 #if GLOO_USE_REDIS
 #include "gloo/rendezvous/redis_store.h"
+#else
+#warning "NO REDIS" 
 #endif
 
 #if GLOO_USE_MPI
 #include "gloo/mpi/context.h"
+#else
+#warning "NO MPI"
 #endif
 
 #if BENCHMARK_TCP
