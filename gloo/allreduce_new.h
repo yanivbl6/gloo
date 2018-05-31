@@ -14,6 +14,7 @@
 
 #include "gloo/algorithm.h"
 #include "gloo/context.h"
+#include "gloo/testbuild.h"
 
 namespace gloo {
 
@@ -52,7 +53,10 @@ class AllreduceNew : public Algorithm {
     auto& leftPair = this->getLeftPair();
     auto& rightPair = this->getRightPair();
     auto slot = this->context_->nextSlot();
-
+    
+    int g = power(5,3);
+    printf("5^3 = %d\n",g);
+    
     (*buf) = this->contextRank_*10;
     ret = p2p((void*) buf,sizeof(int),1,0);
 

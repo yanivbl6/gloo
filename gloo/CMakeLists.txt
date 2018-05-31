@@ -17,6 +17,8 @@ list(APPEND GLOO_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/reduce.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/scatter.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/types.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.cc"
+
   )
 
 list(APPEND GLOO_HDRS
@@ -42,6 +44,8 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/reduce_scatter.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/scatter.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_new.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.h"
   )
 
 if(USE_CUDA)
