@@ -206,11 +206,9 @@ void Runner::run(BenchmarkFn<T>& fn) {
   }
 
   // Run sweep over number of elements
-  for (int i = 100; i <= 1000000; i *= 10) {
+  for (int i = 64; i <= 1 << 20 ; i *= 2) {
     std::vector<int> js = {i * 1, i * 2, i * 5};
-    for (auto& j : js) {
-      run(fn, j);
-    }
+    run(fn, i);
   }
 }
 
@@ -398,6 +396,10 @@ template void Runner::run(BenchmarkFn<float>& fn);
 template void Runner::run(BenchmarkFn<float>& fn, int n);
 template void Runner::run(BenchmarkFn<float16>& fn);
 template void Runner::run(BenchmarkFn<float16>& fn, int n);
+
+
+template void Runner::run(BenchmarkFn<int>& fn);
+template void Runner::run(BenchmarkFn<int>& fn, int n);
 
 RunnerThread::RunnerThread() : stop_(false), job_(nullptr) {
   thread_ = std::thread(&RunnerThread::spawn, this);

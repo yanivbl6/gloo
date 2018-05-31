@@ -1,0 +1,1693 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Address	transport/address.h	/^class Address {$/;"	c	namespace:gloo::transport
+Address	transport/ibverbs/address.cc	/^Address::Address() {$/;"	f	class:gloo::transport::ibverbs::Address
+Address	transport/ibverbs/address.cc	/^Address::Address(const std::vector<char>& bytes) {$/;"	f	class:gloo::transport::ibverbs::Address
+Address	transport/ibverbs/address.h	/^class Address : public ::gloo::transport::Address {$/;"	c	namespace:gloo::transport::ibverbs
+Address	transport/tcp/address.cc	/^Address::Address(const std::vector<char>& bytes) {$/;"	f	class:gloo::transport::tcp::Address
+Address	transport/tcp/address.cc	/^Address::Address(const struct sockaddr* addr, size_t addrlen) {$/;"	f	class:gloo::transport::tcp::Address
+Address	transport/tcp/address.cc	/^Address::Address(const struct sockaddr_storage& ss) {$/;"	f	class:gloo::transport::tcp::Address
+Address	transport/tcp/address.h	/^  Address() {}$/;"	f	class:gloo::transport::tcp::Address
+Address	transport/tcp/address.h	/^class Address : public ::gloo::transport::Address {$/;"	c	namespace:gloo::transport::tcp
+Algorithm	algorithm.cc	/^Algorithm::Algorithm(const std::shared_ptr<Context>& context)$/;"	f	class:gloo::Algorithm
+Algorithm	algorithm.h	/^class Algorithm {$/;"	c	namespace:gloo
+AllgatherBenchmark	benchmark/main.cc	/^class AllgatherBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+AllgatherOp	nccl/nccl.h	/^  explicit AllgatherOp(NCCLExecution<T>&& execution)$/;"	f	class:gloo::nccl::AllgatherOp
+AllgatherOp	nccl/nccl.h	/^class AllgatherOp : public NCCLOp<T> {$/;"	c	namespace:gloo::nccl
+AllgatherRing	allgather_ring.h	/^  AllgatherRing($/;"	f	class:gloo::AllgatherRing
+AllgatherRing	allgather_ring.h	/^class AllgatherRing : public Algorithm {$/;"	c	namespace:gloo
+AllgatherTest	test/allgather_test.cc	/^class AllgatherTest : public BaseTest,$/;"	c	namespace:gloo::test::__anon2	file:
+AllreduceBcube	allreduce_bcube.h	/^  AllreduceBcube($/;"	f	class:gloo::AllreduceBcube
+AllreduceBcube	allreduce_bcube.h	/^class AllreduceBcube : public Algorithm {$/;"	c	namespace:gloo
+AllreduceBenchmark	benchmark/main.cc	/^class AllreduceBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+AllreduceBuilder	allreduce_builder.cc	/^AllreduceBuilder<T>::AllreduceBuilder() :$/;"	f	class:gloo::AllreduceBuilder
+AllreduceBuilder	allreduce_builder.h	/^class AllreduceBuilder {$/;"	c	namespace:gloo
+AllreduceBuilderTest	test/allreduce_builder_test.cc	/^class AllreduceBuilderTest : public BaseTest {$/;"	c	namespace:gloo::test::__anon10	file:
+AllreduceConstructorTest	test/allreduce_test.cc	/^class AllreduceConstructorTest : public BaseTest {$/;"	c	namespace:gloo::test::__anon15	file:
+AllreduceHalvingDoubling	allreduce_halving_doubling.h	/^  AllreduceHalvingDoubling($/;"	f	class:gloo::AllreduceHalvingDoubling
+AllreduceHalvingDoubling	allreduce_halving_doubling.h	/^class AllreduceHalvingDoubling : public Algorithm {$/;"	c	namespace:gloo
+AllreduceLocal	allreduce_local.cc	/^AllreduceLocal<T>::AllreduceLocal($/;"	f	class:gloo::AllreduceLocal
+AllreduceLocal	allreduce_local.h	/^class AllreduceLocal : public Algorithm {$/;"	c	namespace:gloo
+AllreduceNew	allreduce_new.h	/^  AllreduceNew($/;"	f	class:gloo::AllreduceNew
+AllreduceNew	allreduce_new.h	/^class AllreduceNew : public Algorithm {$/;"	c	namespace:gloo
+AllreduceOp	nccl/nccl.h	/^  AllreduceOp($/;"	f	class:gloo::nccl::AllreduceOp
+AllreduceOp	nccl/nccl.h	/^class AllreduceOp : public NCCLOp<T> {$/;"	c	namespace:gloo::nccl
+AllreduceRing	allreduce_ring.h	/^  AllreduceRing($/;"	f	class:gloo::AllreduceRing
+AllreduceRing	allreduce_ring.h	/^class AllreduceRing : public Algorithm {$/;"	c	namespace:gloo
+AllreduceRingChunked	allreduce_ring_chunked.h	/^  AllreduceRingChunked($/;"	f	class:gloo::AllreduceRingChunked
+AllreduceRingChunked	allreduce_ring_chunked.h	/^class AllreduceRingChunked : public Algorithm {$/;"	c	namespace:gloo
+AllreduceTest	test/allreduce_test.cc	/^class AllreduceTest : public BaseTest,$/;"	c	namespace:gloo::test::__anon15	file:
+AllreduceTestHP	test/allreduce_test.cc	/^class AllreduceTestHP : public BaseTest,$/;"	c	namespace:gloo::test::__anon15	file:
+AllreduceTypes	test/allreduce_test.cc	/^  AllreduceRingChunked<float> > AllreduceTypes;$/;"	t	namespace:gloo::test::__anon15	file:
+Async	test/transport_test.cc	/^  Async,$/;"	e	enum:gloo::test::__anon4::IoMode	file:
+BINARY_COMP_HELPER	common/logging.h	117;"	d
+BINARY_COMP_HELPER	common/logging.h	131;"	d
+Barrier	barrier.h	/^  explicit Barrier(const std::shared_ptr<Context>& context)$/;"	f	class:gloo::Barrier
+Barrier	barrier.h	/^class Barrier : public Algorithm {$/;"	c	namespace:gloo
+Barrier	test/base_test.h	/^  explicit Barrier(std::size_t count) : count_(count) {}$/;"	f	class:gloo::test::Barrier
+Barrier	test/base_test.h	/^class Barrier {$/;"	c	namespace:gloo::test
+BarrierAllToAll	barrier_all_to_all.h	/^  explicit BarrierAllToAll(const std::shared_ptr<Context>& context)$/;"	f	class:gloo::BarrierAllToAll
+BarrierAllToAll	barrier_all_to_all.h	/^class BarrierAllToAll : public Barrier {$/;"	c	namespace:gloo
+BarrierAllToAllBenchmark	benchmark/main.cc	/^class BarrierAllToAllBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+BarrierAllToOne	barrier_all_to_one.h	/^  explicit BarrierAllToOne($/;"	f	class:gloo::BarrierAllToOne
+BarrierAllToOne	barrier_all_to_one.h	/^class BarrierAllToOne : public Barrier {$/;"	c	namespace:gloo
+BarrierAllToOneBenchmark	benchmark/main.cc	/^class BarrierAllToOneBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+BarrierTest	test/barrier_test.cc	/^class BarrierTest : public BaseTest,$/;"	c	namespace:gloo::test::__anon3	file:
+BaseTest	test/base_test.h	/^class BaseTest : public ::testing::Test {$/;"	c	namespace:gloo::test
+Bcube	allreduce_builder.h	/^    Bcube = 5,$/;"	e	enum:gloo::AllreduceBuilder::Implementation
+Benchmark	benchmark/benchmark.h	/^  Benchmark($/;"	f	class:gloo::benchmark::Benchmark
+Benchmark	benchmark/benchmark.h	/^class Benchmark {$/;"	c	namespace:gloo::benchmark
+Blocking	test/transport_test.cc	/^  Blocking,$/;"	e	enum:gloo::test::__anon4::IoMode	file:
+BroadcastBuilder	broadcast_builder.cc	/^BroadcastBuilder<T>::BroadcastBuilder() :$/;"	f	class:gloo::BroadcastBuilder
+BroadcastBuilder	broadcast_builder.h	/^class BroadcastBuilder {$/;"	c	namespace:gloo
+BroadcastBuilderTest	test/broadcast_builder_test.cc	/^class BroadcastBuilderTest : public BaseTest {$/;"	c	namespace:gloo::test::__anon6	file:
+BroadcastOneToAll	broadcast_one_to_all.h	/^  BroadcastOneToAll($/;"	f	class:gloo::BroadcastOneToAll
+BroadcastOneToAll	broadcast_one_to_all.h	/^class BroadcastOneToAll : public Algorithm {$/;"	c	namespace:gloo
+BroadcastOneToAllBenchmark	benchmark/main.cc	/^class BroadcastOneToAllBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+BroadcastOp	nccl/nccl.h	/^  explicit BroadcastOp(NCCLExecution<T>&& execution, int root)$/;"	f	class:gloo::nccl::BroadcastOp
+BroadcastOp	nccl/nccl.h	/^class BroadcastOp : public NCCLOp<T> {$/;"	c	namespace:gloo::nccl
+BroadcastTest	test/broadcast_test.cc	/^class BroadcastTest : public BaseTest,$/;"	c	namespace:gloo::test::__anon5	file:
+Buffer	transport/buffer.h	/^  explicit Buffer(int slot, void* ptr, size_t size)$/;"	f	class:gloo::transport::Buffer
+Buffer	transport/buffer.h	/^class Buffer {$/;"	c	namespace:gloo::transport
+Buffer	transport/ibverbs/buffer.cc	/^Buffer::Buffer(Pair* pair, int slot, void* ptr, size_t size)$/;"	f	class:gloo::transport::ibverbs::Buffer
+Buffer	transport/ibverbs/buffer.h	/^class Buffer : public ::gloo::transport::Buffer {$/;"	c	namespace:gloo::transport::ibverbs
+Buffer	transport/tcp/buffer.cc	/^Buffer::Buffer(Pair* pair, int slot, void* ptr, size_t size)$/;"	f	class:gloo::transport::tcp::Buffer
+Buffer	transport/tcp/buffer.h	/^class Buffer : public ::gloo::transport::Buffer {$/;"	c	namespace:gloo::transport::tcp
+BufferTest	test/buffer_test.cc	/^class BufferTest : public BaseTest {};$/;"	c	namespace:gloo::test::__anon13	file:
+BuilderHelpers	cuda.h	/^class BuilderHelpers {$/;"	c	namespace:gloo
+CLOSED	transport/tcp/pair.h	/^    CLOSED = 5,$/;"	e	enum:gloo::transport::tcp::Pair::state
+CONNECTED	transport/tcp/pair.h	/^    CONNECTED = 4,$/;"	e	enum:gloo::transport::tcp::Pair::state
+CONNECTING	transport/tcp/pair.h	/^    CONNECTING = 3,$/;"	e	enum:gloo::transport::tcp::Pair::state
+CUDA_CHECK	cuda_private.h	24;"	d
+CUSTOM	algorithm.h	/^  CUSTOM = 1000,$/;"	e	enum:gloo::ReductionType
+ChunkContext	cuda_allreduce_ring_chunked.cc	/^  ChunkContext($/;"	f	struct:gloo::CudaAllreduceRingChunked::ChunkContext
+ChunkContext	cuda_allreduce_ring_chunked.cc	/^struct CudaAllreduceRingChunked<T, W>::ChunkContext {$/;"	s	class:gloo::CudaAllreduceRingChunked	file:
+Context	context.cc	/^Context::Context(int rank, int size, int base)$/;"	f	class:gloo::Context
+Context	context.h	/^class Context {$/;"	c	namespace:gloo
+Context	mpi/context.cc	/^Context::Context(const MPI_Comm& comm)$/;"	f	class:gloo::mpi::Context
+Context	mpi/context.h	/^class Context : public ::gloo::Context {$/;"	c	namespace:gloo::mpi
+Context	rendezvous/context.cc	/^Context::Context(int rank, int size, int base)$/;"	f	class:gloo::rendezvous::Context
+Context	rendezvous/context.h	/^class Context : public ::gloo::Context {$/;"	c	namespace:gloo::rendezvous
+ContextFactory	rendezvous/context.cc	/^ContextFactory::ContextFactory(std::shared_ptr<::gloo::Context> backingContext)$/;"	f	class:gloo::rendezvous::ContextFactory
+ContextFactory	rendezvous/context.h	/^class ContextFactory {$/;"	c	namespace:gloo::rendezvous
+ContextStoreTest	test/context_factory_test.cc	/^class ContextStoreTest : public BaseTest,$/;"	c	namespace:gloo::test::__anon11	file:
+CreateDevice	transport/ibverbs/device.cc	/^std::shared_ptr<::gloo::transport::Device> CreateDevice($/;"	f	namespace:gloo::transport::ibverbs
+CreateDevice	transport/tcp/device.cc	/^std::shared_ptr<transport::Device> CreateDevice(const struct attr& src) {$/;"	f	namespace:gloo::transport::tcp
+CudaAllreduceBenchmark	benchmark/cuda_main.cc	/^  CudaAllreduceBenchmark($/;"	f	class:__anon20::CudaAllreduceBenchmark
+CudaAllreduceBenchmark	benchmark/cuda_main.cc	/^class CudaAllreduceBenchmark : public CudaBenchmark<T> {$/;"	c	namespace:__anon20	file:
+CudaAllreduceBuilderTest	test/cuda_allreduce_builder_test.cc	/^class CudaAllreduceBuilderTest : public BaseTest {$/;"	c	namespace:gloo::test::__anon1	file:
+CudaAllreduceHalvingDoubling	cuda_allreduce_halving_doubling.cc	/^CudaAllreduceHalvingDoubling<T, W>::CudaAllreduceHalvingDoubling($/;"	f	class:gloo::CudaAllreduceHalvingDoubling
+CudaAllreduceHalvingDoubling	cuda_allreduce_halving_doubling.h	/^class CudaAllreduceHalvingDoubling : public Algorithm {$/;"	c	namespace:gloo
+CudaAllreduceHalvingDoublingPipelined	cuda_allreduce_halving_doubling_pipelined.h	/^  CudaAllreduceHalvingDoublingPipelined($/;"	f	class:gloo::CudaAllreduceHalvingDoublingPipelined
+CudaAllreduceHalvingDoublingPipelined	cuda_allreduce_halving_doubling_pipelined.h	/^class CudaAllreduceHalvingDoublingPipelined$/;"	c	namespace:gloo
+CudaAllreduceLocal	cuda_allreduce_local.cc	/^CudaAllreduceLocal<T>::CudaAllreduceLocal($/;"	f	class:gloo::CudaAllreduceLocal
+CudaAllreduceLocal	cuda_allreduce_local.h	/^class CudaAllreduceLocal : public Algorithm {$/;"	c	namespace:gloo
+CudaAllreduceRing	cuda_allreduce_ring.cc	/^CudaAllreduceRing<T, W>::CudaAllreduceRing($/;"	f	class:gloo::CudaAllreduceRing
+CudaAllreduceRing	cuda_allreduce_ring.h	/^class CudaAllreduceRing : public Algorithm {$/;"	c	namespace:gloo
+CudaAllreduceRingChunked	cuda_allreduce_ring_chunked.cc	/^CudaAllreduceRingChunked<T, W>::CudaAllreduceRingChunked($/;"	f	class:gloo::CudaAllreduceRingChunked
+CudaAllreduceRingChunked	cuda_allreduce_ring_chunked.h	/^class CudaAllreduceRingChunked : public Algorithm {$/;"	c	namespace:gloo
+CudaAllreduceTest	test/cuda_allreduce_test.cc	/^class CudaAllreduceTest : public CudaBaseTest,$/;"	c	namespace:gloo::test::__anon7	file:
+CudaAllreduceTestHP	test/cuda_allreduce_test.cc	/^class CudaAllreduceTestHP : public CudaBaseTest,$/;"	c	namespace:gloo::test::__anon7	file:
+CudaBaseTest	test/cuda_base_test.h	/^class CudaBaseTest : public BaseTest {};$/;"	c	namespace:gloo::test
+CudaBenchmark	benchmark/cuda_main.cc	/^class CudaBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon20	file:
+CudaBroadcastBuilderTest	test/cuda_broadcast_builder_test.cc	/^class CudaBroadcastBuilderTest : public BaseTest {$/;"	c	namespace:gloo::test::__anon14	file:
+CudaBroadcastOneToAll	cuda_broadcast_one_to_all.cc	/^CudaBroadcastOneToAll<T, W>::CudaBroadcastOneToAll($/;"	f	class:gloo::CudaBroadcastOneToAll
+CudaBroadcastOneToAll	cuda_broadcast_one_to_all.h	/^class CudaBroadcastOneToAll : public Algorithm {$/;"	c	namespace:gloo
+CudaBroadcastOneToAllBenchmark	benchmark/cuda_main.cc	/^   CudaBroadcastOneToAllBenchmark($/;"	f	class:__anon20::CudaBroadcastOneToAllBenchmark
+CudaBroadcastOneToAllBenchmark	benchmark/cuda_main.cc	/^class CudaBroadcastOneToAllBenchmark : public CudaBenchmark<T> {$/;"	c	namespace:__anon20	file:
+CudaBroadcastTest	test/cuda_broadcast_test.cc	/^class CudaBroadcastTest : public CudaBaseTest,$/;"	c	namespace:gloo::test::__anon12	file:
+CudaDeviceGuard	cuda_private.h	/^  CudaDeviceGuard() : previous_(getCurrentGPUID()) {$/;"	f	class:gloo::CudaDeviceGuard
+CudaDeviceGuard	cuda_private.h	/^class CudaDeviceGuard {$/;"	c	namespace:gloo
+CudaDevicePointer	cuda.h	/^  CudaDevicePointer()$/;"	f	class:gloo::CudaDevicePointer
+CudaDevicePointer	cuda.h	/^class CudaDevicePointer {$/;"	c	namespace:gloo
+CudaDeviceScope	cuda_private.h	/^  explicit CudaDeviceScope(int device) : guard_() {$/;"	f	class:gloo::CudaDeviceScope
+CudaDeviceScope	cuda_private.h	/^class CudaDeviceScope {$/;"	c	namespace:gloo
+CudaDeviceStreams	cuda_private.h	/^  CudaDeviceStreams() {$/;"	f	class:gloo::CudaDeviceStreams
+CudaDeviceStreams	cuda_private.h	/^class CudaDeviceStreams {$/;"	c	namespace:gloo
+CudaDeviceWorkspace	cuda_workspace.h	/^class CudaDeviceWorkspace {$/;"	c	namespace:gloo
+CudaFixture	test/cuda_base_test.h	/^  CudaFixture(const std::shared_ptr<Context> context, int ptrs, int count)$/;"	f	class:gloo::test::CudaFixture
+CudaFixture	test/cuda_base_test.h	/^class CudaFixture : public Fixture<T> {$/;"	c	namespace:gloo::test
+CudaHostPointer	cuda.h	/^  CudaHostPointer() : CudaHostPointer(nullptr, 0, false) {}$/;"	f	class:gloo::CudaHostPointer
+CudaHostPointer	cuda.h	/^class CudaHostPointer {$/;"	c	namespace:gloo
+CudaHostWorkspace	cuda_workspace.h	/^class CudaHostWorkspace {$/;"	c	namespace:gloo
+CudaLocalHostBroadcast	cuda_collectives_host.h	/^  CudaLocalHostBroadcast($/;"	f	class:gloo::CudaLocalHostBroadcast
+CudaLocalHostBroadcast	cuda_collectives_host.h	/^class CudaLocalHostBroadcast<T, CudaDevicePointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalHostBroadcast	cuda_collectives_host.h	/^class CudaLocalHostBroadcast<T, CudaHostPointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalHostReduce	cuda_collectives_host.h	/^  CudaLocalHostReduce($/;"	f	class:gloo::CudaLocalHostReduce
+CudaLocalHostReduce	cuda_collectives_host.h	/^class CudaLocalHostReduce<T, CudaDevicePointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalHostReduce	cuda_collectives_host.h	/^class CudaLocalHostReduce<T, CudaHostPointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalMemcpy	cuda.h	/^  CudaLocalMemcpy($/;"	f	class:gloo::CudaLocalMemcpy
+CudaLocalMemcpy	cuda.h	/^class CudaLocalMemcpy : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalNCCLBroadcast	cuda_collectives_nccl.h	/^  CudaLocalNCCLBroadcast($/;"	f	class:gloo::CudaLocalNCCLBroadcast
+CudaLocalNCCLBroadcast	cuda_collectives_nccl.h	/^class CudaLocalNCCLBroadcast<T, CudaDevicePointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalNCCLBroadcast	cuda_collectives_nccl.h	/^class CudaLocalNCCLBroadcast<T, CudaHostPointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalNCCLReduce	cuda_collectives_nccl.h	/^  CudaLocalNCCLReduce($/;"	f	class:gloo::CudaLocalNCCLReduce
+CudaLocalNCCLReduce	cuda_collectives_nccl.h	/^class CudaLocalNCCLReduce<T, CudaDevicePointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalNCCLReduce	cuda_collectives_nccl.h	/^class CudaLocalNCCLReduce<T, CudaHostPointer<T> > : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalNativeBroadcast	cuda_collectives_native.h	/^  CudaLocalNativeBroadcast($/;"	f	class:gloo::CudaLocalNativeBroadcast
+CudaLocalNativeBroadcast	cuda_collectives_native.h	/^class CudaLocalNativeBroadcast : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaLocalNativeReduce	cuda_collectives_native.h	/^  CudaLocalNativeReduce($/;"	f	class:gloo::CudaLocalNativeReduce
+CudaLocalNativeReduce	cuda_collectives_native.h	/^class CudaLocalNativeReduce : public LocalOp<T> {$/;"	c	namespace:gloo
+CudaMemory	cuda_private.h	/^class CudaMemory {$/;"	c	namespace:gloo
+CudaReductionFunction	cuda.h	/^  CudaReductionFunction($/;"	f	class:gloo::CudaReductionFunction
+CudaReductionFunction	cuda.h	/^class CudaReductionFunction {$/;"	c	namespace:gloo
+CudaShared	cuda.h	/^class CudaShared {$/;"	c	namespace:gloo
+CudaStream	cuda.h	/^class CudaStream {$/;"	c	namespace:gloo
+DEBUG_PRINT_RECV	allreduce_bcube.h	324;"	d
+DEBUG_PRINT_RECV	allreduce_bcube.h	337;"	d
+DEBUG_PRINT_SEND	allreduce_bcube.h	319;"	d
+DEBUG_PRINT_SEND	allreduce_bcube.h	336;"	d
+DEBUG_PRINT_STAGE	allreduce_bcube.h	315;"	d
+DEBUG_PRINT_STAGE	allreduce_bcube.h	335;"	d
+Device	transport/device.h	/^class Device {$/;"	c	namespace:gloo::transport
+Device	transport/ibverbs/device.cc	/^Device::Device(const struct attr& attr, ibv_context* context)$/;"	f	class:gloo::transport::ibverbs::Device
+Device	transport/ibverbs/device.h	/^class Device : public ::gloo::transport::Device,$/;"	c	namespace:gloo::transport::ibverbs
+Device	transport/tcp/device.cc	/^Device::Device(const struct attr& attr)$/;"	f	class:gloo::transport::tcp::Device
+Device	transport/tcp/device.h	/^class Device : public ::gloo::transport::Device,$/;"	c	namespace:gloo::transport::tcp
+Distribution	benchmark/timer.h	/^  explicit Distribution(const Samples& samples) :$/;"	f	class:gloo::benchmark::Distribution
+Distribution	benchmark/timer.h	/^class Distribution {$/;"	c	namespace:gloo::benchmark
+DistributionMap	reduce_scatter.h	/^    DistributionMap(int dRank, size_t dOffset, size_t dItemCount)$/;"	f	struct:gloo::ReduceScatterHalvingDoubling::DistributionMap
+DistributionMap	reduce_scatter.h	/^  struct DistributionMap {$/;"	s	class:gloo::ReduceScatterHalvingDoubling
+EnforceFailMessage	common/logging.h	/^  \/* implicit *\/ EnforceFailMessage(std::string&& msg) {$/;"	f	class:gloo::enforce_detail::EnforceFailMessage
+EnforceFailMessage	common/logging.h	/^  constexpr \/* implicit *\/ EnforceFailMessage(EnforceOK) : msg_(nullptr) {}$/;"	f	class:gloo::enforce_detail::EnforceFailMessage
+EnforceFailMessage	common/logging.h	/^class EnforceFailMessage {$/;"	c	namespace:gloo::enforce_detail
+EnforceNotMet	common/logging.cc	/^EnforceNotMet::EnforceNotMet($/;"	f	class:gloo::EnforceNotMet
+EnforceNotMet	common/logging.h	/^class EnforceNotMet : public std::exception {$/;"	c	namespace:gloo
+EnforceOK	common/logging.h	/^struct EnforceOK {};$/;"	s	namespace:gloo::enforce_detail
+Exception	common/error.h	/^  explicit Exception(const std::string& msg) : std::runtime_error(msg) {}$/;"	f	struct:gloo::Exception
+Exception	common/error.h	/^struct Exception : public std::runtime_error {$/;"	s	namespace:gloo
+FD_INVALID	transport/tcp/pair.cc	31;"	d	file:
+FileStore	rendezvous/file_store.cc	/^FileStore::FileStore(const std::string& path) {$/;"	f	class:gloo::rendezvous::FileStore
+FileStore	rendezvous/file_store.h	/^class FileStore : public Store {$/;"	c	namespace:gloo::rendezvous
+Fixture	test/base_test.h	/^  Fixture(const std::shared_ptr<Context> context, int ptrs, int count)$/;"	f	class:gloo::test::Fixture
+Fixture	test/base_test.h	/^class Fixture {$/;"	c	namespace:gloo::test
+Fixture	test/base_test.h	/^class Fixture<float16> {$/;"	c	namespace:gloo::test
+Fixture	test/base_test.h	/^class Fixture<float> {$/;"	c	namespace:gloo::test
+GLOO_ENFORCE	common/logging.h	43;"	d
+GLOO_ENFORCE_EQ	common/logging.h	150;"	d
+GLOO_ENFORCE_GE	common/logging.h	158;"	d
+GLOO_ENFORCE_GT	common/logging.h	160;"	d
+GLOO_ENFORCE_LE	common/logging.h	154;"	d
+GLOO_ENFORCE_LT	common/logging.h	156;"	d
+GLOO_ENFORCE_NE	common/logging.h	152;"	d
+GLOO_ENFORCE_THAT	common/logging.h	147;"	d
+GLOO_ENFORCE_THAT_IMPL	common/logging.h	133;"	d
+GLOO_ERROR_MSG	common/error.h	17;"	d
+GLOO_THROW	common/error.h	30;"	d
+GLOO_THROW_INVALID_OPERATION_EXCEPTION	common/error.h	41;"	d
+GLOO_THROW_IO_EXCEPTION	common/error.h	51;"	d
+Group	allreduce_bcube.h	/^  Group($/;"	f	class:gloo::allreduce::bcube::Group
+Group	allreduce_bcube.h	/^class Group {$/;"	c	namespace:gloo::allreduce::bcube
+HalvingDoubling	allreduce_builder.h	/^    HalvingDoubling = 3,$/;"	e	enum:gloo::AllreduceBuilder::Implementation
+HalvingDoublingPipelined	allreduce_builder.h	/^    HalvingDoublingPipelined = 4,$/;"	e	enum:gloo::AllreduceBuilder::Implementation
+HashStore	rendezvous/hash_store.h	/^class HashStore : public Store {$/;"	c	namespace:gloo::rendezvous
+INITIALIZING	transport/tcp/pair.h	/^    INITIALIZING = 1,$/;"	e	enum:gloo::transport::tcp::Pair::state
+INSTANTIATE_TEMPLATE	allreduce_builder.cc	208;"	d	file:
+INSTANTIATE_TEMPLATE	allreduce_local.cc	42;"	d	file:
+INSTANTIATE_TEMPLATE	broadcast_builder.cc	118;"	d	file:
+INSTANTIATE_TEMPLATE	cuda_allreduce_halving_doubling.cc	646;"	d	file:
+INSTANTIATE_TEMPLATE	cuda_allreduce_local.cc	69;"	d	file:
+INSTANTIATE_TEMPLATE	cuda_allreduce_ring.cc	178;"	d	file:
+INSTANTIATE_TEMPLATE	cuda_allreduce_ring_chunked.cc	356;"	d	file:
+INSTANTIATE_TEMPLATE	cuda_broadcast_one_to_all.cc	187;"	d	file:
+IbvDevices	transport/ibverbs/device.cc	/^  IbvDevices() {$/;"	f	class:gloo::transport::ibverbs::IbvDevices
+IbvDevices	transport/ibverbs/device.cc	/^class IbvDevices {$/;"	c	namespace:gloo::transport::ibverbs	file:
+Implementation	allreduce_builder.h	/^  enum Implementation {$/;"	g	class:gloo::AllreduceBuilder
+Initializer	test/main.cc	/^  Initializer() {$/;"	f	struct:__anon9::Initializer
+Initializer	test/main.cc	/^struct Initializer {$/;"	s	namespace:__anon9	file:
+InvalidOperationException	common/error.h	/^  explicit InvalidOperationException(const std::string& msg)$/;"	f	struct:gloo::InvalidOperationException
+InvalidOperationException	common/error.h	/^struct InvalidOperationException : public ::gloo::Exception {$/;"	s	namespace:gloo
+IoException	common/error.h	/^  explicit IoException(const std::string& msg) : ::gloo::Exception(msg) {}$/;"	f	struct:gloo::IoException
+IoException	common/error.h	/^struct IoException : public ::gloo::Exception {$/;"	s	namespace:gloo
+IoMode	test/transport_test.cc	/^enum IoMode {$/;"	g	namespace:gloo::test::__anon4	file:
+LISTENING	transport/tcp/pair.h	/^    LISTENING = 2,$/;"	e	enum:gloo::transport::tcp::Pair::state
+LinuxTest	test/linux_test.cc	/^class LinuxTest : public BaseTest {};$/;"	c	namespace:gloo::test::__anon8	file:
+LocalOp	algorithm.h	/^class LocalOp {$/;"	c	namespace:gloo
+MAX	algorithm.h	/^  MAX = 3,$/;"	e	enum:gloo::ReductionType
+MIN	algorithm.h	/^  MIN = 4,$/;"	e	enum:gloo::ReductionType
+MPICommRank	mpi/context.cc	/^static int MPICommRank(const MPI_Comm& comm) {$/;"	f	namespace:gloo::mpi
+MPICommSize	mpi/context.cc	/^static int MPICommSize(const MPI_Comm& comm) {$/;"	f	namespace:gloo::mpi
+MPIScope	mpi/context.cc	/^MPIScope::MPIScope() {$/;"	f	class:gloo::mpi::MPIScope
+MPIScope	mpi/context.h	/^class MPIScope {$/;"	c	namespace:gloo::mpi
+MakeString	common/string.h	/^inline std::string MakeString(const char* cstr) {$/;"	f	namespace:gloo
+MakeString	common/string.h	/^inline std::string MakeString(const std::string& str) {$/;"	f	namespace:gloo
+MakeString	common/string.h	/^std::string MakeString(const Args&... args) {$/;"	f	namespace:gloo
+MakeString	common/string.h	/^std::string MakeString(const std::vector<T>& v, const std::string& delim=" ") {$/;"	f	namespace:gloo
+MakeStringInternal	common/string.h	/^MakeStringInternal(std::stringstream& ss, const T& t, const Args&... args) {$/;"	f	namespace:gloo
+MakeStringInternal	common/string.h	/^inline void MakeStringInternal($/;"	f	namespace:gloo
+MakeStringInternal	common/string.h	/^inline void MakeStringInternal(std::stringstream& \/*ss*\/) {}$/;"	f	namespace:gloo
+MakeStringInternal	common/string.h	/^inline void MakeStringInternal(std::stringstream& ss, const T& t) {$/;"	f	namespace:gloo
+MemoryRegion	transport/ibverbs/memory_region.cc	/^MemoryRegion::MemoryRegion(struct ibv_pd* pd) {$/;"	f	class:gloo::transport::ibverbs::MemoryRegion
+MemoryRegion	transport/ibverbs/memory_region.cc	/^MemoryRegion::MemoryRegion(struct ibv_pd* pd, struct ibv_mr* src)$/;"	f	class:gloo::transport::ibverbs::MemoryRegion
+MemoryRegion	transport/ibverbs/memory_region.h	/^class MemoryRegion {$/;"	c	namespace:gloo::transport::ibverbs
+MultiProcTest	test/multiproc_test.h	/^class MultiProcTest : public ::testing::Test {$/;"	c	namespace:gloo::test
+MultiProcWorker	test/multiproc_test.h	/^  explicit MultiProcWorker($/;"	f	class:gloo::test::MultiProcWorker
+MultiProcWorker	test/multiproc_test.h	/^class MultiProcWorker {$/;"	c	namespace:gloo::test
+NCCLElement	nccl/nccl.h	/^  NCCLElement($/;"	f	struct:gloo::nccl::NCCLElement
+NCCLElement	nccl/nccl.h	/^struct NCCLElement {$/;"	s	namespace:gloo::nccl
+NCCLExecution	nccl/nccl.h	/^class NCCLExecution {$/;"	c	namespace:gloo::nccl
+NCCLOp	nccl/nccl.h	/^class NCCLOp {$/;"	c	namespace:gloo::nccl
+NCCL_CHECK	nccl/nccl.h	24;"	d
+NCCL_VERSION_MIN	nccl/nccl.h	38;"	d
+Node	allreduce_bcube.h	/^  explicit Node(int rank, int steps) : rank_(rank) {$/;"	f	class:gloo::allreduce::bcube::Node
+Node	allreduce_bcube.h	/^class Node {$/;"	c	namespace:gloo::allreduce::bcube
+Op	transport/tcp/pair.h	/^struct Op {$/;"	s	namespace:gloo::transport::tcp
+PCIClassMatch	common/linux.h	/^struct PCIClassMatch {$/;"	s	namespace:gloo
+PRODUCT	algorithm.h	/^  PRODUCT = 2,$/;"	e	enum:gloo::ReductionType
+Pair	transport/ibverbs/pair.cc	/^Pair::Pair($/;"	f	class:gloo::transport::ibverbs::Pair
+Pair	transport/ibverbs/pair.h	/^class Pair : public ::gloo::transport::Pair {$/;"	c	namespace:gloo::transport::ibverbs
+Pair	transport/pair.h	/^class Pair {$/;"	c	namespace:gloo::transport
+Pair	transport/tcp/pair.cc	/^Pair::Pair($/;"	f	class:gloo::transport::tcp::Pair
+Pair	transport/tcp/pair.h	/^class Pair : public ::gloo::transport::Pair {$/;"	c	namespace:gloo::transport::tcp
+PairwiseExchange	pairwise_exchange.h	/^  explicit PairwiseExchange($/;"	f	class:gloo::PairwiseExchange
+PairwiseExchange	pairwise_exchange.h	/^class PairwiseExchange: public Algorithm {$/;"	c	namespace:gloo
+PairwiseExchangeBenchmark	benchmark/main.cc	/^class PairwiseExchangeBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+Polling	test/transport_test.cc	/^  Polling$/;"	e	enum:gloo::test::__anon4::IoMode	file:
+PrefixStore	rendezvous/prefix_store.cc	/^PrefixStore::PrefixStore($/;"	f	class:gloo::rendezvous::PrefixStore
+PrefixStore	rendezvous/prefix_store.h	/^class PrefixStore : public Store {$/;"	c	namespace:gloo::rendezvous
+RUN_BENCHMARK	benchmark/main.cc	204;"	d	file:
+RedisStore	rendezvous/redis_store.cc	/^RedisStore::RedisStore(const std::string& host, int port) {$/;"	f	class:gloo::rendezvous::RedisStore
+RedisStore	rendezvous/redis_store.h	/^class RedisStore : public Store {$/;"	c	namespace:gloo::rendezvous
+ReduceOp	nccl/nccl.h	/^  ReduceOp($/;"	f	class:gloo::nccl::ReduceOp
+ReduceOp	nccl/nccl.h	/^class ReduceOp : public NCCLOp<T> {$/;"	c	namespace:gloo::nccl
+ReduceScatterBenchmark	benchmark/main.cc	/^class ReduceScatterBenchmark : public Benchmark<T> {$/;"	c	namespace:__anon19	file:
+ReduceScatterConstructorTest	test/reduce_scatter_test.cc	/^class ReduceScatterConstructorTest : public BaseTest {$/;"	c	namespace:gloo::test::__anon16	file:
+ReduceScatterHalvingDoubling	reduce_scatter.h	/^  ReduceScatterHalvingDoubling($/;"	f	class:gloo::ReduceScatterHalvingDoubling
+ReduceScatterHalvingDoubling	reduce_scatter.h	/^class ReduceScatterHalvingDoubling : public Algorithm {$/;"	c	namespace:gloo
+ReduceScatterOp	nccl/nccl.h	/^  ReduceScatterOp($/;"	f	class:gloo::nccl::ReduceScatterOp
+ReduceScatterOp	nccl/nccl.h	/^class ReduceScatterOp : public NCCLOp<T> {$/;"	c	namespace:gloo::nccl
+ReduceScatterTest	test/reduce_scatter_test.cc	/^class ReduceScatterTest : public BaseTest,$/;"	c	namespace:gloo::test::__anon16	file:
+ReduceScatterTestHP	test/reduce_scatter_test.cc	/^class ReduceScatterTestHP : public BaseTest,$/;"	c	namespace:gloo::test::__anon16	file:
+ReductionFunction	algorithm.h	/^  ReductionFunction(ReductionType type, Function* fn)$/;"	f	class:gloo::ReductionFunction
+ReductionFunction	algorithm.h	/^class ReductionFunction {$/;"	c	namespace:gloo
+ReductionType	algorithm.h	/^enum ReductionType {$/;"	g	namespace:gloo
+Ring	allreduce_builder.h	/^    Ring = 1,$/;"	e	enum:gloo::AllreduceBuilder::Implementation
+RingChunked	allreduce_builder.h	/^    RingChunked = 2,$/;"	e	enum:gloo::AllreduceBuilder::Implementation
+Runner	benchmark/runner.cc	/^Runner::Runner(const options& options) : options_(options) {$/;"	f	class:gloo::benchmark::Runner
+Runner	benchmark/runner.h	/^class Runner {$/;"	c	namespace:gloo::benchmark
+RunnerJob	benchmark/runner.h	/^  explicit RunnerJob(std::function<void()> fn, int i) :$/;"	f	class:gloo::benchmark::RunnerJob
+RunnerJob	benchmark/runner.h	/^class RunnerJob {$/;"	c	namespace:gloo::benchmark
+RunnerThread	benchmark/runner.cc	/^RunnerThread::RunnerThread() : stop_(false), job_(nullptr) {$/;"	f	class:gloo::benchmark::RunnerThread
+RunnerThread	benchmark/runner.h	/^class RunnerThread {$/;"	c	namespace:gloo::benchmark
+SLOT	allreduce_new.h	94;"	d
+SLOTBASE	allreduce_new.h	93;"	d
+SUM	algorithm.h	/^  SUM = 1,$/;"	e	enum:gloo::ReductionType
+Samples	benchmark/timer.h	/^  Samples() {$/;"	f	class:gloo::benchmark::Samples
+Samples	benchmark/timer.h	/^class Samples {$/;"	c	namespace:gloo::benchmark
+SetUp	test/base_test.h	/^  virtual void SetUp() {$/;"	f	class:gloo::test::BaseTest
+SetUp	test/multiproc_test.cc	/^void MultiProcTest::SetUp() {$/;"	f	class:gloo::test::MultiProcTest
+Store	rendezvous/store.h	/^class Store {$/;"	c	namespace:gloo::rendezvous
+TEST_F	test/allgather_test.cc	/^TEST_F(AllgatherTest, MultipleAlgorithms) {$/;"	f	namespace:gloo::test::__anon2
+TEST_F	test/allreduce_test.cc	/^TEST_F(AllreduceTest, MultipleAlgorithms) {$/;"	f	namespace:gloo::test::__anon15
+TEST_F	test/allreduce_test.cc	/^TEST_F(AllreduceTestHP, HalfPrecisionTest) {$/;"	f	namespace:gloo::test::__anon15
+TEST_F	test/buffer_test.cc	/^TEST_F(BufferTest, RemoteOffset) {$/;"	f	namespace:gloo::test::__anon13
+TEST_F	test/cuda_allreduce_test.cc	/^TEST_F(CudaAllreduceTest, MultipleAlgorithms) {$/;"	f	namespace:gloo::test::__anon7
+TEST_F	test/cuda_allreduce_test.cc	/^TEST_F(CudaAllreduceTestHP, HalfPrecisionTest) {$/;"	f	namespace:gloo::test::__anon7
+TEST_F	test/linux_test.cc	/^TEST_F(LinuxTest, NetworkInterfaceSpeed) {$/;"	f	namespace:gloo::test::__anon8
+TEST_F	test/linux_test.cc	/^TEST_F(LinuxTest, NetworkInterfaceToBusID) {$/;"	f	namespace:gloo::test::__anon8
+TEST_F	test/linux_test.cc	/^TEST_F(LinuxTest, PCIDistance) {$/;"	f	namespace:gloo::test::__anon8
+TEST_F	test/reduce_scatter_test.cc	/^TEST_F(ReduceScatterTest, MultipleAlgorithms) {$/;"	f	namespace:gloo::test::__anon16
+TEST_F	test/reduce_scatter_test.cc	/^TEST_F(ReduceScatterTestHP, HalfPrecisionTest) {$/;"	f	namespace:gloo::test::__anon16
+TEST_P	test/allgather_test.cc	/^TEST_P(AllgatherTest, VarNumPointer) {$/;"	f	namespace:gloo::test::__anon2
+TEST_P	test/allreduce_test.cc	/^TEST_P(AllreduceTest, SinglePointer) {$/;"	f	namespace:gloo::test::__anon15
+TEST_P	test/barrier_test.cc	/^TEST_P(BarrierTest, SinglePointer) {$/;"	f	namespace:gloo::test::__anon3
+TEST_P	test/broadcast_test.cc	/^TEST_P(BroadcastTest, Default) {$/;"	f	namespace:gloo::test::__anon5
+TEST_P	test/context_factory_test.cc	/^TEST_P(ContextStoreTest, RunAlgo) {$/;"	f	namespace:gloo::test::__anon11
+TEST_P	test/cuda_allreduce_test.cc	/^TEST_P(CudaAllreduceTest, MultiPointer) {$/;"	f	namespace:gloo::test::__anon7
+TEST_P	test/cuda_allreduce_test.cc	/^TEST_P(CudaAllreduceTest, MultiPointerAsync) {$/;"	f	namespace:gloo::test::__anon7
+TEST_P	test/cuda_allreduce_test.cc	/^TEST_P(CudaAllreduceTest, SinglePointer) {$/;"	f	namespace:gloo::test::__anon7
+TEST_P	test/cuda_broadcast_test.cc	/^TEST_P(CudaBroadcastTest, Default) {$/;"	f	namespace:gloo::test::__anon12
+TEST_P	test/cuda_broadcast_test.cc	/^TEST_P(CudaBroadcastTest, DefaultAsync) {$/;"	f	namespace:gloo::test::__anon12
+TEST_P	test/reduce_scatter_test.cc	/^TEST_P(ReduceScatterTest, SinglePointer) {$/;"	f	namespace:gloo::test::__anon16
+TEST_P	test/transport_test.cc	/^TEST_P(TransportMultiProcTest, IoErrors) {$/;"	f	namespace:gloo::test::__anon4
+TEST_P	test/transport_test.cc	/^TEST_P(TransportMultiProcTest, IoTimeouts) {$/;"	f	namespace:gloo::test::__anon4
+TYPED_TEST	test/allreduce_builder_test.cc	/^TYPED_TEST(AllreduceBuilderTest, Test) {$/;"	f	namespace:gloo::test::__anon10
+TYPED_TEST	test/allreduce_test.cc	/^TYPED_TEST(AllreduceConstructorTest, InlinePointers) {$/;"	f	namespace:gloo::test::__anon15
+TYPED_TEST	test/allreduce_test.cc	/^TYPED_TEST(AllreduceConstructorTest, SpecifyReductionFunction) {$/;"	f	namespace:gloo::test::__anon15
+TYPED_TEST	test/broadcast_builder_test.cc	/^TYPED_TEST(BroadcastBuilderTest, Test) {$/;"	f	namespace:gloo::test::__anon6
+TYPED_TEST	test/cuda_allreduce_builder_test.cc	/^TYPED_TEST(CudaAllreduceBuilderTest, Test) {$/;"	f	namespace:gloo::test::__anon1
+TYPED_TEST	test/cuda_allreduce_builder_test.cc	/^TYPED_TEST(CudaAllreduceBuilderTest, TestAsync) {$/;"	f	namespace:gloo::test::__anon1
+TYPED_TEST	test/cuda_broadcast_builder_test.cc	/^TYPED_TEST(CudaBroadcastBuilderTest, TestAsync) {$/;"	f	namespace:gloo::test::__anon14
+TearDown	test/multiproc_test.cc	/^void MultiProcTest::TearDown() {$/;"	f	class:gloo::test::MultiProcTest
+Timer	benchmark/timer.h	/^  Timer() {$/;"	f	class:gloo::benchmark::Timer
+Timer	benchmark/timer.h	/^class Timer {$/;"	c	namespace:gloo::benchmark
+TransportMultiProcTest	test/transport_test.cc	/^class TransportMultiProcTest : public MultiProcTest,$/;"	c	namespace:gloo::test::__anon4	file:
+X	benchmark/options.cc	30;"	d	file:
+__CUDACC_VER__	math.h	16;"	d
+__CUDACC_VER__	math.h	17;"	d
+a	common/common.h	/^  inline explicit aligned_allocator(const aligned_allocator& a) = default;$/;"	m	class:gloo::aligned_allocator
+add	benchmark/timer.h	/^  void add(const Timer& t) {$/;"	f	class:gloo::benchmark::Samples
+add	benchmark/timer.h	/^  void add(long ns) {$/;"	f	class:gloo::benchmark::Samples
+addr_	transport/ibverbs/address.h	/^  } addr_;$/;"	m	class:gloo::transport::ibverbs::Address	typeref:struct:gloo::transport::ibverbs::Address::__anon22
+address	common/common.h	/^  inline const_pointer address(const_reference r) {$/;"	f	class:gloo::aligned_allocator
+address	common/common.h	/^  inline pointer address(reference r) {$/;"	f	class:gloo::aligned_allocator
+address	transport/ibverbs/pair.cc	/^const Address& Pair::address() const {$/;"	f	class:gloo::transport::ibverbs::Pair
+address	transport/tcp/pair.cc	/^const Address& Pair::address() const {$/;"	f	class:gloo::transport::tcp::Pair
+ai_addr	transport/tcp/device.h	/^  struct sockaddr_storage ai_addr;$/;"	m	struct:gloo::transport::tcp::attr	typeref:struct:gloo::transport::tcp::attr::sockaddr_storage
+ai_addrlen	transport/tcp/device.h	/^  int ai_addrlen;$/;"	m	struct:gloo::transport::tcp::attr
+ai_family	transport/tcp/device.h	/^  int ai_family = AF_UNSPEC;$/;"	m	struct:gloo::transport::tcp::attr
+ai_protocol	transport/tcp/device.h	/^  int ai_protocol;$/;"	m	struct:gloo::transport::tcp::attr
+ai_socktype	transport/tcp/device.h	/^  int ai_socktype;$/;"	m	struct:gloo::transport::tcp::attr
+algorithm_	benchmark/benchmark.h	/^  std::unique_ptr<::gloo::Algorithm> algorithm_;$/;"	m	class:gloo::benchmark::Benchmark
+aligned_allocator	common/common.h	/^class aligned_allocator {$/;"	c	namespace:gloo
+allNodes_	allreduce_bcube.h	/^  std::vector<allreduce::bcube::Node> allNodes_;$/;"	m	class:gloo::AllreduceBcube
+allocate	benchmark/benchmark.h	/^  virtual std::vector<T*> allocate(int inputs, int elements) {$/;"	f	class:gloo::benchmark::Benchmark
+allocate	common/common.h	/^  inline pointer allocate($/;"	f	class:gloo::aligned_allocator
+allreduce	allreduce_bcube.h	/^namespace allreduce {$/;"	n	namespace:gloo
+allreduceBcube	test/allreduce_test.cc	/^static std::function<Func> allreduceBcube = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceHalvingDoubling	test/allreduce_test.cc	/^static std::function<Func> allreduceHalvingDoubling = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceHalvingDoubling	test/cuda_allreduce_test.cc	/^static std::function<Func> allreduceHalvingDoubling = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceHalvingDoublingHP	test/allreduce_test.cc	/^static std::function<Func16> allreduceHalvingDoublingHP = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceHalvingDoublingHP	test/cuda_allreduce_test.cc	/^static std::function<Func16> allreduceHalvingDoublingHP = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceHalvingDoublingPipelined	test/cuda_allreduce_test.cc	/^static std::function<Func> allreduceHalvingDoublingPipelined = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceHalvingDoublingPipelinedHP	test/cuda_allreduce_test.cc	/^static std::function<Func16> allreduceHalvingDoublingPipelinedHP = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceRing	test/allreduce_test.cc	/^static std::function<Func> allreduceRing = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceRing	test/cuda_allreduce_test.cc	/^static std::function<Func> allreduceRing = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceRingChunked	test/allreduce_test.cc	/^static std::function<Func> allreduceRingChunked = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceRingChunked	test/cuda_allreduce_test.cc	/^static std::function<Func> allreduceRingChunked = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceRingChunkedHP	test/allreduce_test.cc	/^static std::function<Func16> allreduceRingChunkedHP = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceRingChunkedHP	test/cuda_allreduce_test.cc	/^static std::function<Func16> allreduceRingChunkedHP = []($/;"	m	namespace:gloo::test::__anon7	file:
+allreduceRingHP	test/allreduce_test.cc	/^static std::function<Func16> allreduceRingHP = []($/;"	m	namespace:gloo::test::__anon15	file:
+allreduceRingHP	test/cuda_allreduce_test.cc	/^static std::function<Func16> allreduceRingHP = []($/;"	m	namespace:gloo::test::__anon7	file:
+argToNanos	benchmark/options.cc	/^static long argToNanos(char** argv, const char* arg) {$/;"	f	namespace:gloo::benchmark
+assertResult	test/broadcast_test.cc	/^  void assertResult(Fixture<float>& fixture, int root, int rootPointer) {$/;"	f	class:gloo::test::__anon5::BroadcastTest
+assertResult	test/cuda_allreduce_test.cc	/^  void assertResult(CudaFixture<float16>& fixture) {$/;"	f	class:gloo::test::__anon7::CudaAllreduceTestHP
+assertResult	test/cuda_allreduce_test.cc	/^  void assertResult(CudaFixture<float>& fixture) {$/;"	f	class:gloo::test::__anon7::CudaAllreduceTest
+assertResult	test/cuda_broadcast_test.cc	/^  void assertResult(CudaFixture<float>& fixture, int root, int rootPointer) {$/;"	f	class:gloo::test::__anon12::CudaBroadcastTest
+assignValues	test/base_test.h	/^  void assignValues() {$/;"	f	class:gloo::test::Fixture
+assignValues	test/cuda_base_test.h	/^  void assignValues() {$/;"	f	class:gloo::test::CudaFixture
+assignValuesAsync	test/cuda_base_test.h	/^  void assignValuesAsync() {$/;"	f	class:gloo::test::CudaFixture
+attr	transport/ibverbs/device.h	/^struct attr {$/;"	s	namespace:gloo::transport::ibverbs
+attr	transport/tcp/device.h	/^  \/* implicit *\/ attr(const char* ptr) : hostname(ptr) {}$/;"	f	struct:gloo::transport::tcp::attr
+attr	transport/tcp/device.h	/^  attr() {}$/;"	f	struct:gloo::transport::tcp::attr
+attr	transport/tcp/device.h	/^struct attr {$/;"	s	namespace:gloo::transport::tcp
+attr_	transport/ibverbs/device.h	/^  struct attr attr_;$/;"	m	class:gloo::transport::ibverbs::Device	typeref:struct:gloo::transport::ibverbs::Device::attr
+attr_	transport/tcp/device.h	/^  const struct attr attr_;$/;"	m	class:gloo::transport::tcp::Device	typeref:struct:gloo::transport::tcp::Device::attr
+backingContext_	rendezvous/context.h	/^  std::shared_ptr<::gloo::Context> backingContext_;$/;"	m	class:gloo::rendezvous::ContextFactory
+bad	common/logging.h	/^  inline bool bad() const {$/;"	f	class:gloo::enforce_detail::EnforceFailMessage
+barrierAllToAll	test/barrier_test.cc	/^static std::function<Func> barrierAllToAll =$/;"	m	namespace:gloo::test::__anon3	file:
+barrierAllToAll	test/context_factory_test.cc	/^static std::function<Func> barrierAllToAll =$/;"	m	namespace:gloo::test::__anon11	file:
+barrierAllToOne	test/barrier_test.cc	/^static std::function<Func> barrierAllToOne =$/;"	m	namespace:gloo::test::__anon3	file:
+barrier_	benchmark/runner.h	/^  std::unique_ptr<Barrier> barrier_;$/;"	m	class:gloo::benchmark::Runner
+base	benchmark/options.h	/^  int base = 2;$/;"	m	struct:gloo::benchmark::options
+base	context.h	/^  int base;$/;"	m	class:gloo::Context
+basePath_	rendezvous/file_store.h	/^  std::string basePath_;$/;"	m	class:gloo::rendezvous::FileStore
+bcube	allreduce_bcube.h	/^namespace bcube {$/;"	n	namespace:gloo::allreduce
+beginsWith	benchmark/cuda_main.cc	/^bool beginsWith(const TC& input, const TC& match) {$/;"	f
+benchmark	benchmark/benchmark.h	/^namespace benchmark {$/;"	n	namespace:gloo
+benchmark	benchmark/options.cc	/^namespace benchmark {$/;"	n	namespace:gloo	file:
+benchmark	benchmark/options.h	/^  std::string benchmark;$/;"	m	struct:gloo::benchmark::options
+benchmark	benchmark/options.h	/^namespace benchmark {$/;"	n	namespace:gloo
+benchmark	benchmark/runner.cc	/^namespace benchmark {$/;"	n	namespace:gloo	file:
+benchmark	benchmark/runner.h	/^namespace benchmark {$/;"	n	namespace:gloo
+benchmark	benchmark/timer.h	/^namespace benchmark {$/;"	n	namespace:gloo
+broadcast	benchmark/runner.cc	/^long Runner::broadcast(long value) {$/;"	f	class:gloo::benchmark::Runner
+broadcastLocally	broadcast_one_to_all.h	/^  void broadcastLocally() {$/;"	f	class:gloo::BroadcastOneToAll
+broadcastOneToAll	test/broadcast_test.cc	/^static std::function<Func> broadcastOneToAll = []($/;"	m	namespace:gloo::test::__anon5	file:
+broadcastOneToAll	test/cuda_broadcast_test.cc	/^static std::function<Func> broadcastOneToAll = []($/;"	m	namespace:gloo::test::__anon12	file:
+broadcastOp	cuda_allreduce_ring_chunked.cc	/^  std::unique_ptr<LocalOp<T> > broadcastOp;$/;"	m	struct:gloo::CudaAllreduceRingChunked::ChunkContext	file:
+broadcastOp_	cuda_collectives_nccl.h	/^  std::unique_ptr<nccl::BroadcastOp<T> > broadcastOp_;$/;"	m	class:gloo::CudaLocalNCCLBroadcast
+broadcastOps_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<LocalOp<T>>> broadcastOps_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+broadcastValue_	benchmark/runner.h	/^  long broadcastValue_;$/;"	m	class:gloo::benchmark::Runner
+broadcast_	benchmark/runner.h	/^  std::unique_ptr<Algorithm> broadcast_;$/;"	m	class:gloo::benchmark::Runner
+buf_	transport/tcp/pair.h	/^  Buffer* buf_;$/;"	m	struct:gloo::transport::tcp::Op
+buffers_	transport/tcp/pair.h	/^  std::map<int, Buffer*> buffers_;$/;"	m	class:gloo::transport::tcp::Pair
+builder_	benchmark/cuda_main.cc	/^  ::gloo::AllreduceBuilder<T> builder_;$/;"	m	class:__anon20::CudaAllreduceBenchmark	file:
+builder_	benchmark/cuda_main.cc	/^  ::gloo::BroadcastBuilder<T> builder_;$/;"	m	class:__anon20::CudaBroadcastOneToAllBenchmark	file:
+busyPoll	benchmark/options.h	/^  bool busyPoll = false;$/;"	m	struct:gloo::benchmark::options
+busyPoll_	transport/ibverbs/pair.h	/^  std::atomic<bool> busyPoll_;$/;"	m	class:gloo::transport::ibverbs::Pair
+busyPoll_	transport/tcp/pair.h	/^  bool busyPoll_;$/;"	m	class:gloo::transport::tcp::Pair
+bytes	cuda_private.h	/^  const size_t bytes;$/;"	m	class:gloo::CudaMemory
+bytes	transport/ibverbs/address.cc	/^std::vector<char> Address::bytes() const {$/;"	f	class:gloo::transport::ibverbs::Address
+bytes	transport/tcp/address.cc	/^std::vector<char> Address::bytes() const {$/;"	f	class:gloo::transport::tcp::Address
+bytesPerMsg_	pairwise_exchange.h	/^  const int bytesPerMsg_;$/;"	m	class:gloo::PairwiseExchange
+bytes_	allgather_ring.h	/^  const int bytes_;$/;"	m	class:gloo::AllgatherRing
+bytes_	allreduce_halving_doubling.h	/^  const int bytes_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+bytes_	allreduce_local.h	/^  const int bytes_;$/;"	m	class:gloo::AllreduceLocal
+bytes_	allreduce_new.h	/^  const int bytes_;$/;"	m	class:gloo::AllreduceNew
+bytes_	allreduce_ring.h	/^  const int bytes_;$/;"	m	class:gloo::AllreduceRing
+bytes_	allreduce_ring_chunked.h	/^  const int bytes_;$/;"	m	class:gloo::AllreduceRingChunked
+bytes_	broadcast_one_to_all.h	/^  const int bytes_;$/;"	m	class:gloo::BroadcastOneToAll
+bytes_	cuda_allreduce_halving_doubling.h	/^  const int bytes_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+bytes_	cuda_allreduce_local.h	/^  const int bytes_;$/;"	m	class:gloo::CudaAllreduceLocal
+bytes_	cuda_allreduce_ring.h	/^  const int bytes_;$/;"	m	class:gloo::CudaAllreduceRing
+bytes_	cuda_allreduce_ring_chunked.h	/^  const int bytes_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+bytes_	cuda_broadcast_one_to_all.h	/^  const int bytes_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+bytes_	reduce_scatter.h	/^  const int bytes_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+call	algorithm.h	/^  void call(T* x, const T* y, size_t n) const {$/;"	f	class:gloo::ReductionFunction
+call	cuda.h	/^  void call($/;"	f	class:gloo::CudaReductionFunction
+call	cuda.h	/^  void call(T* x, const T* y, size_t n) const {$/;"	f	class:gloo::CudaReductionFunction
+capacity_	transport/ibverbs/device.h	/^  static const int capacity_ = 64;$/;"	m	class:gloo::transport::ibverbs::Device
+capacity_	transport/tcp/device.h	/^  static constexpr auto capacity_ = 64;$/;"	m	class:gloo::transport::tcp::Device
+changeState	transport/tcp/pair.cc	/^void Pair::changeState(state nextState) {$/;"	f	class:gloo::transport::tcp::Pair
+check	rendezvous/file_store.cc	/^bool FileStore::check(const std::vector<std::string>& keys) {$/;"	f	class:gloo::rendezvous::FileStore
+check	rendezvous/redis_store.cc	/^bool RedisStore::check(const std::vector<std::string>& keys) {$/;"	f	class:gloo::rendezvous::RedisStore
+checkAllPointersGPU	cuda.h	/^    static bool checkAllPointersGPU(std::vector<T*> inputs){$/;"	f	class:gloo::BuilderHelpers
+checkAllreduceResult	test/base_test.h	/^  void checkAllreduceResult() {$/;"	f	class:gloo::test::Fixture
+checkBroadcastResult	test/base_test.h	/^  checkBroadcastResult(Fixture<float16>& fixture, int root, int rootPointer) {$/;"	f	class:gloo::test::Fixture
+checkBroadcastResult	test/base_test.h	/^  checkBroadcastResult(Fixture<float>& fixture, int root, int rootPointer) {$/;"	f	class:gloo::test::Fixture
+checkBroadcastResult	test/base_test.h	/^  void checkBroadcastResult(Fixture<T>& fixture, int root, int rootPointer) {$/;"	f	class:gloo::test::Fixture
+checkErrorState	transport/ibverbs/buffer.cc	/^void Buffer::checkErrorState() {$/;"	f	class:gloo::transport::ibverbs::Buffer
+checkErrorState	transport/ibverbs/pair.cc	/^void Pair::checkErrorState() {$/;"	f	class:gloo::transport::ibverbs::Pair
+checkErrorState	transport/tcp/buffer.cc	/^void Buffer::checkErrorState() {$/;"	f	class:gloo::transport::tcp::Buffer
+checkErrorState	transport/tcp/pair.cc	/^void Pair::checkErrorState() {$/;"	f	class:gloo::transport::tcp::Pair
+chunkBytes_	allreduce_halving_doubling.h	/^  const size_t chunkBytes_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+chunkBytes_	allreduce_ring_chunked.h	/^  size_t chunkBytes_;$/;"	m	class:gloo::AllreduceRingChunked
+chunkBytes_	cuda_allreduce_halving_doubling.h	/^  const size_t chunkBytes_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+chunkBytes_	cuda_allreduce_ring_chunked.h	/^  size_t chunkBytes_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+chunkBytes_	reduce_scatter.h	/^  const size_t chunkBytes_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+chunkContext_	cuda_allreduce_ring_chunked.h	/^  std::vector<ChunkContext> chunkContext_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+chunkSize_	allreduce_halving_doubling.h	/^  const size_t chunkSize_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+chunkSize_	allreduce_ring_chunked.h	/^  size_t chunkSize_;$/;"	m	class:gloo::AllreduceRingChunked
+chunkSize_	cuda_allreduce_halving_doubling.h	/^  const size_t chunkSize_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+chunkSize_	cuda_allreduce_ring_chunked.h	/^  size_t chunkSize_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+chunkSize_	reduce_scatter.h	/^  const size_t chunkSize_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+chunks_	allreduce_halving_doubling.h	/^  const size_t chunks_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+chunks_	allreduce_ring_chunked.h	/^  size_t chunks_;$/;"	m	class:gloo::AllreduceRingChunked
+chunks_	cuda_allreduce_halving_doubling.h	/^  const size_t chunks_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+chunks_	cuda_allreduce_ring_chunked.h	/^  size_t chunks_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+chunks_	reduce_scatter.h	/^  const size_t chunks_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+close	transport/ibverbs/pair.cc	/^void Pair::close() {$/;"	f	class:gloo::transport::ibverbs::Pair
+close	transport/tcp/pair.cc	/^void Pair::close() {$/;"	f	class:gloo::transport::tcp::Pair
+closeConnections	context.cc	/^void Context::closeConnections() {$/;"	f	class:gloo::Context
+closed_	transport/ibverbs/pair.h	/^  bool closed_ = false;$/;"	m	class:gloo::transport::ibverbs::Pair
+comm_	mpi/context.h	/^  MPI_Comm comm_;$/;"	m	class:gloo::mpi::Context
+comp_channel_	transport/ibverbs/device.h	/^  ibv_comp_channel* comp_channel_;$/;"	m	class:gloo::transport::ibverbs::Device
+completionEventsHandled_	transport/ibverbs/pair.h	/^  int completionEventsHandled_;$/;"	m	class:gloo::transport::ibverbs::Pair
+computeNumElems	allreduce_bcube.h	/^  computeNumElems(int step, const Node& firstNode, int peers, int count) {$/;"	f	class:gloo::allreduce::bcube::Group
+computeSteps	allreduce_bcube.h	/^  static int computeSteps(int nodes, int peers) {$/;"	f	class:gloo::AllreduceBcube
+cond_	benchmark/runner.h	/^  std::condition_variable cond_;$/;"	m	class:gloo::benchmark::RunnerJob
+cond_	benchmark/runner.h	/^  std::condition_variable cond_;$/;"	m	class:gloo::benchmark::RunnerThread
+connect	transport/ibverbs/pair.cc	/^void Pair::connect(const std::vector<char>& bytes) {$/;"	f	class:gloo::transport::ibverbs::Pair
+connect	transport/tcp/pair.cc	/^void Pair::connect(const Address& peer) {$/;"	f	class:gloo::transport::tcp::Pair
+connect	transport/tcp/pair.cc	/^void Pair::connect(const std::vector<char>& bytes) {$/;"	f	class:gloo::transport::tcp::Pair
+connectFullMesh	mpi/context.cc	/^void Context::connectFullMesh(std::shared_ptr<transport::Device>& dev) {$/;"	f	class:gloo::mpi::Context
+connectFullMesh	rendezvous/context.cc	/^void Context::connectFullMesh($/;"	f	class:gloo::rendezvous::Context
+context	test/base_test.h	/^  std::shared_ptr<Context> context;$/;"	m	class:gloo::test::Fixture
+contextFactory_	benchmark/runner.h	/^  std::shared_ptr<rendezvous::ContextFactory> contextFactory_;$/;"	m	class:gloo::benchmark::Runner
+contextRank	benchmark/options.h	/^  int contextRank = 0;$/;"	m	struct:gloo::benchmark::options
+contextRank_	algorithm.h	/^  const int contextRank_;$/;"	m	class:gloo::Algorithm
+contextSize	benchmark/options.h	/^  int contextSize = 0;$/;"	m	struct:gloo::benchmark::options
+contextSize_	algorithm.h	/^  const int contextSize_;$/;"	m	class:gloo::Algorithm
+context_	algorithm.h	/^  std::shared_ptr<Context> context_;$/;"	m	class:gloo::Algorithm
+context_	benchmark/benchmark.h	/^  std::shared_ptr<::gloo::Context> context_;$/;"	m	class:gloo::benchmark::Benchmark
+context_	nccl/nccl.h	/^  std::shared_ptr<NCCLContext<T>> context_;$/;"	m	class:gloo::nccl::NCCLOp
+context_	transport/ibverbs/device.h	/^  ibv_context* context_;$/;"	m	class:gloo::transport::ibverbs::Device
+copyChunkAtOffset	allreduce_ring_chunked.h	/^  void copyChunkAtOffset(int chunkOffset) {$/;"	f	class:gloo::AllreduceRingChunked
+copyChunkAtOffset	cuda_allreduce_ring_chunked.cc	/^void CudaAllreduceRingChunked<T, W>::copyChunkAtOffset(int chunkOffset) {$/;"	f	class:gloo::CudaAllreduceRingChunked
+copyToHost	test/cuda_base_test.h	/^  void copyToHost() {$/;"	f	class:gloo::test::CudaFixture
+count	test/base_test.h	/^      : context(other.context), inputs(other.inputs), count(other.count) {$/;"	f	class:gloo::test::Fixture
+count	test/base_test.h	/^  const int count;$/;"	m	class:gloo::test::Fixture
+count_	allgather_ring.h	/^  const int count_;$/;"	m	class:gloo::AllgatherRing
+count_	allreduce_builder.h	/^  int count_;$/;"	m	class:gloo::AllreduceBuilder
+count_	allreduce_halving_doubling.h	/^  const int count_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+count_	allreduce_local.h	/^  const int count_;$/;"	m	class:gloo::AllreduceLocal
+count_	allreduce_new.h	/^  const int count_;$/;"	m	class:gloo::AllreduceNew
+count_	allreduce_ring.h	/^  const int count_;$/;"	m	class:gloo::AllreduceRing
+count_	allreduce_ring_chunked.h	/^  const int count_;$/;"	m	class:gloo::AllreduceRingChunked
+count_	broadcast_builder.h	/^  int count_;$/;"	m	class:gloo::BroadcastBuilder
+count_	broadcast_one_to_all.h	/^  const int count_;$/;"	m	class:gloo::BroadcastOneToAll
+count_	cuda.h	/^  size_t count_;$/;"	m	class:gloo::CudaDevicePointer
+count_	cuda.h	/^  size_t count_;$/;"	m	class:gloo::CudaHostPointer
+count_	cuda_allreduce_halving_doubling.h	/^  const int count_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+count_	cuda_allreduce_local.h	/^  const int count_;$/;"	m	class:gloo::CudaAllreduceLocal
+count_	cuda_allreduce_ring.h	/^  const int count_;$/;"	m	class:gloo::CudaAllreduceRing
+count_	cuda_allreduce_ring_chunked.h	/^  const int count_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+count_	cuda_broadcast_one_to_all.h	/^  const int count_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+count_	cuda_collectives_host.h	/^  const size_t count_;$/;"	m	class:gloo::CudaLocalHostReduce
+count_	cuda_collectives_native.h	/^  const int count_;$/;"	m	class:gloo::CudaLocalNativeBroadcast
+count_	reduce_scatter.h	/^  const int count_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+count_	test/base_test.h	/^  std::size_t count_;$/;"	m	class:gloo::test::Barrier
+cpu_float2half_rn	types.h	/^inline float16 cpu_float2half_rn(float f) {$/;"	f	namespace:gloo
+cpu_half2float	types.h	/^inline float cpu_half2float(float16 h) {$/;"	f	namespace:gloo
+cq_	transport/ibverbs/pair.h	/^  struct ibv_cq* cq_;$/;"	m	class:gloo::transport::ibverbs::Pair	typeref:struct:gloo::transport::ibverbs::Pair::ibv_cq
+create	cuda.h	/^  static CudaDevicePointer<T> create(const CudaDevicePointer<T>& ptr) {$/;"	f	class:gloo::CudaDevicePointer
+createManaged	mpi/context.cc	/^std::shared_ptr<Context> Context::createManaged() {$/;"	f	class:gloo::mpi::Context
+createNodes	allreduce_bcube.h	/^  void createNodes() {$/;"	f	class:gloo::AllreduceBcube
+createPair	transport/ibverbs/device.cc	/^std::unique_ptr<transport::Pair> Device::createPair($/;"	f	class:gloo::transport::ibverbs::Device
+createPair	transport/tcp/device.cc	/^std::unique_ptr<transport::Pair> Device::createPair($/;"	f	class:gloo::transport::tcp::Device
+createRecvBuffer	transport/ibverbs/pair.cc	/^Pair::createRecvBuffer(int slot, void* ptr, size_t size) {$/;"	f	class:gloo::transport::ibverbs::Pair
+createRecvBuffer	transport/tcp/pair.cc	/^Pair::createRecvBuffer(int slot, void* ptr, size_t size) {$/;"	f	class:gloo::transport::tcp::Pair
+createSendBuffer	transport/ibverbs/pair.cc	/^Pair::createSendBuffer(int slot, void* ptr, size_t size) {$/;"	f	class:gloo::transport::ibverbs::Pair
+createSendBuffer	transport/tcp/pair.cc	/^Pair::createSendBuffer(int slot, void* ptr, size_t size) {$/;"	f	class:gloo::transport::tcp::Pair
+createTempDirectory	test/multiproc_test.cc	/^static std::string createTempDirectory() {$/;"	f	namespace:gloo::test
+cudaDeviceBroadcast	cuda_collectives_device.h	/^std::unique_ptr<LocalOp<T> > cudaDeviceBroadcast($/;"	f	namespace:gloo
+cudaDeviceReduce	cuda_collectives_device.h	/^std::unique_ptr<LocalOp<T> > cudaDeviceReduce($/;"	f	namespace:gloo
+cudaHostBroadcast	cuda_collectives_host.h	/^std::unique_ptr<LocalOp<T> > cudaHostBroadcast($/;"	f	namespace:gloo
+cudaHostReduce	cuda_collectives_host.h	/^std::unique_ptr<LocalOp<T> > cudaHostReduce($/;"	f	namespace:gloo
+cudaNCCLBroadcast	cuda_collectives_nccl.h	/^std::unique_ptr<LocalOp<T> > cudaNCCLBroadcast($/;"	f	namespace:gloo
+cudaNCCLReduce	cuda_collectives_nccl.h	/^std::unique_ptr<LocalOp<T> > cudaNCCLReduce($/;"	f	namespace:gloo
+cudaNumDevices	benchmark/cuda_main.cc	/^int cudaNumDevices() {$/;"	f	namespace:__anon20
+cudaPtrs	test/cuda_base_test.h	/^  std::vector<CudaDevicePointer<T>> cudaPtrs;$/;"	m	class:gloo::test::CudaFixture
+cudaSrcs	test/cuda_base_test.h	/^  std::vector<CudaMemory<T>> cudaSrcs;$/;"	m	class:gloo::test::CudaFixture
+cudaStreams	test/cuda_base_test.h	/^  std::vector<CudaStream> cudaStreams;$/;"	m	class:gloo::test::CudaFixture
+cv_	rendezvous/hash_store.h	/^  std::condition_variable cv_;$/;"	m	class:gloo::rendezvous::HashStore
+cv_	test/base_test.h	/^  std::condition_variable cv_;$/;"	m	class:gloo::test::Barrier
+cv_	transport/ibverbs/pair.h	/^  std::condition_variable cv_;$/;"	m	class:gloo::transport::ibverbs::Pair
+cv_	transport/tcp/device.h	/^  std::condition_variable cv_;$/;"	m	class:gloo::transport::tcp::Device
+cv_	transport/tcp/pair.h	/^  std::condition_variable cv_;$/;"	m	class:gloo::transport::tcp::Pair
+deallocate	common/common.h	/^  void deallocate(pointer p, size_type \/*sz*\/) {$/;"	f	class:gloo::aligned_allocator
+debug_	transport/buffer.h	/^  bool debug_;$/;"	m	class:gloo::transport::Buffer
+destinations	benchmark/options.h	/^  int destinations  = 1;$/;"	m	struct:gloo::benchmark::options
+dev_	transport/ibverbs/pair.h	/^  std::shared_ptr<Device> dev_;$/;"	m	class:gloo::transport::ibverbs::Pair
+dev_	transport/tcp/pair.h	/^  std::shared_ptr<Device> dev_;$/;"	m	class:gloo::transport::tcp::Pair
+device	nccl/nccl.h	/^  const int device;$/;"	m	struct:gloo::nccl::NCCLElement
+deviceAttr_	transport/ibverbs/device.h	/^  ibv_device_attr deviceAttr_;$/;"	m	class:gloo::transport::ibverbs::Device
+deviceFn_	cuda.h	/^  DeviceFunction* deviceFn_;$/;"	m	class:gloo::CudaReductionFunction
+deviceId_	cuda.h	/^  int deviceId_;$/;"	m	class:gloo::CudaDevicePointer
+deviceId_	cuda.h	/^  int deviceId_;$/;"	m	class:gloo::CudaStream
+devicePointerInit	cuda_allreduce_halving_doubling.cc	/^void CudaAllreduceHalvingDoubling<T, W>::devicePointerInit() {$/;"	f	class:gloo::CudaAllreduceHalvingDoubling
+devicePtr_	cuda_collectives_nccl.h	/^  CudaDevicePointer<T> devicePtr_;$/;"	m	class:gloo::CudaLocalNCCLBroadcast
+devicePtr_	cuda_collectives_nccl.h	/^  CudaDevicePointer<T> devicePtr_;$/;"	m	class:gloo::CudaLocalNCCLReduce
+devicePtrsForBroadcast_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::vector<CudaDevicePointer<T>>> devicePtrsForBroadcast_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+devicePtrsForFirstRecv_	cuda_allreduce_halving_doubling.h	/^  std::vector<CudaDevicePointer<T>> devicePtrsForFirstRecv_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+devicePtrsForFirstSend_	cuda_allreduce_halving_doubling.h	/^  std::vector<CudaDevicePointer<T>> devicePtrsForFirstSend_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+devicePtrs_	cuda_allreduce_halving_doubling.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+devicePtrs_	cuda_allreduce_local.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaAllreduceLocal
+devicePtrs_	cuda_allreduce_ring.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaAllreduceRing
+devicePtrs_	cuda_allreduce_ring_chunked.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+devicePtrs_	cuda_broadcast_one_to_all.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+devicePtrs_	cuda_collectives_host.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaLocalHostBroadcast
+devicePtrs_	cuda_collectives_host.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaLocalHostReduce
+devicePtrs_	cuda_collectives_native.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaLocalNativeBroadcast
+devicePtrs_	cuda_collectives_native.h	/^  std::vector<CudaDevicePointer<T> > devicePtrs_;$/;"	m	class:gloo::CudaLocalNativeReduce
+device_	context.h	/^  std::shared_ptr<transport::Device> device_;$/;"	m	class:gloo::Context
+device_	cuda.h	/^  T* device_;$/;"	m	class:gloo::CudaDevicePointer
+device_	cuda_private.h	/^  int device_;$/;"	m	class:gloo::CudaMemory
+device_	test/base_test.h	/^  std::shared_ptr<::gloo::transport::Device> device_;$/;"	m	class:gloo::test::BaseTest
+device_	test/multiproc_test.h	/^  std::shared_ptr<::gloo::transport::Device> device_;$/;"	m	class:gloo::test::MultiProcWorker
+distMapForRecv_	reduce_scatter.h	/^  std::vector<DistributionMap> distMapForRecv_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+distMapForSend_	reduce_scatter.h	/^  std::vector<DistributionMap> distMapForSend_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+distRecvDataBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> distRecvDataBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+distSendDataBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> distSendDataBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+done	benchmark/runner.h	/^  void done() {$/;"	f	class:gloo::benchmark::RunnerJob
+done_	benchmark/runner.h	/^  bool done_;$/;"	m	class:gloo::benchmark::RunnerJob
+done_	transport/ibverbs/device.h	/^  std::atomic<bool> done_;$/;"	m	class:gloo::transport::ibverbs::Device
+done_	transport/tcp/device.h	/^  std::atomic<bool> done_;$/;"	m	class:gloo::transport::tcp::Device
+dst	nccl/nccl.h	/^  CudaDevicePointer<T> dst;$/;"	m	struct:gloo::nccl::NCCLElement
+dstStream	nccl/nccl.h	/^  CudaStream& dstStream;$/;"	m	struct:gloo::nccl::NCCLElement
+dst_	cuda.h	/^  Dst dst_;$/;"	m	class:gloo::CudaLocalMemcpy
+dummy_	allgather_ring.h	/^  int dummy_;$/;"	m	class:gloo::AllgatherRing
+dummy_	allreduce_bcube.h	/^  int dummy_;$/;"	m	class:gloo::AllreduceBcube
+dummy_	allreduce_halving_doubling.h	/^  int dummy_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+dummy_	allreduce_new.h	/^  int dummy_;$/;"	m	class:gloo::AllreduceNew
+dummy_	allreduce_ring.h	/^  int dummy_;$/;"	m	class:gloo::AllreduceRing
+dummy_	allreduce_ring_chunked.h	/^  int dummy_;$/;"	m	class:gloo::AllreduceRingChunked
+dummy_	cuda_allreduce_halving_doubling.h	/^  int dummy_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+dummy_	cuda_allreduce_ring.h	/^  int dummy_;$/;"	m	class:gloo::CudaAllreduceRing
+dummy_	cuda_allreduce_ring_chunked.h	/^  int dummy_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+dummy_	pairwise_exchange.h	/^  int dummy_;$/;"	m	class:gloo::PairwiseExchange
+dummy_	reduce_scatter.h	/^  int dummy_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+elements	benchmark/options.h	/^  int elements = -1;$/;"	m	struct:gloo::benchmark::options
+elements	cuda_private.h	/^  const size_t elements;$/;"	m	class:gloo::CudaMemory
+elements	nccl/nccl.h	/^  std::vector<NCCLElement<T>> elements;$/;"	m	class:gloo::nccl::NCCLExecution
+encodeName	rendezvous/file_store.cc	/^static std::string encodeName(const std::string& name) {$/;"	f	namespace:gloo::rendezvous
+enforce_detail	common/logging.h	/^namespace enforce_detail {$/;"	n	namespace:gloo
+event_	cuda.h	/^  cudaEvent_t event_;$/;"	m	class:gloo::CudaStream
+ex_	transport/ibverbs/buffer.h	/^  std::exception_ptr ex_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+ex_	transport/ibverbs/pair.h	/^  std::exception_ptr ex_;$/;"	m	class:gloo::transport::ibverbs::Pair
+ex_	transport/tcp/buffer.h	/^  std::exception_ptr ex_;$/;"	m	class:gloo::transport::tcp::Buffer
+ex_	transport/tcp/pair.h	/^  std::exception_ptr ex_;$/;"	m	class:gloo::transport::tcp::Pair
+execution_	nccl/nccl.h	/^  NCCLExecution<T> execution_;$/;"	m	class:gloo::nccl::NCCLOp
+extractAddress	rendezvous/context.cc	/^std::vector<char> Context::extractAddress($/;"	f	class:gloo::rendezvous::Context
+fd_	transport/tcp/device.h	/^  int fd_;$/;"	m	class:gloo::transport::tcp::Device
+fd_	transport/tcp/pair.h	/^  int fd_;$/;"	m	class:gloo::transport::tcp::Pair
+findCudaDevicePointerClosestToDevice	cuda_private.h	/^int findCudaDevicePointerClosestToDevice($/;"	f	namespace:gloo
+float16	types.h	/^  explicit float16(double val) {$/;"	f	struct:gloo::float16
+float16	types.h	/^  explicit float16(int val) {$/;"	f	struct:gloo::float16
+float16	types.h	/^  explicit float16(unsigned long val) {$/;"	f	struct:gloo::float16
+float16	types.h	/^  float16() : x(0) {}$/;"	f	struct:gloo::float16
+float16	types.h	/^  float16(half h) {$/;"	f	struct:gloo::float16
+float16	types.h	/^struct __attribute__((__aligned__(2))) float16 {$/;"	s	namespace:gloo
+fn_	algorithm.h	/^  Function* fn_;$/;"	m	class:gloo::ReductionFunction
+fn_	allreduce_halving_doubling.h	/^  const ReductionFunction<T>* fn_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+fn_	allreduce_local.h	/^  const ReductionFunction<T>* fn_;$/;"	m	class:gloo::AllreduceLocal
+fn_	allreduce_new.h	/^  const ReductionFunction<T>* fn_;$/;"	m	class:gloo::AllreduceNew
+fn_	allreduce_ring.h	/^  const ReductionFunction<T>* fn_;$/;"	m	class:gloo::AllreduceRing
+fn_	allreduce_ring_chunked.h	/^  const ReductionFunction<T>* fn_;$/;"	m	class:gloo::AllreduceRingChunked
+fn_	benchmark/runner.h	/^  std::function<void()> fn_;$/;"	m	class:gloo::benchmark::RunnerJob
+fn_	cuda_allreduce_halving_doubling.h	/^  const CudaReductionFunction<T>* fn_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+fn_	cuda_allreduce_local.h	/^  const CudaReductionFunction<T>* fn_;$/;"	m	class:gloo::CudaAllreduceLocal
+fn_	cuda_allreduce_ring.h	/^  const CudaReductionFunction<T>* fn_;$/;"	m	class:gloo::CudaAllreduceRing
+fn_	cuda_allreduce_ring_chunked.h	/^  const CudaReductionFunction<T>* fn_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+fn_	cuda_collectives_host.h	/^  const CudaReductionFunction<T>* fn_;$/;"	m	class:gloo::CudaLocalHostReduce
+fn_	cuda_collectives_native.h	/^  const CudaReductionFunction<T>* fn_;$/;"	m	class:gloo::CudaLocalNativeReduce
+fn_	reduce_scatter.h	/^  const ReductionFunction<T>* fn_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+fromPeerName	transport/tcp/address.cc	/^Address Address::fromPeerName(int fd) {$/;"	f	class:gloo::transport::tcp::Address
+fromSockName	transport/tcp/address.cc	/^Address Address::fromSockName(int fd) {$/;"	f	class:gloo::transport::tcp::Address
+full_msg_	common/logging.h	/^  std::string full_msg_;$/;"	m	class:gloo::EnforceNotMet
+genMemorySizes	test/allgather_test.cc	/^std::vector<int> genMemorySizes() {$/;"	f	namespace:gloo::test::__anon2
+genMemorySizes	test/allreduce_test.cc	/^std::vector<int> genMemorySizes() {$/;"	f	namespace:gloo::test::__anon15
+genMemorySizes	test/broadcast_test.cc	/^std::vector<int> genMemorySizes() {$/;"	f	namespace:gloo::test::__anon5
+genMemorySizes	test/cuda_allreduce_test.cc	/^std::vector<int> genMemorySizes() {$/;"	f	namespace:gloo::test::__anon7
+genMemorySizes	test/cuda_broadcast_test.cc	/^std::vector<int> genMemorySizes() {$/;"	f	namespace:gloo::test::__anon12
+genMemorySizes	test/transport_test.cc	/^std::vector<int> genMemorySizes() {$/;"	f	namespace:gloo::test::__anon4
+get	rendezvous/file_store.cc	/^std::vector<char> FileStore::get(const std::string& key) {$/;"	f	class:gloo::rendezvous::FileStore
+get	rendezvous/hash_store.cc	/^std::vector<char> HashStore::get(const std::string& key) {$/;"	f	class:gloo::rendezvous::HashStore
+get	rendezvous/prefix_store.cc	/^std::vector<char> PrefixStore::get(const std::string& key) {$/;"	f	class:gloo::rendezvous::PrefixStore
+get	rendezvous/redis_store.cc	/^std::vector<char> RedisStore::get(const std::string& key) {$/;"	f	class:gloo::rendezvous::RedisStore
+getAlgorithm	allreduce_builder.cc	/^std::unique_ptr<Algorithm> AllreduceBuilder<T>::getAlgorithm($/;"	f	class:gloo::AllreduceBuilder
+getAlgorithm	broadcast_builder.cc	/^std::unique_ptr<Algorithm> BroadcastBuilder<T>::getAlgorithm($/;"	f	class:gloo::BroadcastBuilder
+getAlgorithmCuda	allreduce_builder.cc	/^std::unique_ptr<Algorithm> getAlgorithmCuda($/;"	f	namespace:gloo::__anon18
+getAlgorithmCuda	broadcast_builder.cc	/^std::unique_ptr<Algorithm> getAlgorithmCuda($/;"	f	namespace:gloo::__anon24
+getBuffer	transport/tcp/pair.cc	/^Buffer* Pair::getBuffer(int slot) {$/;"	f	class:gloo::transport::tcp::Pair
+getChunkOffset	cuda_allreduce_ring_chunked.cc	/^int CudaAllreduceRingChunked<T, W>::getChunkOffset(int round) {$/;"	f	class:gloo::CudaAllreduceRingChunked
+getConstPointers	test/base_test.h	/^  std::vector<const T*> getConstPointers() const {$/;"	f	class:gloo::test::Fixture
+getConstPointers	test/base_test.h	/^  std::vector<const float*> getConstPointers() const {$/;"	f	class:gloo::test::Fixture
+getConstPointers	test/base_test.h	/^  std::vector<const float16*> getConstPointers() const {$/;"	f	class:gloo::test::Fixture
+getCount	cuda.h	/^  int getCount() const {$/;"	f	class:gloo::CudaDevicePointer
+getCount	cuda.h	/^  int getCount() const {$/;"	f	class:gloo::CudaHostPointer
+getCudaPointers	test/cuda_base_test.h	/^  std::vector<T*> getCudaPointers() const {$/;"	f	class:gloo::test::CudaFixture
+getCudaStreams	test/cuda_base_test.h	/^  std::vector<cudaStream_t> getCudaStreams() const {$/;"	f	class:gloo::test::CudaFixture
+getCurrentGPUID	cuda_private.h	/^inline int getCurrentGPUID() {$/;"	f	namespace:gloo
+getDevice	context.cc	/^std::shared_ptr<transport::Device>& Context::getDevice() {$/;"	f	class:gloo::Context
+getDeviceCount	cuda_private.h	/^inline int getDeviceCount() {$/;"	f	namespace:gloo
+getDeviceID	cuda.h	/^  int getDeviceID() const {$/;"	f	class:gloo::CudaDevicePointer
+getDeviceID	cuda.h	/^  int getDeviceID() const {$/;"	f	class:gloo::CudaStream
+getDeviceNames	transport/ibverbs/device.cc	/^std::vector<std::string> getDeviceNames() {$/;"	f	namespace:gloo::transport::ibverbs
+getDistributionMap	reduce_scatter.h	/^  void getDistributionMap($/;"	f	class:gloo::ReduceScatterHalvingDoubling
+getEvent	cuda.h	/^  cudaEvent_t getEvent() const {$/;"	f	class:gloo::CudaStream
+getGPUIDForPointer	cuda_private.h	/^inline int getGPUIDForPointer(const void* ptr) {$/;"	f	namespace:gloo
+getInputs	benchmark/benchmark.h	/^  virtual std::vector<const T*> getInputs() {$/;"	f	class:gloo::benchmark::Benchmark
+getInterfaceSpeed	transport/device.h	/^  virtual int getInterfaceSpeed() const { return 0; }$/;"	f	class:gloo::transport::Device
+getInterfaceSpeed	transport/tcp/device.cc	/^int Device::getInterfaceSpeed() const {$/;"	f	class:gloo::transport::tcp::Device
+getInterfaceSpeedByName	common/linux.cc	/^int getInterfaceSpeedByName(const std::string& ifname) {$/;"	f	namespace:gloo
+getInterfaceSpeedGLinkSettings	common/linux.cc	/^static int getInterfaceSpeedGLinkSettings(int sock, struct ifreq* ifr) {$/;"	f	namespace:gloo
+getInterfaceSpeedGSet	common/linux.cc	/^static int getInterfaceSpeedGSet(int sock, struct ifreq* ifr) {$/;"	f	namespace:gloo
+getLeftPair	algorithm.cc	/^std::unique_ptr<transport::Pair>& Algorithm::getLeftPair() {$/;"	f	class:gloo::Algorithm
+getMPIScope	mpi/context.cc	/^std::shared_ptr<MPIScope> getMPIScope() {$/;"	f	namespace:gloo::mpi::__anon25
+getMemoryRegion	transport/ibverbs/pair.cc	/^const struct ibv_mr* Pair::getMemoryRegion(int slot) {$/;"	f	class:gloo::transport::ibverbs::Pair
+getMutex	cuda.h	/^  static std::mutex& getMutex() {$/;"	f	class:gloo::CudaShared
+getNodeRanks	allreduce_bcube.h	/^  const std::vector<int>& getNodeRanks() const {$/;"	f	class:gloo::allreduce::bcube::Group
+getNodeRanks	allreduce_bcube.h	/^  getNodeRanks(int firstNodeRank, int peerDistance, int base, int nodes) const {$/;"	f	class:gloo::allreduce::bcube::Group
+getNumElems	allreduce_bcube.h	/^  int getNumElems() const {$/;"	f	class:gloo::allreduce::bcube::Group
+getNumElemsPerStep	allreduce_bcube.h	/^  int getNumElemsPerStep(int rank, int step) {$/;"	f	class:gloo::AllreduceBcube
+getNumElemsPerStep	allreduce_bcube.h	/^  int getNumElemsPerStep(int step) const {$/;"	f	class:gloo::allreduce::bcube::Node
+getOptions	benchmark/benchmark.h	/^  const options& getOptions() const {$/;"	f	class:gloo::benchmark::Benchmark
+getPCIBusID	transport/ibverbs/device.cc	/^const std::string& Device::getPCIBusID() const {$/;"	f	class:gloo::transport::ibverbs::Device
+getPCIBusID	transport/tcp/device.cc	/^const std::string& Device::getPCIBusID() const {$/;"	f	class:gloo::transport::tcp::Device
+getPair	algorithm.cc	/^std::unique_ptr<transport::Pair>& Algorithm::getPair(int i) {$/;"	f	class:gloo::Algorithm
+getPair	context.cc	/^std::unique_ptr<transport::Pair>& Context::getPair(int i) {$/;"	f	class:gloo::Context
+getPeersPerStep	allreduce_bcube.h	/^  const std::vector<int>& getPeersPerStep(int rank, int step) {$/;"	f	class:gloo::AllreduceBcube
+getPeersPerStep	allreduce_bcube.h	/^  const std::vector<int>& getPeersPerStep(int step) const {$/;"	f	class:gloo::allreduce::bcube::Node
+getPointers	test/base_test.h	/^  std::vector<T*> getPointers() const {$/;"	f	class:gloo::test::Fixture
+getPointers	test/base_test.h	/^  std::vector<float*> getPointers() const {$/;"	f	class:gloo::test::Fixture
+getPointers	test/base_test.h	/^  std::vector<float16*> getPointers() const {$/;"	f	class:gloo::test::Fixture
+getPtrOffset	allreduce_bcube.h	/^  int getPtrOffset() const {$/;"	f	class:gloo::allreduce::bcube::Group
+getPtrOffsetPerStep	allreduce_bcube.h	/^  int getPtrOffsetPerStep(int rank, int step) {$/;"	f	class:gloo::AllreduceBcube
+getPtrOffsetPerStep	allreduce_bcube.h	/^  int getPtrOffsetPerStep(int step) const {$/;"	f	class:gloo::allreduce::bcube::Node
+getRank	allreduce_bcube.h	/^  int getRank() const {$/;"	f	class:gloo::allreduce::bcube::Node
+getResult	test/multiproc_test.h	/^  int getResult(int rank) {$/;"	f	class:gloo::test::MultiProcTest
+getRightPair	algorithm.cc	/^std::unique_ptr<transport::Pair>& Algorithm::getRightPair() {$/;"	f	class:gloo::Algorithm
+getSamples	benchmark/runner.h	/^  const Samples& getSamples() const {$/;"	f	class:gloo::benchmark::RunnerJob
+getStream	cuda.h	/^  cudaStream_t getStream() const {$/;"	f	class:gloo::CudaStream
+getTimeout	context.cc	/^std::chrono::milliseconds Context::getTimeout() const {$/;"	f	class:gloo::Context
+getTimeout	transport/ibverbs/pair.h	/^  std::chrono::milliseconds getTimeout() const {$/;"	f	class:gloo::transport::ibverbs::Pair
+getTimeout	transport/tcp/pair.h	/^  std::chrono::milliseconds getTimeout() const {$/;"	f	class:gloo::transport::tcp::Pair
+get_message_and_free	common/logging.h	/^  std::string get_message_and_free(std::string&& extra) const {$/;"	f	class:gloo::enforce_detail::EnforceFailMessage
+gloo	algorithm.cc	/^namespace gloo {$/;"	n	file:
+gloo	algorithm.h	/^namespace gloo {$/;"	n
+gloo	allgather_ring.h	/^namespace gloo {$/;"	n
+gloo	allreduce_bcube.h	/^namespace gloo {$/;"	n
+gloo	allreduce_builder.cc	/^namespace gloo {$/;"	n	file:
+gloo	allreduce_builder.h	/^namespace gloo {$/;"	n
+gloo	allreduce_halving_doubling.h	/^namespace gloo {$/;"	n
+gloo	allreduce_local.cc	/^namespace gloo {$/;"	n	file:
+gloo	allreduce_local.h	/^namespace gloo {$/;"	n
+gloo	allreduce_new.h	/^namespace gloo {$/;"	n
+gloo	allreduce_ring.h	/^namespace gloo {$/;"	n
+gloo	allreduce_ring_chunked.h	/^namespace gloo {$/;"	n
+gloo	barrier.h	/^namespace gloo {$/;"	n
+gloo	barrier_all_to_all.h	/^namespace gloo {$/;"	n
+gloo	barrier_all_to_one.h	/^namespace gloo {$/;"	n
+gloo	benchmark/benchmark.h	/^namespace gloo {$/;"	n
+gloo	benchmark/options.cc	/^namespace gloo {$/;"	n	file:
+gloo	benchmark/options.h	/^namespace gloo {$/;"	n
+gloo	benchmark/runner.cc	/^namespace gloo {$/;"	n	file:
+gloo	benchmark/runner.h	/^namespace gloo {$/;"	n
+gloo	benchmark/timer.h	/^namespace gloo {$/;"	n
+gloo	broadcast_builder.cc	/^namespace gloo {$/;"	n	file:
+gloo	broadcast_builder.h	/^namespace gloo {$/;"	n
+gloo	broadcast_one_to_all.h	/^namespace gloo {$/;"	n
+gloo	common/common.h	/^namespace gloo {$/;"	n
+gloo	common/error.h	/^namespace gloo {$/;"	n
+gloo	common/linux.cc	/^namespace gloo {$/;"	n	file:
+gloo	common/linux.h	/^namespace gloo {$/;"	n
+gloo	common/linux_devices.h	/^namespace gloo {$/;"	n
+gloo	common/logging.cc	/^namespace gloo {$/;"	n	file:
+gloo	common/logging.h	/^namespace gloo {$/;"	n
+gloo	common/string.h	/^namespace gloo {$/;"	n
+gloo	context.cc	/^namespace gloo {$/;"	n	file:
+gloo	context.h	/^namespace gloo {$/;"	n
+gloo	cuda.h	/^namespace gloo {$/;"	n
+gloo	cuda_allreduce_halving_doubling.cc	/^namespace gloo {$/;"	n	file:
+gloo	cuda_allreduce_halving_doubling.h	/^namespace gloo {$/;"	n
+gloo	cuda_allreduce_halving_doubling_pipelined.h	/^namespace gloo {$/;"	n
+gloo	cuda_allreduce_local.cc	/^namespace gloo {$/;"	n	file:
+gloo	cuda_allreduce_local.h	/^namespace gloo {$/;"	n
+gloo	cuda_allreduce_ring.cc	/^namespace gloo {$/;"	n	file:
+gloo	cuda_allreduce_ring.h	/^namespace gloo {$/;"	n
+gloo	cuda_allreduce_ring_chunked.cc	/^namespace gloo {$/;"	n	file:
+gloo	cuda_allreduce_ring_chunked.h	/^namespace gloo {$/;"	n
+gloo	cuda_broadcast_one_to_all.cc	/^namespace gloo {$/;"	n	file:
+gloo	cuda_broadcast_one_to_all.h	/^namespace gloo {$/;"	n
+gloo	cuda_collectives_device.h	/^namespace gloo {$/;"	n
+gloo	cuda_collectives_host.h	/^namespace gloo {$/;"	n
+gloo	cuda_collectives_native.h	/^namespace gloo {$/;"	n
+gloo	cuda_collectives_nccl.h	/^namespace gloo {$/;"	n
+gloo	cuda_private.h	/^namespace gloo {$/;"	n
+gloo	cuda_workspace.h	/^namespace gloo {$/;"	n
+gloo	math.cc	/^namespace gloo {$/;"	n	file:
+gloo	math.h	/^namespace gloo {$/;"	n
+gloo	mpi/context.cc	/^namespace gloo {$/;"	n	file:
+gloo	mpi/context.h	/^namespace gloo {$/;"	n
+gloo	nccl/nccl.h	/^namespace gloo {$/;"	n
+gloo	pairwise_exchange.h	/^namespace gloo {$/;"	n
+gloo	reduce_scatter.h	/^namespace gloo {$/;"	n
+gloo	rendezvous/context.cc	/^namespace gloo {$/;"	n	file:
+gloo	rendezvous/context.h	/^namespace gloo {$/;"	n
+gloo	rendezvous/file_store.cc	/^namespace gloo {$/;"	n	file:
+gloo	rendezvous/file_store.h	/^namespace gloo {$/;"	n
+gloo	rendezvous/hash_store.cc	/^namespace gloo {$/;"	n	file:
+gloo	rendezvous/hash_store.h	/^namespace gloo {$/;"	n
+gloo	rendezvous/prefix_store.cc	/^namespace gloo {$/;"	n	file:
+gloo	rendezvous/prefix_store.h	/^namespace gloo {$/;"	n
+gloo	rendezvous/redis_store.cc	/^namespace gloo {$/;"	n	file:
+gloo	rendezvous/redis_store.h	/^namespace gloo {$/;"	n
+gloo	rendezvous/store.cc	/^namespace gloo {$/;"	n	file:
+gloo	rendezvous/store.h	/^namespace gloo {$/;"	n
+gloo	test/allgather_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/allreduce_builder_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/allreduce_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/barrier_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/base_test.h	/^namespace gloo {$/;"	n
+gloo	test/broadcast_builder_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/broadcast_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/buffer_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/context_factory_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/cuda_allreduce_builder_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/cuda_allreduce_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/cuda_base_test.h	/^namespace gloo {$/;"	n
+gloo	test/cuda_broadcast_builder_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/cuda_broadcast_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/linux_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/multiproc_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/multiproc_test.h	/^namespace gloo {$/;"	n
+gloo	test/reduce_scatter_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	test/transport_test.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/address.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/address.h	/^namespace gloo {$/;"	n
+gloo	transport/buffer.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/buffer.h	/^namespace gloo {$/;"	n
+gloo	transport/device.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/device.h	/^namespace gloo {$/;"	n
+gloo	transport/ibverbs/address.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/ibverbs/address.h	/^namespace gloo {$/;"	n
+gloo	transport/ibverbs/buffer.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/ibverbs/buffer.h	/^namespace gloo {$/;"	n
+gloo	transport/ibverbs/device.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/ibverbs/device.h	/^namespace gloo {$/;"	n
+gloo	transport/ibverbs/memory_region.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/ibverbs/memory_region.h	/^namespace gloo {$/;"	n
+gloo	transport/ibverbs/pair.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/ibverbs/pair.h	/^namespace gloo {$/;"	n
+gloo	transport/pair.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/pair.h	/^namespace gloo {$/;"	n
+gloo	transport/tcp/address.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/tcp/address.h	/^namespace gloo {$/;"	n
+gloo	transport/tcp/buffer.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/tcp/buffer.h	/^namespace gloo {$/;"	n
+gloo	transport/tcp/device.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/tcp/device.h	/^namespace gloo {$/;"	n
+gloo	transport/tcp/pair.cc	/^namespace gloo {$/;"	n	file:
+gloo	transport/tcp/pair.h	/^namespace gloo {$/;"	n
+gloo	types.h	/^namespace gloo {$/;"	n
+gpuDirect	benchmark/options.h	/^  bool gpuDirect = false;$/;"	m	struct:gloo::benchmark::options
+gpuDirect_	allreduce_builder.h	/^  bool gpuDirect_;$/;"	m	class:gloo::AllreduceBuilder
+gpuDirect_	broadcast_builder.h	/^  bool gpuDirect_;$/;"	m	class:gloo::BroadcastBuilder
+guard_	cuda_private.h	/^  CudaDeviceGuard guard_;$/;"	m	class:gloo::CudaDeviceScope
+halfPrecision	benchmark/options.h	/^  bool halfPrecision = false;$/;"	m	struct:gloo::benchmark::options
+handleCompletion	transport/ibverbs/buffer.cc	/^void Buffer::handleCompletion(struct ibv_wc* wc) {$/;"	f	class:gloo::transport::ibverbs::Buffer
+handleCompletion	transport/ibverbs/pair.cc	/^void Pair::handleCompletion(struct ibv_wc* wc) {$/;"	f	class:gloo::transport::ibverbs::Pair
+handleCompletionEvent	transport/ibverbs/pair.cc	/^void Pair::handleCompletionEvent() {$/;"	f	class:gloo::transport::ibverbs::Pair
+handleConnected	transport/tcp/pair.cc	/^void Pair::handleConnected() {$/;"	f	class:gloo::transport::tcp::Pair
+handleConnecting	transport/tcp/pair.cc	/^void Pair::handleConnecting() {$/;"	f	class:gloo::transport::tcp::Pair
+handleEvents	transport/tcp/pair.cc	/^void Pair::handleEvents(int events) {$/;"	f	class:gloo::transport::tcp::Pair
+handleListening	transport/tcp/pair.cc	/^void Pair::handleListening() {$/;"	f	class:gloo::transport::tcp::Pair
+handleRecvCompletion	transport/tcp/buffer.cc	/^void Buffer::handleRecvCompletion() {$/;"	f	class:gloo::transport::tcp::Buffer
+handleSendCompletion	transport/tcp/buffer.cc	/^void Buffer::handleSendCompletion() {$/;"	f	class:gloo::transport::tcp::Buffer
+hasGPUDirect	transport/device.h	/^  virtual bool hasGPUDirect() const { return false; }$/;"	f	class:gloo::transport::Device
+hasGPUDirect	transport/ibverbs/device.cc	/^bool Device::hasGPUDirect() const {$/;"	f	class:gloo::transport::ibverbs::Device
+hasNvPeerMem_	transport/ibverbs/device.h	/^  const bool hasNvPeerMem_;$/;"	m	class:gloo::transport::ibverbs::Device
+hostFn_	cuda.h	/^  HostFunction* hostFn_;$/;"	m	class:gloo::CudaReductionFunction
+hostPtr_	cuda_collectives_nccl.h	/^  CudaHostPointer<T> hostPtr_;$/;"	m	class:gloo::CudaLocalNCCLReduce
+host_	cuda.h	/^  T* host_;$/;"	m	class:gloo::CudaHostPointer
+hostname	transport/tcp/device.h	/^  std::string hostname;$/;"	m	struct:gloo::transport::tcp::attr
+ibv_gid	transport/ibverbs/address.h	/^    union ibv_gid ibv_gid;$/;"	m	struct:gloo::transport::ibverbs::Address::__anon22	typeref:union:gloo::transport::ibverbs::Address::__anon22::ibv_gid
+ibverbs	transport/ibverbs/address.cc	/^namespace ibverbs {$/;"	n	namespace:gloo::transport	file:
+ibverbs	transport/ibverbs/address.h	/^namespace ibverbs {$/;"	n	namespace:gloo::transport
+ibverbs	transport/ibverbs/buffer.cc	/^namespace ibverbs {$/;"	n	namespace:gloo::transport	file:
+ibverbs	transport/ibverbs/buffer.h	/^namespace ibverbs {$/;"	n	namespace:gloo::transport
+ibverbs	transport/ibverbs/device.cc	/^namespace ibverbs {$/;"	n	namespace:gloo::transport	file:
+ibverbs	transport/ibverbs/device.h	/^namespace ibverbs {$/;"	n	namespace:gloo::transport
+ibverbs	transport/ibverbs/memory_region.cc	/^namespace ibverbs {$/;"	n	namespace:gloo::transport	file:
+ibverbs	transport/ibverbs/memory_region.h	/^namespace ibverbs {$/;"	n	namespace:gloo::transport
+ibverbs	transport/ibverbs/pair.cc	/^namespace ibverbs {$/;"	n	namespace:gloo::transport	file:
+ibverbs	transport/ibverbs/pair.h	/^namespace ibverbs {$/;"	n	namespace:gloo::transport
+ibverbsDevice	benchmark/options.h	/^  std::vector<std::string> ibverbsDevice;$/;"	m	struct:gloo::benchmark::options
+ibverbsIndex	benchmark/options.h	/^  int ibverbsIndex = 0;$/;"	m	struct:gloo::benchmark::options
+ibverbsPort	benchmark/options.h	/^  int ibverbsPort = 1;$/;"	m	struct:gloo::benchmark::options
+iface	transport/tcp/device.h	/^  std::string iface;$/;"	m	struct:gloo::transport::tcp::attr
+implementation_	allreduce_builder.h	/^  Implementation implementation_;$/;"	m	class:gloo::AllreduceBuilder
+inPtrs_	allgather_ring.h	/^  const std::vector<const T*> inPtrs_;$/;"	m	class:gloo::AllgatherRing
+inbox_	allreduce_new.h	/^  T* inbox_;$/;"	m	class:gloo::AllreduceNew
+inbox_	allreduce_ring.h	/^  T* inbox_;$/;"	m	class:gloo::AllreduceRing
+inbox_	allreduce_ring_chunked.h	/^  T* inbox_[2];$/;"	m	class:gloo::AllreduceRingChunked
+inbox_	cuda_allreduce_ring.h	/^  typename W::Pointer inbox_;$/;"	m	class:gloo::CudaAllreduceRing
+inbox_	cuda_allreduce_ring_chunked.h	/^  std::array<typename W::Pointer, 2> inbox_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+index	transport/ibverbs/device.h	/^  int index;$/;"	m	struct:gloo::transport::ibverbs::attr
+indices_	cuda_collectives_native.h	/^  std::vector<int> indices_;$/;"	m	class:gloo::CudaLocalNativeReduce
+infinibandToBusID	common/linux.cc	/^const std::string& infinibandToBusID(const std::string& name) {$/;"	f	namespace:gloo
+init	cuda_allreduce_halving_doubling.cc	/^void CudaAllreduceHalvingDoubling<T, W>::init($/;"	f	class:gloo::CudaAllreduceHalvingDoubling
+init	cuda_allreduce_ring.cc	/^void CudaAllreduceRing<T, W>::init($/;"	f	class:gloo::CudaAllreduceRing
+init	cuda_allreduce_ring_chunked.cc	/^void CudaAllreduceRingChunked<T, W>::init($/;"	f	class:gloo::CudaAllreduceRingChunked
+init	cuda_broadcast_one_to_all.cc	/^void CudaBroadcastOneToAll<T, W>::init($/;"	f	class:gloo::CudaBroadcastOneToAll
+initBinaryBlocks	allreduce_halving_doubling.h	/^  void initBinaryBlocks() {$/;"	f	class:gloo::AllreduceHalvingDoubling
+initBinaryBlocks	cuda_allreduce_halving_doubling.cc	/^void CudaAllreduceHalvingDoubling<T, W>::initBinaryBlocks() {$/;"	f	class:gloo::CudaAllreduceHalvingDoubling
+initBinaryBlocks	reduce_scatter.h	/^  void initBinaryBlocks() {$/;"	f	class:gloo::ReduceScatterHalvingDoubling
+initReductionsAndBroadcasts	cuda_allreduce_halving_doubling.cc	/^void CudaAllreduceHalvingDoubling<T, W>::initReductionsAndBroadcasts($/;"	f	class:gloo::CudaAllreduceHalvingDoubling
+initializer	test/main.cc	/^Initializer initializer;$/;"	m	namespace:__anon9	file:
+inputStride_	allgather_ring.h	/^  const int inputStride_;$/;"	m	class:gloo::AllgatherRing
+inputs	benchmark/options.h	/^  int inputs = 1;$/;"	m	struct:gloo::benchmark::options
+inputs	test/base_test.h	/^  const int inputs;$/;"	m	class:gloo::test::Fixture
+inputs_	allreduce_builder.h	/^  std::vector<T*> inputs_;$/;"	m	class:gloo::AllreduceBuilder
+inputs_	benchmark/benchmark.h	/^      inputs_;$/;"	m	class:gloo::benchmark::Benchmark
+inputs_	benchmark/cuda_main.cc	/^  std::vector<CudaMemory<T>> inputs_;$/;"	m	class:__anon20::CudaBenchmark	file:
+inputs_	broadcast_builder.h	/^  std::vector<T*> inputs_;$/;"	m	class:gloo::BroadcastBuilder
+interfaceName_	transport/tcp/device.h	/^  std::string interfaceName_;$/;"	m	class:gloo::transport::tcp::Device
+interfaceSpeedMbps_	transport/tcp/device.h	/^  int interfaceSpeedMbps_;$/;"	m	class:gloo::transport::tcp::Device
+interfaceToBusID	common/linux.cc	/^const std::string& interfaceToBusID(const std::string& name) {$/;"	f	namespace:gloo
+isLocalhostAddr	transport/tcp/device.cc	/^bool isLocalhostAddr(const struct sockaddr* addr) {$/;"	f	namespace:gloo::transport::tcp
+isSync	transport/tcp/pair.h	/^  bool isSync() const {$/;"	f	class:gloo::transport::tcp::Pair
+is_aligned	math.cc	11;"	d	file:
+itemCount	reduce_scatter.h	/^    size_t itemCount;$/;"	m	struct:gloo::ReduceScatterHalvingDoubling::DistributionMap
+iterationCount	benchmark/options.h	/^  long iterationCount = -1;$/;"	m	struct:gloo::benchmark::options
+iterationTimeNanos	benchmark/options.h	/^  long iterationTimeNanos = 2 * 1000 * 1000 * 1000;$/;"	m	struct:gloo::benchmark::options
+iterations_	benchmark/runner.h	/^  int iterations_;$/;"	m	class:gloo::benchmark::RunnerJob
+job_	benchmark/runner.h	/^  RunnerJob* job_;$/;"	m	class:gloo::benchmark::RunnerThread
+joinKey	rendezvous/prefix_store.cc	/^std::string PrefixStore::joinKey(const std::string& key) {$/;"	f	class:gloo::rendezvous::PrefixStore
+kBufferAlignment	common/common.h	/^const size_t kBufferAlignment = 32;$/;"	m	namespace:gloo
+kCompletionQueueCapacity	transport/ibverbs/pair.h	/^  static constexpr auto kCompletionQueueCapacity =$/;"	m	class:gloo::transport::ibverbs::Pair
+kDefaultTimeout	rendezvous/store.cc	/^constexpr std::chrono::milliseconds Store::kDefaultTimeout;$/;"	m	class:gloo::rendezvous::Store	file:
+kDefaultTimeout	rendezvous/store.h	/^  static constexpr std::chrono::milliseconds kDefaultTimeout =$/;"	m	class:gloo::rendezvous::Store
+kExitWithIoException	test/multiproc_test.h	/^const int kExitWithIoException = 10;$/;"	m	namespace:gloo::test
+kMaxAddressSize	rendezvous/context.h	/^  static constexpr auto kMaxAddressSize = 128;$/;"	m	class:gloo::rendezvous::ContextFactory
+kMaxBuffers	transport/ibverbs/pair.h	/^  static constexpr int kMaxBuffers = 8;$/;"	m	class:gloo::transport::ibverbs::Pair
+kNoTimeout	common/error.h	/^const std::chrono::milliseconds kNoTimeout = std::chrono::milliseconds::zero();$/;"	m	namespace:gloo
+kNotifyOnAnyCompletion	transport/ibverbs/pair.h	/^  static constexpr auto kNotifyOnAnyCompletion = 0;$/;"	m	class:gloo::transport::ibverbs::Pair
+kOnDeviceThreshold	algorithm.cc	/^const size_t kOnDeviceThreshold = 256 * 1024;$/;"	m	namespace:gloo	file:
+kPCIClass3D	common/linux_devices.h	/^const auto kPCIClass3D = PCIClassMatch{0x030200, 0xffff00};$/;"	m	namespace:gloo
+kPCIClassNetwork	common/linux_devices.h	/^const auto kPCIClassNetwork = PCIClassMatch{0x020000, 0xff0000};$/;"	m	namespace:gloo
+kRecvCompletionQueueCapacity	transport/ibverbs/pair.h	/^  static constexpr auto kRecvCompletionQueueCapacity = kMaxBuffers;$/;"	m	class:gloo::transport::ibverbs::Pair
+kSendCompletionQueueCapacity	transport/ibverbs/pair.h	/^  static constexpr auto kSendCompletionQueueCapacity = kMaxBuffers;$/;"	m	class:gloo::transport::ibverbs::Pair
+kSysfsPath	common/linux.cc	/^static const std::string kSysfsPath = "\/sys\/bus\/pci\/devices\/";$/;"	m	namespace:gloo	file:
+kTimeoutDefault	context.cc	/^static const std::chrono::seconds kTimeoutDefault = std::chrono::seconds(30);$/;"	m	namespace:gloo	file:
+kTimeoutDefault	transport/ibverbs/device.cc	/^static const std::chrono::seconds kTimeoutDefault = std::chrono::seconds(30);$/;"	m	namespace:gloo::transport::ibverbs	file:
+kWaitTimeout	rendezvous/redis_store.cc	/^static const std::chrono::seconds kWaitTimeout = std::chrono::seconds(60);$/;"	m	namespace:gloo::rendezvous	file:
+kernelModules	common/linux.cc	/^const std::set<std::string>& kernelModules() {$/;"	f	namespace:gloo
+largerBlockRecvDataBufs_	allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> largerBlockRecvDataBufs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+largerBlockRecvDataBufs_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> largerBlockRecvDataBufs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+largerBlockSendDataBufs_	allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> largerBlockSendDataBufs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+largerBlockSendDataBufs_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> largerBlockSendDataBufs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+largerBlockSendDataBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> largerBlockSendDataBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+leftPair_	allgather_ring.h	/^  std::unique_ptr<transport::Pair>& leftPair_;$/;"	m	class:gloo::AllgatherRing
+length	cuda_allreduce_ring_chunked.cc	/^  const size_t length;$/;"	m	struct:gloo::CudaAllreduceRingChunked::ChunkContext	file:
+length_	transport/tcp/pair.h	/^    size_t length_;$/;"	m	struct:gloo::transport::tcp::Op::__anon23
+lid	transport/ibverbs/address.h	/^    uint32_t lid;$/;"	m	struct:gloo::transport::ibverbs::Address::__anon22
+listDir	common/linux.cc	/^static std::vector<std::string> listDir(const std::string& path) {$/;"	f	namespace:gloo
+list_	transport/ibverbs/device.cc	/^  struct ibv_device** list_;$/;"	m	class:gloo::transport::ibverbs::IbvDevices	typeref:struct:gloo::transport::ibverbs::IbvDevices::ibv_device	file:
+listen	transport/tcp/pair.cc	/^void Pair::listen() {$/;"	f	class:gloo::transport::tcp::Pair
+localBroadcastOp_	cuda_allreduce_halving_doubling.h	/^  std::unique_ptr<LocalOp<T> > localBroadcastOp_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+localBroadcastOp_	cuda_allreduce_local.h	/^  std::unique_ptr<LocalOp<T> > localBroadcastOp_;$/;"	m	class:gloo::CudaAllreduceLocal
+localBroadcastOp_	cuda_allreduce_ring.h	/^  std::unique_ptr<LocalOp<T> > localBroadcastOp_;$/;"	m	class:gloo::CudaAllreduceRing
+localBroadcastOp_	cuda_broadcast_one_to_all.h	/^  std::unique_ptr<LocalOp<T> > localBroadcastOp_;$/;"	v
+localReduceOp_	cuda_allreduce_halving_doubling.h	/^  std::unique_ptr<LocalOp<T> > localReduceOp_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+localReduceOp_	cuda_allreduce_local.h	/^  std::unique_ptr<LocalOp<T> > localReduceOp_;$/;"	m	class:gloo::CudaAllreduceLocal
+localReduceOp_	cuda_allreduce_ring.h	/^  std::unique_ptr<LocalOp<T> > localReduceOp_;$/;"	m	class:gloo::CudaAllreduceRing
+lookupAddrForHostname	transport/tcp/device.cc	/^static void lookupAddrForHostname(struct attr& attr) {$/;"	f	namespace:gloo::transport::tcp
+lookupAddrForIface	transport/tcp/device.cc	/^static void lookupAddrForIface(struct attr& attr) {$/;"	f	namespace:gloo::transport::tcp
+loop	transport/ibverbs/device.cc	/^void Device::loop() {$/;"	f	class:gloo::transport::ibverbs::Device
+loop	transport/tcp/device.cc	/^void Device::loop() {$/;"	f	class:gloo::transport::tcp::Device
+loop_	transport/ibverbs/device.h	/^  std::unique_ptr<std::thread> loop_;$/;"	m	class:gloo::transport::ibverbs::Device
+loop_	transport/tcp/device.h	/^  std::unique_ptr<std::thread> loop_;$/;"	m	class:gloo::transport::tcp::Device
+m_	rendezvous/hash_store.h	/^  std::mutex m_;$/;"	m	class:gloo::rendezvous::HashStore
+m_	transport/ibverbs/buffer.h	/^  std::mutex m_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+m_	transport/ibverbs/pair.h	/^  std::mutex m_;$/;"	m	class:gloo::transport::ibverbs::Pair
+m_	transport/tcp/buffer.h	/^  std::mutex m_;$/;"	m	class:gloo::transport::tcp::Buffer
+m_	transport/tcp/device.h	/^  std::mutex m_;$/;"	m	class:gloo::transport::tcp::Device
+m_	transport/tcp/pair.h	/^  std::mutex m_;$/;"	m	class:gloo::transport::tcp::Pair
+main	benchmark/cuda_main.cc	/^int main(int argc, char** argv) {$/;"	f
+main	benchmark/main.cc	/^int main(int argc, char** argv) {$/;"	f
+main	examples/example1.cc	/^int main(void) {$/;"	f
+main	mpi/example/main_managed.cc	/^int main(int \/*argc*\/, char** \/*argv*\/) {$/;"	f
+main	mpi/example/main_unmanaged.cc	/^int main(int argc, char** argv) {$/;"	f
+main	test/main.cc	/^int main(int argc, char** argv) {$/;"	f
+makeContext	rendezvous/context.cc	/^std::shared_ptr<::gloo::Context> ContextFactory::makeContext($/;"	f	class:gloo::rendezvous::ContextFactory
+map_	rendezvous/hash_store.h	/^  std::unordered_map<std::string, std::vector<char>> map_;$/;"	m	class:gloo::rendezvous::HashStore
+mappedRecvRegions_	transport/ibverbs/pair.h	/^  std::array<std::unique_ptr<MemoryRegion>, kMaxBuffers> mappedRecvRegions_;$/;"	m	class:gloo::transport::ibverbs::Pair
+mappedSendRegions_	transport/ibverbs/pair.h	/^  std::map<int, std::unique_ptr<MemoryRegion> > mappedSendRegions_;$/;"	m	class:gloo::transport::ibverbs::Pair
+mask	common/linux.h	/^  int mask;$/;"	m	struct:gloo::PCIClassMatch
+max	algorithm.h	/^  static const ReductionFunction<T>* max;$/;"	m	class:gloo::ReductionFunction
+max	algorithm.h	/^const ReductionFunction<T>* ReductionFunction<T>::max =$/;"	m	class:gloo::ReductionFunction
+max	benchmark/timer.h	/^  long max() const {$/;"	f	class:gloo::benchmark::Distribution
+max	cuda.h	/^  static const CudaReductionFunction<T>* max;$/;"	m	class:gloo::CudaReductionFunction
+max	cuda.h	/^const CudaReductionFunction<T>* CudaReductionFunction<T>::max =$/;"	m	class:gloo::CudaReductionFunction
+max	math.cc	/^void max<float16>(float16* x, const float16* y, size_t n) {$/;"	f	namespace:gloo
+max	math.h	/^void max(T* x, const T* y, size_t n) {$/;"	f	namespace:gloo
+merge	benchmark/timer.h	/^  void merge(const Samples& other) {$/;"	f	class:gloo::benchmark::Samples
+min	algorithm.h	/^  static const ReductionFunction<T>* min;$/;"	m	class:gloo::ReductionFunction
+min	algorithm.h	/^const ReductionFunction<T>* ReductionFunction<T>::min =$/;"	m	class:gloo::ReductionFunction
+min	benchmark/timer.h	/^  long min() const {$/;"	f	class:gloo::benchmark::Distribution
+min	cuda.h	/^  static const CudaReductionFunction<T>* min;$/;"	m	class:gloo::CudaReductionFunction
+min	cuda.h	/^const CudaReductionFunction<T>* CudaReductionFunction<T>::min =$/;"	m	class:gloo::CudaReductionFunction
+min	math.cc	/^void min<float16>(float16* x, const float16* y, size_t n) {$/;"	f	namespace:gloo
+min	math.h	/^void min(T* x, const T* y, size_t n) {$/;"	f	namespace:gloo
+mpi	benchmark/options.h	/^  bool mpi = false;$/;"	m	struct:gloo::benchmark::options
+mpi	mpi/context.cc	/^namespace mpi {$/;"	n	namespace:gloo	file:
+mpi	mpi/context.h	/^namespace mpi {$/;"	n	namespace:gloo
+mpiScope_	mpi/context.h	/^  std::shared_ptr<MPIScope> mpiScope_;$/;"	m	class:gloo::mpi::Context
+mr	transport/ibverbs/memory_region.h	/^  struct ibv_mr mr() const {$/;"	f	class:gloo::transport::ibverbs::MemoryRegion
+mr_	transport/ibverbs/buffer.h	/^  struct ibv_mr* mr_;$/;"	m	class:gloo::transport::ibverbs::Buffer	typeref:struct:gloo::transport::ibverbs::Buffer::ibv_mr
+mr_	transport/ibverbs/memory_region.h	/^  struct ibv_mr* mr_;$/;"	m	class:gloo::transport::ibverbs::MemoryRegion	typeref:struct:gloo::transport::ibverbs::MemoryRegion::ibv_mr
+msg	common/logging.cc	/^std::string EnforceNotMet::msg() const {$/;"	f	class:gloo::EnforceNotMet
+msg_	common/logging.h	/^  std::string* msg_;$/;"	m	class:gloo::enforce_detail::EnforceFailMessage
+msg_stack	common/logging.h	/^  inline const std::vector<std::string>& msg_stack() const {$/;"	f	class:gloo::EnforceNotMet
+msg_stack_	common/logging.h	/^  std::vector<std::string> msg_stack_;$/;"	m	class:gloo::EnforceNotMet
+mutex_	benchmark/runner.h	/^  std::mutex mutex_;$/;"	m	class:gloo::benchmark::RunnerJob
+mutex_	benchmark/runner.h	/^  std::mutex mutex_;$/;"	m	class:gloo::benchmark::RunnerThread
+mutex_	cuda.h	/^  static std::atomic<std::mutex*> mutex_;$/;"	m	class:gloo::CudaShared
+mutex_	test/base_test.h	/^  std::mutex mutex_;$/;"	m	class:gloo::test::Barrier
+myBinaryBlockSize_	allreduce_halving_doubling.h	/^  uint32_t myBinaryBlockSize_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+myBinaryBlockSize_	cuda_allreduce_halving_doubling.h	/^  uint32_t myBinaryBlockSize_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+myBinaryBlockSize_	reduce_scatter.h	/^  uint32_t myBinaryBlockSize_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+name	transport/ibverbs/device.h	/^  std::string name;$/;"	m	struct:gloo::transport::ibverbs::attr
+nccl	nccl/nccl.h	/^namespace nccl {$/;"	n	namespace:gloo
+ncclEvents	nccl/nccl.h	/^  std::vector<cudaEvent_t> ncclEvents;$/;"	m	class:gloo::nccl::NCCLExecution
+newBuffer	test/allreduce_test.cc	/^std::vector<T, aligned_allocator<T, kBufferAlignment>> newBuffer(int size) {$/;"	f	namespace:gloo::test::__anon15
+newBuffer	test/reduce_scatter_test.cc	/^std::vector<T, aligned_allocator<T, kBufferAlignment>> newBuffer(int size) {$/;"	f	namespace:gloo::test::__anon16
+newContext	benchmark/runner.cc	/^std::shared_ptr<Context> Runner::newContext() {$/;"	f	class:gloo::benchmark::Runner
+nextLargerBlockSize_	allreduce_halving_doubling.h	/^  uint32_t nextLargerBlockSize_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+nextLargerBlockSize_	cuda_allreduce_halving_doubling.h	/^  uint32_t nextLargerBlockSize_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+nextLargerBlockSize_	reduce_scatter.h	/^  uint32_t nextLargerBlockSize_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+nextSlot	context.cc	/^int Context::nextSlot(int numToSkip) {$/;"	f	class:gloo::Context
+nextSmallerBlockSize_	allreduce_halving_doubling.h	/^  uint32_t nextSmallerBlockSize_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+nextSmallerBlockSize_	cuda_allreduce_halving_doubling.h	/^  uint32_t nextSmallerBlockSize_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+nextSmallerBlockSize_	reduce_scatter.h	/^  uint32_t nextSmallerBlockSize_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+nodeRanks_	allreduce_bcube.h	/^  const std::vector<int> nodeRanks_;$/;"	m	class:gloo::allreduce::bcube::Group
+noexcept	cuda.h	/^  CudaDevicePointer(CudaDevicePointer&&) noexcept;$/;"	m	class:gloo::CudaDevicePointer
+noexcept	cuda.h	/^  CudaHostPointer(CudaHostPointer&&) noexcept;$/;"	m	class:gloo::CudaHostPointer
+noexcept	cuda.h	/^  CudaStream(CudaStream&& other) noexcept;$/;"	m	class:gloo::CudaStream
+noexcept	cuda_private.h	/^  CudaMemory(CudaMemory&&) noexcept;$/;"	m	class:gloo::CudaMemory
+nread_	transport/tcp/pair.h	/^  size_t nread_;$/;"	m	struct:gloo::transport::tcp::Op
+ns	benchmark/timer.h	/^  long ns() const {$/;"	f	class:gloo::benchmark::Timer
+numDestinations_	pairwise_exchange.h	/^  const int numDestinations_;$/;"	m	class:gloo::PairwiseExchange
+numElemsPerStep_	allreduce_bcube.h	/^  std::vector<int> numElemsPerStep_;$/;"	m	class:gloo::allreduce::bcube::Node
+numElems_	allreduce_bcube.h	/^  const int numElems_;$/;"	m	class:gloo::allreduce::bcube::Group
+numPtrs_	cuda_collectives_native.h	/^  const int numPtrs_;$/;"	m	class:gloo::CudaLocalNativeBroadcast
+numPtrs_	cuda_collectives_native.h	/^  const int numPtrs_;$/;"	m	class:gloo::CudaLocalNativeReduce
+nwritten_	transport/tcp/pair.h	/^  size_t nwritten_;$/;"	m	struct:gloo::transport::tcp::Op
+objectPath	rendezvous/file_store.cc	/^std::string FileStore::objectPath(const std::string& name) {$/;"	f	class:gloo::rendezvous::FileStore
+offset	reduce_scatter.h	/^    size_t offset;$/;"	m	struct:gloo::ReduceScatterHalvingDoubling::DistributionMap
+offsetToMyBinaryBlock_	allreduce_halving_doubling.h	/^  uint32_t offsetToMyBinaryBlock_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+offsetToMyBinaryBlock_	cuda_allreduce_halving_doubling.h	/^  uint32_t offsetToMyBinaryBlock_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+offsetToMyBinaryBlock_	reduce_scatter.h	/^  uint32_t offsetToMyBinaryBlock_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+offset_	cuda_collectives_host.h	/^  const size_t offset_;$/;"	m	class:gloo::CudaLocalHostReduce
+offset_	transport/tcp/pair.h	/^    size_t offset_;$/;"	m	struct:gloo::transport::tcp::Op::__anon23
+op_	nccl/nccl.h	/^  const ncclRedOp_t op_;$/;"	m	class:gloo::nccl::AllreduceOp
+op_	nccl/nccl.h	/^  const ncclRedOp_t op_;$/;"	m	class:gloo::nccl::ReduceOp
+op_	nccl/nccl.h	/^  const ncclRedOp_t op_;$/;"	m	class:gloo::nccl::ReduceScatterOp
+opcode_	transport/tcp/pair.h	/^    size_t opcode_;$/;"	m	struct:gloo::transport::tcp::Op::__anon23
+operator !=	types.h	/^  bool operator!=(const float16& rhs) const {$/;"	f	struct:gloo::float16
+operator *	cuda.h	/^  T* operator*() const {$/;"	f	class:gloo::CudaDevicePointer
+operator *	cuda.h	/^  T* operator*() const {$/;"	f	class:gloo::CudaHostPointer
+operator *	cuda.h	/^  cudaStream_t operator*() const {$/;"	f	class:gloo::CudaStream
+operator *	cuda_private.h	/^  T* operator*() const {$/;"	f	class:gloo::CudaMemory
+operator *	types.h	/^inline float16 operator*(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator *=	types.h	/^  float16& operator*=(const float16& rhs) {$/;"	f	struct:gloo::float16
+operator +	types.h	/^inline float16 operator+(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator +=	types.h	/^  float16& operator+=(const float16& rhs) {$/;"	f	struct:gloo::float16
+operator -	types.h	/^inline float16 operator-(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator -=	types.h	/^  float16& operator-=(const float16& rhs) {$/;"	f	struct:gloo::float16
+operator /	types.h	/^inline float16 operator\/(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator /=	types.h	/^  float16& operator\/=(const float16& rhs) {$/;"	f	struct:gloo::float16
+operator <	types.h	/^inline bool operator<(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator <<	types.h	/^inline std::ostream& operator<<(std::ostream& stream, const float16& val) {$/;"	f	namespace:gloo
+operator <=	types.h	/^inline bool operator<=(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator =	types.h	/^  float16& operator=(const float16& rhs) {$/;"	f	struct:gloo::float16
+operator =	types.h	/^  float16& operator=(const int& rhs) {$/;"	f	struct:gloo::float16
+operator ==	cuda.h	/^  bool operator ==(const CudaDevicePointer<T>& other) const {$/;"	f	class:gloo::CudaDevicePointer
+operator ==	cuda.h	/^  bool operator ==(const CudaHostPointer<T>& other) const {$/;"	f	class:gloo::CudaHostPointer
+operator ==	types.h	/^  bool operator==(const double& rhs) const {$/;"	f	struct:gloo::float16
+operator ==	types.h	/^  bool operator==(const float16& rhs) const {$/;"	f	struct:gloo::float16
+operator ==	types.h	/^  bool operator==(const int& rhs) const {$/;"	f	struct:gloo::float16
+operator ==	types.h	/^  bool operator==(const unsigned long& rhs) const {$/;"	f	struct:gloo::float16
+operator >	types.h	/^inline bool operator>(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator >=	types.h	/^inline bool operator>=(const float16& lhs, const float16& rhs) {$/;"	f	namespace:gloo
+operator []	cuda.h	/^  T& operator[](size_t index) const {$/;"	f	class:gloo::CudaDevicePointer
+operator []	cuda.h	/^  T& operator[](size_t index) const {$/;"	f	class:gloo::CudaHostPointer
+operator []	cuda_private.h	/^  cudaStream_t operator[](const int i) {$/;"	f	class:gloo::CudaDeviceStreams
+operator []	transport/ibverbs/device.cc	/^  struct ibv_device*& operator[](int i) {$/;"	f	class:gloo::transport::ibverbs::IbvDevices
+operator half	types.h	/^  operator half() const {$/;"	f	struct:gloo::float16
+options	benchmark/options.h	/^struct options {$/;"	s	namespace:gloo::benchmark
+options_	benchmark/benchmark.h	/^  struct options options_;$/;"	m	class:gloo::benchmark::Benchmark	typeref:struct:gloo::benchmark::Benchmark::options
+options_	benchmark/runner.h	/^  options options_;$/;"	m	class:gloo::benchmark::Runner
+other	cuda_allreduce_ring_chunked.cc	/^  ChunkContext(ChunkContext&& other) = default;$/;"	m	struct:gloo::CudaAllreduceRingChunked::ChunkContext	file:
+outPtr_	allgather_ring.h	/^  T* outPtr_;$/;"	m	class:gloo::AllgatherRing
+outbox_	allreduce_new.h	/^  T* outbox_;$/;"	m	class:gloo::AllreduceNew
+outbox_	allreduce_ring.h	/^  T* outbox_;$/;"	m	class:gloo::AllreduceRing
+outbox_	cuda_allreduce_ring.h	/^  typename W::Pointer outbox_;$/;"	m	class:gloo::CudaAllreduceRing
+outputs_	benchmark/main.cc	/^  std::vector<T> outputs_;$/;"	m	class:__anon19::AllgatherBenchmark	file:
+override	allreduce_local.h	/^  virtual void run() override;$/;"	m	class:gloo::AllreduceLocal
+override	common/logging.h	/^  virtual const char* what() const noexcept override;$/;"	m	class:gloo::EnforceNotMet
+override	cuda_allreduce_halving_doubling.h	/^  virtual void run() override;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+override	cuda_allreduce_local.h	/^  virtual void run() override;$/;"	m	class:gloo::CudaAllreduceLocal
+override	cuda_allreduce_ring.h	/^  virtual void run() override;$/;"	m	class:gloo::CudaAllreduceRing
+override	cuda_allreduce_ring_chunked.h	/^  virtual void run() override;$/;"	m	class:gloo::CudaAllreduceRingChunked
+override	cuda_broadcast_one_to_all.h	/^  virtual void run() override;$/;"	m	class:gloo::CudaBroadcastOneToAll
+override	nccl/nccl.h	/^  void runAsync() override;$/;"	m	class:gloo::nccl::AllgatherOp
+override	nccl/nccl.h	/^  void runAsync() override;$/;"	m	class:gloo::nccl::AllreduceOp
+override	nccl/nccl.h	/^  void runAsync() override;$/;"	m	class:gloo::nccl::BroadcastOp
+override	nccl/nccl.h	/^  void runAsync() override;$/;"	m	class:gloo::nccl::ReduceOp
+override	nccl/nccl.h	/^  void runAsync() override;$/;"	m	class:gloo::nccl::ReduceScatterOp
+override	rendezvous/file_store.h	/^      const std::chrono::milliseconds& timeout) override;$/;"	m	class:gloo::rendezvous::FileStore
+override	rendezvous/file_store.h	/^      override;$/;"	m	class:gloo::rendezvous::FileStore
+override	rendezvous/file_store.h	/^  virtual std::vector<char> get(const std::string& key) override;$/;"	m	class:gloo::rendezvous::FileStore
+override	rendezvous/hash_store.h	/^      const std::chrono::milliseconds& timeout) override;$/;"	m	class:gloo::rendezvous::HashStore
+override	rendezvous/hash_store.h	/^      override;$/;"	m	class:gloo::rendezvous::HashStore
+override	rendezvous/hash_store.h	/^  virtual std::vector<char> get(const std::string& key) override;$/;"	m	class:gloo::rendezvous::HashStore
+override	rendezvous/prefix_store.h	/^      const std::chrono::milliseconds& timeout) override;$/;"	m	class:gloo::rendezvous::PrefixStore
+override	rendezvous/prefix_store.h	/^      override;$/;"	m	class:gloo::rendezvous::PrefixStore
+override	rendezvous/prefix_store.h	/^  virtual std::vector<char> get(const std::string& key) override;$/;"	m	class:gloo::rendezvous::PrefixStore
+override	rendezvous/redis_store.h	/^      const std::chrono::milliseconds& timeout) override;$/;"	m	class:gloo::rendezvous::RedisStore
+override	rendezvous/redis_store.h	/^      override;$/;"	m	class:gloo::rendezvous::RedisStore
+override	rendezvous/redis_store.h	/^  virtual std::vector<char> get(const std::string& key) override;$/;"	m	class:gloo::rendezvous::RedisStore
+override	test/multiproc_test.h	/^  void SetUp() override;$/;"	m	class:gloo::test::MultiProcTest
+override	test/multiproc_test.h	/^  void TearDown() override;$/;"	m	class:gloo::test::MultiProcTest
+override	transport/ibverbs/address.h	/^  virtual std::string str() const override;$/;"	m	class:gloo::transport::ibverbs::Address
+override	transport/ibverbs/address.h	/^  virtual std::vector<char> bytes() const override;$/;"	m	class:gloo::transport::ibverbs::Address
+override	transport/ibverbs/buffer.h	/^  virtual void send(size_t offset, size_t length, size_t roffset = 0) override;$/;"	m	class:gloo::transport::ibverbs::Buffer
+override	transport/ibverbs/buffer.h	/^  virtual void waitRecv() override;$/;"	m	class:gloo::transport::ibverbs::Buffer
+override	transport/ibverbs/buffer.h	/^  virtual void waitSend() override;$/;"	m	class:gloo::transport::ibverbs::Buffer
+override	transport/ibverbs/device.h	/^      std::chrono::milliseconds timeout) override;$/;"	m	class:gloo::transport::ibverbs::Device
+override	transport/ibverbs/device.h	/^  virtual bool hasGPUDirect() const override;$/;"	m	class:gloo::transport::ibverbs::Device
+override	transport/ibverbs/device.h	/^  virtual const std::string& getPCIBusID() const override;$/;"	m	class:gloo::transport::ibverbs::Device
+override	transport/ibverbs/device.h	/^  virtual std::string str() const override;$/;"	m	class:gloo::transport::ibverbs::Device
+override	transport/ibverbs/pair.h	/^  createRecvBuffer(int slot, void* ptr, size_t size) override;$/;"	m	class:gloo::transport::ibverbs::Pair
+override	transport/ibverbs/pair.h	/^  createSendBuffer(int slot, void* ptr, size_t size) override;$/;"	m	class:gloo::transport::ibverbs::Pair
+override	transport/ibverbs/pair.h	/^  virtual const Address& address() const override;$/;"	m	class:gloo::transport::ibverbs::Pair
+override	transport/ibverbs/pair.h	/^  virtual void connect(const std::vector<char>& bytes) override;$/;"	m	class:gloo::transport::ibverbs::Pair
+override	transport/ibverbs/pair.h	/^  virtual void setSync(bool enable, bool busyPoll) override;$/;"	m	class:gloo::transport::ibverbs::Pair
+override	transport/ibverbs/pair.h	/^  void close() override;$/;"	m	class:gloo::transport::ibverbs::Pair
+override	transport/tcp/address.h	/^  virtual std::string str() const override;$/;"	m	class:gloo::transport::tcp::Address
+override	transport/tcp/address.h	/^  virtual std::vector<char> bytes() const override;$/;"	m	class:gloo::transport::tcp::Address
+override	transport/tcp/buffer.h	/^  virtual void send(size_t offset, size_t length, size_t roffset = 0) override;$/;"	m	class:gloo::transport::tcp::Buffer
+override	transport/tcp/buffer.h	/^  virtual void waitRecv() override;$/;"	m	class:gloo::transport::tcp::Buffer
+override	transport/tcp/buffer.h	/^  virtual void waitSend() override;$/;"	m	class:gloo::transport::tcp::Buffer
+override	transport/tcp/device.h	/^      std::chrono::milliseconds timeout) override;$/;"	m	class:gloo::transport::tcp::Device
+override	transport/tcp/device.h	/^  virtual const std::string& getPCIBusID() const override;$/;"	m	class:gloo::transport::tcp::Device
+override	transport/tcp/device.h	/^  virtual int getInterfaceSpeed() const override;$/;"	m	class:gloo::transport::tcp::Device
+override	transport/tcp/device.h	/^  virtual std::string str() const override;$/;"	m	class:gloo::transport::tcp::Device
+override	transport/tcp/pair.h	/^  createRecvBuffer(int slot, void* ptr, size_t size) override;$/;"	m	class:gloo::transport::tcp::Pair
+override	transport/tcp/pair.h	/^  createSendBuffer(int slot, void* ptr, size_t size) override;$/;"	m	class:gloo::transport::tcp::Pair
+override	transport/tcp/pair.h	/^  virtual const Address& address() const override;$/;"	m	class:gloo::transport::tcp::Pair
+override	transport/tcp/pair.h	/^  virtual void connect(const std::vector<char>& bytes) override;$/;"	m	class:gloo::transport::tcp::Pair
+override	transport/tcp/pair.h	/^  virtual void setSync(bool sync, bool busyPoll) override;$/;"	m	class:gloo::transport::tcp::Pair
+override	transport/tcp/pair.h	/^  void close() override;$/;"	m	class:gloo::transport::tcp::Pair
+owner_	cuda.h	/^  bool owner_ = false;$/;"	m	class:gloo::CudaDevicePointer
+owner_	cuda.h	/^  bool owner_ = false;$/;"	m	class:gloo::CudaHostPointer
+p2p	allreduce_new.h	/^int p2p(void* buf, size_t size, uint32_t src_rank, uint32_t dst_rank){$/;"	f	class:gloo::AllreduceNew
+pair_	transport/ibverbs/buffer.h	/^  Pair* pair_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+pair_	transport/tcp/buffer.h	/^  Pair* pair_;$/;"	m	class:gloo::transport::tcp::Buffer
+pairs_	context.h	/^  std::vector<std::unique_ptr<transport::Pair>> pairs_;$/;"	m	class:gloo::Context
+parseOptions	benchmark/options.cc	/^struct options parseOptions(int argc, char** argv) {$/;"	f	namespace:gloo::benchmark
+pciBusID_	transport/ibverbs/device.h	/^  const std::string pciBusID_;$/;"	m	class:gloo::transport::ibverbs::Device
+pciBusID_	transport/tcp/device.h	/^  std::string pciBusID_;$/;"	m	class:gloo::transport::tcp::Device
+pciDevices	common/linux.cc	/^std::vector<std::string> pciDevices(PCIClassMatch match) {$/;"	f	namespace:gloo
+pciDistance	common/linux.cc	/^int pciDistance(const std::string& a, const std::string& b) {$/;"	f	namespace:gloo
+pciGetClass	common/linux.cc	/^static unsigned int pciGetClass(const std::string& id) {$/;"	f	namespace:gloo
+pciPath	common/linux.cc	/^static std::string pciPath(const std::string& id) {$/;"	f	namespace:gloo
+pd_	transport/ibverbs/device.h	/^  ibv_pd* pd_;$/;"	m	class:gloo::transport::ibverbs::Device
+peer	transport/ibverbs/pair.h	/^  const Address& peer() const {$/;"	f	class:gloo::transport::ibverbs::Pair
+peer	transport/tcp/pair.h	/^  const Address& peer() const {$/;"	f	class:gloo::transport::tcp::Pair
+peerMemoryRegions_	transport/ibverbs/pair.h	/^  std::map<int, struct ibv_mr> peerMemoryRegions_;$/;"	m	class:gloo::transport::ibverbs::Pair
+peer_	transport/ibverbs/pair.h	/^  Address peer_;$/;"	m	class:gloo::transport::ibverbs::Pair
+peer_	transport/tcp/pair.h	/^  Address peer_;$/;"	m	class:gloo::transport::tcp::Pair
+peersPerStep_	allreduce_bcube.h	/^  std::vector<std::vector<int>> peersPerStep_;$/;"	m	class:gloo::allreduce::bcube::Node
+percentile	benchmark/timer.h	/^  long percentile(float pct) const {$/;"	f	class:gloo::benchmark::Distribution
+pipelined_	cuda_allreduce_halving_doubling.h	/^  bool pipelined_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+pollCompletions	transport/ibverbs/pair.cc	/^void Pair::pollCompletions() {$/;"	f	class:gloo::transport::ibverbs::Pair
+port	transport/ibverbs/device.h	/^  int port;$/;"	m	struct:gloo::transport::ibverbs::attr
+portAttr_	transport/ibverbs/device.h	/^  ibv_port_attr portAttr_;$/;"	m	class:gloo::transport::ibverbs::Device
+postReceive	transport/ibverbs/pair.cc	/^void Pair::postReceive() {$/;"	f	class:gloo::transport::ibverbs::Pair
+power	testbuild.cc	/^int power(int k, int n){$/;"	f
+preamble_	transport/tcp/pair.h	/^  } preamble_;$/;"	m	struct:gloo::transport::tcp::Op	typeref:struct:gloo::transport::tcp::Op::__anon23
+prefix	benchmark/options.h	/^  std::string prefix = "prefix";$/;"	m	struct:gloo::benchmark::options
+prefix_	rendezvous/prefix_store.h	/^  const std::string prefix_;$/;"	m	class:gloo::rendezvous::PrefixStore
+previous_	cuda_private.h	/^  int previous_;$/;"	m	class:gloo::CudaDeviceGuard
+printBreak	allreduce_bcube.h	/^  static void printBreak(T* p, int x) {$/;"	f	class:gloo::AllreduceBcube
+printCheck	allreduce_bcube.h	/^  static bool printCheck(int \/*rank*\/) {$/;"	f	class:gloo::AllreduceBcube
+printDistribution	benchmark/runner.cc	/^void Runner::printDistribution($/;"	f	class:gloo::benchmark::Runner
+printElems	allreduce_bcube.h	/^  static void printElems(T* p, int count, int start = 0) {$/;"	f	class:gloo::AllreduceBcube
+printHeader	benchmark/runner.cc	/^void Runner::printHeader() {$/;"	f	class:gloo::benchmark::Runner
+printStageBuffer	allreduce_bcube.h	/^  void printStageBuffer(const std::string& msg) {$/;"	f	class:gloo::AllreduceBcube
+printStepBuffer	allreduce_bcube.h	/^  void printStepBuffer($/;"	f	class:gloo::AllreduceBcube
+product	algorithm.h	/^  static const ReductionFunction<T>* product;$/;"	m	class:gloo::ReductionFunction
+product	algorithm.h	/^const ReductionFunction<T>* ReductionFunction<T>::product =$/;"	m	class:gloo::ReductionFunction
+product	cuda.h	/^  static const CudaReductionFunction<T>* product;$/;"	m	class:gloo::CudaReductionFunction
+product	cuda.h	/^const CudaReductionFunction<T>* CudaReductionFunction<T>::product =$/;"	m	class:gloo::CudaReductionFunction
+product	math.cc	/^void product<float16>(float16* x, const float16* y, size_t n) {$/;"	f	namespace:gloo
+product	math.h	/^void product(T* x, const T* y, size_t n) {$/;"	f	namespace:gloo
+psn	transport/ibverbs/address.h	/^    uint32_t psn;$/;"	m	struct:gloo::transport::ibverbs::Address::__anon22
+ptrOffsetPerStep_	allreduce_bcube.h	/^  std::vector<int> ptrOffsetPerStep_;$/;"	m	class:gloo::allreduce::bcube::Node
+ptrOffset_	allreduce_bcube.h	/^  const int ptrOffset_;$/;"	m	class:gloo::allreduce::bcube::Group
+ptr_	cuda_private.h	/^  T* ptr_;$/;"	m	class:gloo::CudaMemory
+ptr_	transport/buffer.h	/^  void* ptr_;$/;"	m	class:gloo::transport::Buffer
+ptrs_	allreduce_halving_doubling.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+ptrs_	allreduce_local.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::AllreduceLocal
+ptrs_	allreduce_new.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::AllreduceNew
+ptrs_	allreduce_ring.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::AllreduceRing
+ptrs_	allreduce_ring_chunked.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::AllreduceRingChunked
+ptrs_	broadcast_one_to_all.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::BroadcastOneToAll
+ptrs_	reduce_scatter.h	/^  std::vector<T*> ptrs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+qp_	transport/ibverbs/pair.h	/^  struct ibv_qp* qp_;$/;"	m	class:gloo::transport::ibverbs::Pair	typeref:struct:gloo::transport::ibverbs::Pair::ibv_qp
+qpn	transport/ibverbs/address.h	/^    uint32_t qpn;$/;"	m	struct:gloo::transport::ibverbs::Address::__anon22
+range	cuda.h	/^  CudaDevicePointer<T> range(size_t offset, size_t count) const {$/;"	f	class:gloo::CudaDevicePointer
+range	cuda.h	/^  CudaHostPointer<T> range(size_t offset, size_t count) const {$/;"	f	class:gloo::CudaHostPointer
+rank	context.h	/^  const int rank;$/;"	m	class:gloo::Context
+rank	reduce_scatter.h	/^    int rank;$/;"	m	struct:gloo::ReduceScatterHalvingDoubling::DistributionMap
+rankInBinaryBlock_	allreduce_halving_doubling.h	/^  uint32_t rankInBinaryBlock_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+rankInBinaryBlock_	cuda_allreduce_halving_doubling.h	/^  uint32_t rankInBinaryBlock_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+rankInBinaryBlock_	reduce_scatter.h	/^  uint32_t rankInBinaryBlock_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+rank_	allreduce_bcube.h	/^  const int rank_;$/;"	m	class:gloo::allreduce::bcube::Node
+read	transport/tcp/pair.cc	/^bool Pair::read(Op& op) {$/;"	f	class:gloo::transport::tcp::Pair
+realPath	rendezvous/file_store.cc	/^std::string FileStore::realPath(const std::string& path) {$/;"	f	class:gloo::rendezvous::FileStore
+rebind	common/common.h	/^  struct rebind {$/;"	s	class:gloo::aligned_allocator
+receiver_	broadcast_one_to_all.h	/^  std::unique_ptr<forReceiver> receiver_;$/;"	v
+receiver_	cuda_broadcast_one_to_all.h	/^  std::unique_ptr<forReceiver> receiver_;$/;"	v
+recv	transport/tcp/pair.cc	/^void Pair::recv() {$/;"	f	class:gloo::transport::tcp::Pair
+recvBufDist_	reduce_scatter.h	/^  std::vector<T> recvBufDist_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvBufIdx_	allreduce_bcube.h	/^  std::unordered_map<int, int> recvBufIdx_;$/;"	m	class:gloo::AllreduceBcube
+recvBuf_	allreduce_halving_doubling.h	/^  std::vector<T> recvBuf_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+recvBuf_	cuda_allreduce_halving_doubling.h	/^  typename W::Pointer recvBuf_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+recvBuf_	reduce_scatter.h	/^  std::vector<T> recvBuf_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvBuffer	broadcast_one_to_all.h	/^    std::unique_ptr<transport::Buffer> recvBuffer;$/;"	m	namespace:gloo
+recvBuffer	cuda_broadcast_one_to_all.h	/^    std::unique_ptr<transport::Buffer> recvBuffer;$/;"	m	namespace:gloo
+recvBufferData_	pairwise_exchange.h	/^  std::unique_ptr<char> recvBufferData_;$/;"	m	class:gloo::PairwiseExchange
+recvBuffersData_	barrier_all_to_all.h	/^  std::vector<std::unique_ptr<int>> recvBuffersData_;$/;"	m	class:gloo::BarrierAllToAll
+recvBuffersData_	barrier_all_to_one.h	/^  std::vector<std::unique_ptr<int>> recvBuffersData_;$/;"	m	class:gloo::BarrierAllToOne
+recvBuffers_	barrier_all_to_all.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvBuffers_;$/;"	m	class:gloo::BarrierAllToAll
+recvBuffers_	barrier_all_to_one.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvBuffers_;$/;"	m	class:gloo::BarrierAllToOne
+recvBuffers_	pairwise_exchange.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvBuffers_;$/;"	m	class:gloo::PairwiseExchange
+recvBuffers_	rendezvous/context.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvBuffers_;$/;"	m	class:gloo::rendezvous::ContextFactory
+recvBufs_	allreduce_bcube.h	/^  std::vector<std::vector<T>> recvBufs_;$/;"	m	class:gloo::AllreduceBcube
+recvCompletionHandlers_	transport/ibverbs/pair.h	/^  std::map<int, Buffer*> recvCompletionHandlers_;$/;"	m	class:gloo::transport::ibverbs::Pair
+recvCompletions_	transport/ibverbs/buffer.h	/^  int recvCompletions_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+recvCompletions_	transport/tcp/buffer.h	/^  int recvCompletions_;$/;"	m	class:gloo::transport::tcp::Buffer
+recvCounts_	allreduce_halving_doubling.h	/^  std::vector<size_t> recvCounts_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+recvCounts_	benchmark/main.cc	/^   std::vector<int> recvCounts_;$/;"	m	class:__anon19::ReduceScatterBenchmark	file:
+recvCounts_	cuda_allreduce_halving_doubling.h	/^  std::vector<size_t> recvCounts_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+recvCounts_	reduce_scatter.h	/^  std::vector<size_t> recvCounts_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvCv_	transport/ibverbs/buffer.h	/^  std::condition_variable recvCv_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+recvCv_	transport/tcp/buffer.h	/^  std::condition_variable recvCv_;$/;"	m	class:gloo::transport::tcp::Buffer
+recvDataBuf_	allgather_ring.h	/^  std::unique_ptr<transport::Buffer> recvDataBuf_;$/;"	m	class:gloo::AllgatherRing
+recvDataBuf_	allreduce_new.h	/^  std::unique_ptr<transport::Buffer> recvDataBuf_;$/;"	m	class:gloo::AllreduceNew
+recvDataBuf_	allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> recvDataBuf_;$/;"	m	class:gloo::AllreduceRing
+recvDataBuf_	allreduce_ring_chunked.h	/^  std::unique_ptr<transport::Buffer> recvDataBuf_[2];$/;"	m	class:gloo::AllreduceRingChunked
+recvDataBuf_	cuda_allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> recvDataBuf_;$/;"	m	class:gloo::CudaAllreduceRing
+recvDataBuf_	cuda_allreduce_ring_chunked.h	/^  std::array<std::unique_ptr<transport::Buffer>, 2> recvDataBuf_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+recvDataBufs_	allreduce_bcube.h	/^  std::unordered_map<int, std::unique_ptr<transport::Buffer>> recvDataBufs_;$/;"	m	class:gloo::AllreduceBcube
+recvDataBufs_	allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvDataBufs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+recvDataBufs_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvDataBufs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+recvDataBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvDataBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvData_	rendezvous/context.h	/^  std::vector<std::vector<char>> recvData_;$/;"	m	class:gloo::rendezvous::ContextFactory
+recvElems_	reduce_scatter.h	/^  const std::vector<int> recvElems_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvNotificationBuf_	allgather_ring.h	/^  std::unique_ptr<transport::Buffer> recvNotificationBuf_;$/;"	m	class:gloo::AllgatherRing
+recvNotificationBuf_	allreduce_new.h	/^  std::unique_ptr<transport::Buffer> recvNotificationBuf_;$/;"	m	class:gloo::AllreduceNew
+recvNotificationBuf_	allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> recvNotificationBuf_;$/;"	m	class:gloo::AllreduceRing
+recvNotificationBuf_	allreduce_ring_chunked.h	/^  std::unique_ptr<transport::Buffer> recvNotificationBuf_;$/;"	m	class:gloo::AllreduceRingChunked
+recvNotificationBuf_	cuda_allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> recvNotificationBuf_;$/;"	m	class:gloo::CudaAllreduceRing
+recvNotificationBuf_	cuda_allreduce_ring_chunked.h	/^  std::unique_ptr<transport::Buffer> recvNotificationBuf_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+recvNotificationBuffers_	rendezvous/context.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvNotificationBuffers_;$/;"	m	class:gloo::rendezvous::ContextFactory
+recvNotificationBufs_	allreduce_bcube.h	/^      recvNotificationBufs_;$/;"	m	class:gloo::AllreduceBcube
+recvNotificationBufs_	allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvNotificationBufs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+recvNotificationBufs_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvNotificationBufs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+recvNotificationBufs_	pairwise_exchange.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvNotificationBufs_;$/;"	m	class:gloo::PairwiseExchange
+recvNotificationBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> recvNotificationBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvNotificationData_	rendezvous/context.h	/^  std::vector<int> recvNotificationData_;$/;"	m	class:gloo::rendezvous::ContextFactory
+recvOffsets_	allreduce_halving_doubling.h	/^  std::vector<size_t> recvOffsets_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+recvOffsets_	cuda_allreduce_halving_doubling.h	/^  std::vector<size_t> recvOffsets_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+recvOffsets_	reduce_scatter.h	/^  std::vector<size_t> recvOffsets_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+recvPosted_	transport/ibverbs/pair.h	/^  uint64_t recvPosted_;$/;"	m	class:gloo::transport::ibverbs::Pair
+redisHost	benchmark/options.h	/^  std::string redisHost;$/;"	m	struct:gloo::benchmark::options
+redisPort	benchmark/options.h	/^  int redisPort = 6379;$/;"	m	struct:gloo::benchmark::options
+redis_	rendezvous/redis_store.h	/^  redisContext* redis_;$/;"	m	class:gloo::rendezvous::RedisStore
+reduceBeforeFirstRecv_	cuda_allreduce_halving_doubling.h	/^  std::unique_ptr<LocalOp<T>> reduceBeforeFirstRecv_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+reduceBeforeFirstSend_	cuda_allreduce_halving_doubling.h	/^  std::unique_ptr<LocalOp<T>> reduceBeforeFirstSend_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+reduceOp	cuda_allreduce_ring_chunked.cc	/^  std::unique_ptr<LocalOp<T> > reduceOp;$/;"	m	struct:gloo::CudaAllreduceRingChunked::ChunkContext	file:
+reduceOp_	cuda_collectives_nccl.h	/^  std::unique_ptr<nccl::ReduceOp<T> > reduceOp_;$/;"	m	class:gloo::CudaLocalNCCLReduce
+reduceScatterHalvingDoubling	test/reduce_scatter_test.cc	/^static std::function<Func> reduceScatterHalvingDoubling = []($/;"	m	namespace:gloo::test::__anon16	file:
+reduceScatterHalvingDoublingHP	test/reduce_scatter_test.cc	/^static std::function<Func16> reduceScatterHalvingDoublingHP = []($/;"	m	namespace:gloo::test::__anon16	file:
+reductionType_	allreduce_builder.h	/^  ReductionType reductionType_;$/;"	m	class:gloo::AllreduceBuilder
+registerBuffer	transport/tcp/pair.cc	/^void Pair::registerBuffer(Buffer* buf) {$/;"	f	class:gloo::transport::tcp::Pair
+registerDescriptor	transport/tcp/device.cc	/^void Device::registerDescriptor(int fd, int events, Pair* p) {$/;"	f	class:gloo::transport::tcp::Device
+removeTree	test/multiproc_test.cc	/^static int removeTree(const std::string& root) {$/;"	f	namespace:gloo::test
+rendezvous	rendezvous/context.cc	/^namespace rendezvous {$/;"	n	namespace:gloo	file:
+rendezvous	rendezvous/context.h	/^namespace rendezvous {$/;"	n	namespace:gloo
+rendezvous	rendezvous/file_store.cc	/^namespace rendezvous {$/;"	n	namespace:gloo	file:
+rendezvous	rendezvous/file_store.h	/^namespace rendezvous {$/;"	n	namespace:gloo
+rendezvous	rendezvous/hash_store.cc	/^namespace rendezvous {$/;"	n	namespace:gloo	file:
+rendezvous	rendezvous/hash_store.h	/^namespace rendezvous {$/;"	n	namespace:gloo
+rendezvous	rendezvous/prefix_store.cc	/^namespace rendezvous {$/;"	n	namespace:gloo	file:
+rendezvous	rendezvous/prefix_store.h	/^namespace rendezvous {$/;"	n	namespace:gloo
+rendezvous	rendezvous/redis_store.cc	/^namespace rendezvous {$/;"	n	namespace:gloo	file:
+rendezvous	rendezvous/redis_store.h	/^namespace rendezvous {$/;"	n	namespace:gloo
+rendezvous	rendezvous/store.cc	/^namespace rendezvous {$/;"	n	namespace:gloo	file:
+rendezvous	rendezvous/store.h	/^namespace rendezvous {$/;"	n	namespace:gloo
+rendezvousFileSystem	benchmark/runner.cc	/^void Runner::rendezvousFileSystem() {$/;"	f	class:gloo::benchmark::Runner
+rendezvousMPI	benchmark/runner.cc	/^void Runner::rendezvousMPI() {$/;"	f	class:gloo::benchmark::Runner
+rendezvousRedis	benchmark/runner.cc	/^void Runner::rendezvousRedis() {$/;"	f	class:gloo::benchmark::Runner
+reverseLastNBits	allreduce_halving_doubling.h	/^uint32_t reverseLastNBits(uint32_t ctr, uint32_t n) {$/;"	f	namespace:gloo::__anon21
+reverseLastNBits	cuda_allreduce_halving_doubling.cc	/^uint32_t reverseLastNBits(uint32_t ctr, uint32_t n) {$/;"	f	namespace:gloo::__anon17
+reverseLastNBits	reduce_scatter.h	/^  uint32_t reverseLastNBits(uint32_t ctr, uint32_t n) {$/;"	f	class:gloo::ReduceScatterHalvingDoubling
+rhs	allreduce_builder.h	/^  AllreduceBuilder(const AllreduceBuilder<T>& rhs) = default;$/;"	m	class:gloo::AllreduceBuilder
+rhs	broadcast_builder.h	/^  BroadcastBuilder(const BroadcastBuilder<T>& rhs) = default;$/;"	m	class:gloo::BroadcastBuilder
+rightPair_	allgather_ring.h	/^  std::unique_ptr<transport::Pair>& rightPair_;$/;"	m	class:gloo::AllgatherRing
+roffset_	transport/tcp/pair.h	/^    size_t roffset_;$/;"	m	struct:gloo::transport::tcp::Op::__anon23
+rootPointerRank_	benchmark/cuda_main.cc	/^  const int rootPointerRank_ = 0;$/;"	m	class:__anon20::CudaBroadcastOneToAllBenchmark	file:
+rootPointerRank_	broadcast_builder.h	/^  int rootPointerRank_;$/;"	m	class:gloo::BroadcastBuilder
+rootPointerRank_	broadcast_one_to_all.h	/^  const int rootPointerRank_;$/;"	m	class:gloo::BroadcastOneToAll
+rootPointerRank_	cuda_broadcast_one_to_all.h	/^  const int rootPointerRank_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+rootRank_	barrier_all_to_one.h	/^  const int rootRank_;$/;"	m	class:gloo::BarrierAllToOne
+rootRank_	benchmark/cuda_main.cc	/^  const int rootRank_ = 0;$/;"	m	class:__anon20::CudaBroadcastOneToAllBenchmark	file:
+rootRank_	benchmark/main.cc	/^  const int rootRank_ = 0;$/;"	m	class:__anon19::BroadcastOneToAllBenchmark	file:
+rootRank_	broadcast_builder.h	/^  int rootRank_;$/;"	m	class:gloo::BroadcastBuilder
+rootRank_	broadcast_one_to_all.h	/^  const int rootRank_;$/;"	m	class:gloo::BroadcastOneToAll
+rootRank_	cuda_broadcast_one_to_all.h	/^  const int rootRank_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+root_	cuda_collectives_nccl.h	/^  const int root_;$/;"	m	class:gloo::CudaLocalNCCLBroadcast
+root_	cuda_collectives_nccl.h	/^  const int root_;$/;"	m	class:gloo::CudaLocalNCCLReduce
+root_	nccl/nccl.h	/^  const int root_;$/;"	m	class:gloo::nccl::BroadcastOp
+root_	nccl/nccl.h	/^  const int root_;$/;"	m	class:gloo::nccl::ReduceOp
+run	algorithm.h	/^  inline void run() {$/;"	f	class:gloo::LocalOp
+run	allgather_ring.h	/^  void run() {$/;"	f	class:gloo::AllgatherRing
+run	allreduce_bcube.h	/^  void run() {$/;"	f	class:gloo::AllreduceBcube
+run	allreduce_halving_doubling.h	/^  void run() {$/;"	f	class:gloo::AllreduceHalvingDoubling
+run	allreduce_local.cc	/^void AllreduceLocal<T>::run() {$/;"	f	class:gloo::AllreduceLocal
+run	allreduce_new.h	/^  void run() {$/;"	f	class:gloo::AllreduceNew
+run	allreduce_ring.h	/^  void run() {$/;"	f	class:gloo::AllreduceRing
+run	allreduce_ring_chunked.h	/^  void run() {$/;"	f	class:gloo::AllreduceRingChunked
+run	barrier_all_to_all.h	/^  void run() {$/;"	f	class:gloo::BarrierAllToAll
+run	barrier_all_to_one.h	/^  void run() {$/;"	f	class:gloo::BarrierAllToOne
+run	benchmark/benchmark.h	/^  virtual void run() {$/;"	f	class:gloo::benchmark::Benchmark
+run	benchmark/runner.cc	/^void Runner::run(BenchmarkFn<T>& fn) {$/;"	f	class:gloo::benchmark::Runner
+run	benchmark/runner.cc	/^void Runner::run(BenchmarkFn<T>& fn, int n) {$/;"	f	class:gloo::benchmark::Runner
+run	benchmark/runner.cc	/^void RunnerThread::run(RunnerJob* job) {$/;"	f	class:gloo::benchmark::RunnerThread
+run	broadcast_one_to_all.h	/^  void run() {$/;"	f	class:gloo::BroadcastOneToAll
+run	cuda_allreduce_halving_doubling.cc	/^void CudaAllreduceHalvingDoubling<T, W>::run() {$/;"	f	class:gloo::CudaAllreduceHalvingDoubling
+run	cuda_allreduce_local.cc	/^void CudaAllreduceLocal<T>::run() {$/;"	f	class:gloo::CudaAllreduceLocal
+run	cuda_allreduce_ring.cc	/^void CudaAllreduceRing<T, W>::run() {$/;"	f	class:gloo::CudaAllreduceRing
+run	cuda_allreduce_ring_chunked.cc	/^void CudaAllreduceRingChunked<T, W>::run() {$/;"	f	class:gloo::CudaAllreduceRingChunked
+run	cuda_broadcast_one_to_all.cc	/^void CudaBroadcastOneToAll<T, W>::run() {$/;"	f	class:gloo::CudaBroadcastOneToAll
+run	pairwise_exchange.h	/^  void run() {$/;"	f	class:gloo::PairwiseExchange
+run	reduce_scatter.h	/^  void run() {$/;"	f	class:gloo::ReduceScatterHalvingDoubling
+run	test/multiproc_test.h	/^  void run($/;"	f	class:gloo::test::MultiProcWorker
+runAsync	cuda.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalMemcpy
+runAsync	cuda_collectives_host.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalHostBroadcast
+runAsync	cuda_collectives_host.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalHostReduce
+runAsync	cuda_collectives_native.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalNativeBroadcast
+runAsync	cuda_collectives_native.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalNativeReduce
+runAsync	cuda_collectives_nccl.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalNCCLBroadcast
+runAsync	cuda_collectives_nccl.h	/^  virtual void runAsync() {$/;"	f	class:gloo::CudaLocalNCCLReduce
+runBenchmark	benchmark/cuda_main.cc	/^void runBenchmark(options& x) {$/;"	f
+runWorker	test/multiproc_test.cc	/^int MultiProcTest::runWorker($/;"	f	class:gloo::test::MultiProcTest
+rx_	transport/tcp/pair.h	/^  Op rx_;$/;"	m	class:gloo::transport::tcp::Pair
+samples_	benchmark/runner.h	/^  Samples samples_;$/;"	m	class:gloo::benchmark::RunnerJob
+samples_	benchmark/timer.h	/^  std::vector<long> samples_;$/;"	m	class:gloo::benchmark::Distribution
+samples_	benchmark/timer.h	/^  std::vector<long> samples_;$/;"	m	class:gloo::benchmark::Samples
+scratch	cuda_allreduce_ring_chunked.cc	/^  typename W::Pointer scratch;$/;"	m	struct:gloo::CudaAllreduceRingChunked::ChunkContext	file:
+scratchPtrForBroadcast_	cuda_allreduce_halving_doubling.h	/^  std::vector<typename W::Pointer> scratchPtrForBroadcast_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+scratchPtrForFirstRecv_	cuda_allreduce_halving_doubling.h	/^  typename W::Pointer scratchPtrForFirstRecv_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+scratchPtrForFirstSend_	cuda_allreduce_halving_doubling.h	/^  typename W::Pointer scratchPtrForFirstSend_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+scratchStream_	cuda_allreduce_halving_doubling.h	/^  CudaStream* scratchStream_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+scratchStream_	cuda_allreduce_ring.h	/^  CudaStream* scratchStream_;$/;"	m	class:gloo::CudaAllreduceRing
+scratchStream_	cuda_allreduce_ring_chunked.h	/^  CudaStream* scratchStream_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+scratch_	cuda_allreduce_halving_doubling.h	/^  typename W::Pointer scratch_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+scratch_	cuda_allreduce_ring.h	/^  typename W::Pointer scratch_;$/;"	m	class:gloo::CudaAllreduceRing
+scratch_	cuda_allreduce_ring_chunked.h	/^  typename W::Pointer scratch_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+scratch_	cuda_broadcast_one_to_all.h	/^  typename W::Pointer scratch_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+self_	transport/ibverbs/pair.h	/^  Address self_;$/;"	m	class:gloo::transport::ibverbs::Pair
+self_	transport/tcp/pair.h	/^  Address self_;$/;"	m	class:gloo::transport::tcp::Pair
+semaphoreName_	test/multiproc_test.h	/^  std::string semaphoreName_;$/;"	m	class:gloo::test::MultiProcTest
+semaphore_	test/multiproc_test.h	/^  sem_t* semaphore_;$/;"	m	class:gloo::test::MultiProcTest
+semaphore_	test/multiproc_test.h	/^  sem_t* semaphore_;$/;"	m	class:gloo::test::MultiProcWorker
+send	transport/buffer.h	/^  void send() {$/;"	f	class:gloo::transport::Buffer
+send	transport/ibverbs/buffer.cc	/^void Buffer::send(size_t offset, size_t length, size_t roffset) {$/;"	f	class:gloo::transport::ibverbs::Buffer
+send	transport/ibverbs/pair.cc	/^void Pair::send(Buffer* buffer, size_t offset, size_t length, size_t roffset) {$/;"	f	class:gloo::transport::ibverbs::Pair
+send	transport/tcp/buffer.cc	/^void Buffer::send(size_t offset, size_t length, size_t roffset) {$/;"	f	class:gloo::transport::tcp::Buffer
+send	transport/tcp/pair.cc	/^void Pair::send(Op& op) {$/;"	f	class:gloo::transport::tcp::Pair
+sendBuffer	broadcast_one_to_all.h	/^    std::unique_ptr<transport::Buffer> sendBuffer;$/;"	m	class:gloo::BroadcastOneToAll
+sendBuffer	cuda_broadcast_one_to_all.h	/^    std::unique_ptr<transport::Buffer> sendBuffer;$/;"	m	class:gloo::CudaBroadcastOneToAll
+sendBufferData_	pairwise_exchange.h	/^  std::unique_ptr<char> sendBufferData_;$/;"	m	class:gloo::PairwiseExchange
+sendBufferSize_	transport/tcp/pair.h	/^  int sendBufferSize_;$/;"	m	class:gloo::transport::tcp::Pair
+sendBuffersData_	barrier_all_to_all.h	/^  std::vector<std::unique_ptr<int>> sendBuffersData_;$/;"	m	class:gloo::BarrierAllToAll
+sendBuffersData_	barrier_all_to_one.h	/^  std::vector<std::unique_ptr<int>> sendBuffersData_;$/;"	m	class:gloo::BarrierAllToOne
+sendBuffers_	barrier_all_to_all.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendBuffers_;$/;"	m	class:gloo::BarrierAllToAll
+sendBuffers_	barrier_all_to_one.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendBuffers_;$/;"	m	class:gloo::BarrierAllToOne
+sendBuffers_	pairwise_exchange.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendBuffers_;$/;"	m	class:gloo::PairwiseExchange
+sendBuffers_	rendezvous/context.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendBuffers_;$/;"	m	class:gloo::rendezvous::ContextFactory
+sendCompletionHandlers_	transport/ibverbs/pair.h	/^  std::map<int, Buffer*> sendCompletionHandlers_;$/;"	m	class:gloo::transport::ibverbs::Pair
+sendCompletions_	transport/ibverbs/buffer.h	/^  int sendCompletions_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+sendCompletions_	transport/tcp/buffer.h	/^  int sendCompletions_;$/;"	m	class:gloo::transport::tcp::Buffer
+sendCountToLargerBlock_	allreduce_halving_doubling.h	/^  size_t sendCountToLargerBlock_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+sendCountToLargerBlock_	cuda_allreduce_halving_doubling.h	/^  size_t sendCountToLargerBlock_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+sendCountToLargerBlock_	reduce_scatter.h	/^  size_t sendCountToLargerBlock_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+sendCounts_	allreduce_halving_doubling.h	/^  std::vector<size_t> sendCounts_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+sendCounts_	cuda_allreduce_halving_doubling.h	/^  std::vector<size_t> sendCounts_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+sendCounts_	reduce_scatter.h	/^  std::vector<size_t> sendCounts_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+sendCv_	transport/ibverbs/buffer.h	/^  std::condition_variable sendCv_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+sendCv_	transport/tcp/buffer.h	/^  std::condition_variable sendCv_;$/;"	m	class:gloo::transport::tcp::Buffer
+sendDataBuf_	allgather_ring.h	/^  std::unique_ptr<transport::Buffer> sendDataBuf_;$/;"	m	class:gloo::AllgatherRing
+sendDataBuf_	allreduce_new.h	/^  std::unique_ptr<transport::Buffer> sendDataBuf_;$/;"	m	class:gloo::AllreduceNew
+sendDataBuf_	allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> sendDataBuf_;$/;"	m	class:gloo::AllreduceRing
+sendDataBuf_	allreduce_ring_chunked.h	/^  std::unique_ptr<transport::Buffer> sendDataBuf_[2];$/;"	m	class:gloo::AllreduceRingChunked
+sendDataBuf_	cuda_allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> sendDataBuf_;$/;"	m	class:gloo::CudaAllreduceRing
+sendDataBuf_	cuda_allreduce_ring_chunked.h	/^  std::array<std::unique_ptr<transport::Buffer>, 2> sendDataBuf_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+sendDataBufs_	allreduce_bcube.h	/^  std::unordered_map<int, std::unique_ptr<transport::Buffer>> sendDataBufs_;$/;"	m	class:gloo::AllreduceBcube
+sendDataBufs_	allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendDataBufs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+sendDataBufs_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendDataBufs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+sendDataBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendDataBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+sendData_	rendezvous/context.h	/^  std::vector<std::vector<char>> sendData_;$/;"	m	class:gloo::rendezvous::ContextFactory
+sendMemoryRegion	transport/ibverbs/pair.cc	/^void Pair::sendMemoryRegion(struct ibv_mr* src, int slot) {$/;"	f	class:gloo::transport::ibverbs::Pair
+sendNotificationBuf_	allgather_ring.h	/^  std::unique_ptr<transport::Buffer> sendNotificationBuf_;$/;"	m	class:gloo::AllgatherRing
+sendNotificationBuf_	allreduce_new.h	/^  std::unique_ptr<transport::Buffer> sendNotificationBuf_;$/;"	m	class:gloo::AllreduceNew
+sendNotificationBuf_	allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> sendNotificationBuf_;$/;"	m	class:gloo::AllreduceRing
+sendNotificationBuf_	allreduce_ring_chunked.h	/^  std::unique_ptr<transport::Buffer> sendNotificationBuf_;$/;"	m	class:gloo::AllreduceRingChunked
+sendNotificationBuf_	cuda_allreduce_ring.h	/^  std::unique_ptr<transport::Buffer> sendNotificationBuf_;$/;"	m	class:gloo::CudaAllreduceRing
+sendNotificationBuf_	cuda_allreduce_ring_chunked.h	/^  std::unique_ptr<transport::Buffer> sendNotificationBuf_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+sendNotificationBuffers_	rendezvous/context.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendNotificationBuffers_;$/;"	m	class:gloo::rendezvous::ContextFactory
+sendNotificationBufs_	allreduce_bcube.h	/^      sendNotificationBufs_;$/;"	m	class:gloo::AllreduceBcube
+sendNotificationBufs_	allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendNotificationBufs_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+sendNotificationBufs_	cuda_allreduce_halving_doubling.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendNotificationBufs_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+sendNotificationBufs_	pairwise_exchange.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendNotificationBufs_;$/;"	m	class:gloo::PairwiseExchange
+sendNotificationBufs_	reduce_scatter.h	/^  std::vector<std::unique_ptr<transport::Buffer>> sendNotificationBufs_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+sendNotificationData_	rendezvous/context.h	/^  std::vector<int> sendNotificationData_;$/;"	m	class:gloo::rendezvous::ContextFactory
+sendOffsets_	allreduce_halving_doubling.h	/^  std::vector<size_t> sendOffsets_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+sendOffsets_	cuda_allreduce_halving_doubling.h	/^  std::vector<size_t> sendOffsets_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+sendOffsets_	reduce_scatter.h	/^  std::vector<size_t> sendOffsets_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+sendPending_	transport/ibverbs/buffer.h	/^  std::atomic<int> sendPending_;$/;"	m	class:gloo::transport::ibverbs::Buffer
+sendPending_	transport/tcp/buffer.h	/^  std::atomic<int> sendPending_;$/;"	m	class:gloo::transport::tcp::Buffer
+sender_	broadcast_one_to_all.h	/^  std::vector<std::unique_ptr<forSender>> sender_;$/;"	m	namespace:gloo
+sender_	cuda_broadcast_one_to_all.h	/^  std::vector<std::unique_ptr<forSender>> sender_;$/;"	m	namespace:gloo
+set	rendezvous/file_store.cc	/^void FileStore::set(const std::string& key, const std::vector<char>& data) {$/;"	f	class:gloo::rendezvous::FileStore
+set	rendezvous/hash_store.cc	/^void HashStore::set(const std::string& key, const std::vector<char>& data) {$/;"	f	class:gloo::rendezvous::HashStore
+set	rendezvous/prefix_store.cc	/^void PrefixStore::set(const std::string& key, const std::vector<char>& data) {$/;"	f	class:gloo::rendezvous::PrefixStore
+set	rendezvous/redis_store.cc	/^void RedisStore::set(const std::string& key, const std::vector<char>& data) {$/;"	f	class:gloo::rendezvous::RedisStore
+setCount	allreduce_builder.cc	/^AllreduceBuilder<T>& AllreduceBuilder<T>::setCount(int count) {$/;"	f	class:gloo::AllreduceBuilder
+setCount	broadcast_builder.cc	/^BroadcastBuilder<T>& BroadcastBuilder<T>::setCount(int count) {$/;"	f	class:gloo::BroadcastBuilder
+setDebug	transport/buffer.h	/^  virtual void setDebug(bool debug) {$/;"	f	class:gloo::transport::Buffer
+setGPUDirect	allreduce_builder.cc	/^AllreduceBuilder<T>& AllreduceBuilder<T>::setGPUDirect(bool on) {$/;"	f	class:gloo::AllreduceBuilder
+setGPUDirect	broadcast_builder.cc	/^BroadcastBuilder<T>& BroadcastBuilder<T>::setGPUDirect(bool on) {$/;"	f	class:gloo::BroadcastBuilder
+setImplementation	allreduce_builder.cc	/^AllreduceBuilder<T>& AllreduceBuilder<T>::setImplementation($/;"	f	class:gloo::AllreduceBuilder
+setInputs	allreduce_builder.cc	/^AllreduceBuilder<T>& AllreduceBuilder<T>::setInputs($/;"	f	class:gloo::AllreduceBuilder
+setInputs	broadcast_builder.cc	/^BroadcastBuilder<T>& BroadcastBuilder<T>::setInputs($/;"	f	class:gloo::BroadcastBuilder
+setMode	test/transport_test.cc	/^static void setMode(std::unique_ptr<transport::Pair>& pair, IoMode mode) {$/;"	f	namespace:gloo::test::__anon4
+setMutex	cuda.h	/^  static void setMutex(std::mutex* m) {$/;"	f	class:gloo::CudaShared
+setPerStepAttributes	allreduce_bcube.h	/^  void setPerStepAttributes($/;"	f	class:gloo::allreduce::bcube::Node
+setReductionType	allreduce_builder.cc	/^AllreduceBuilder<T>& AllreduceBuilder<T>::setReductionType($/;"	f	class:gloo::AllreduceBuilder
+setRootPointerRank	broadcast_builder.cc	/^BroadcastBuilder<T>& BroadcastBuilder<T>::setRootPointerRank($/;"	f	class:gloo::BroadcastBuilder
+setRootRank	broadcast_builder.cc	/^BroadcastBuilder<T>& BroadcastBuilder<T>::setRootRank(int rootRank) {$/;"	f	class:gloo::BroadcastBuilder
+setSocketBlocking	transport/tcp/pair.cc	/^static void setSocketBlocking(int fd, bool enable) {$/;"	f	namespace:gloo::transport::tcp
+setStreams	allreduce_builder.cc	/^AllreduceBuilder<T>& AllreduceBuilder<T>::setStreams($/;"	f	class:gloo::AllreduceBuilder
+setStreams	broadcast_builder.cc	/^BroadcastBuilder<T>& BroadcastBuilder<T>::setStreams($/;"	f	class:gloo::BroadcastBuilder
+setSync	transport/ibverbs/pair.cc	/^void Pair::setSync(bool sync, bool busyPoll) {$/;"	f	class:gloo::transport::ibverbs::Pair
+setSync	transport/tcp/pair.cc	/^void Pair::setSync(bool sync, bool busyPoll) {$/;"	f	class:gloo::transport::tcp::Pair
+setTimeout	context.cc	/^void Context::setTimeout(std::chrono::milliseconds timeout) {$/;"	f	class:gloo::Context
+setupNodes	allreduce_bcube.h	/^  void setupNodes() {$/;"	f	class:gloo::AllreduceBcube
+sge	transport/ibverbs/memory_region.h	/^  struct ibv_sge sge() const {$/;"	f	class:gloo::transport::ibverbs::MemoryRegion
+sharedPath	benchmark/options.h	/^  std::string sharedPath;$/;"	m	struct:gloo::benchmark::options
+showNanos	benchmark/options.h	/^  bool showNanos = false;$/;"	m	struct:gloo::benchmark::options
+signalError	transport/ibverbs/buffer.cc	/^void Buffer::signalError(const std::exception_ptr& ex) {$/;"	f	class:gloo::transport::ibverbs::Buffer
+signalError	transport/tcp/buffer.cc	/^void Buffer::signalError(const std::exception_ptr& ex) {$/;"	f	class:gloo::transport::tcp::Buffer
+signalIoFailure	transport/ibverbs/pair.cc	/^void Pair::signalIoFailure(const std::string& msg) {$/;"	f	class:gloo::transport::ibverbs::Pair
+signalIoFailure	transport/tcp/pair.cc	/^void Pair::signalIoFailure(const std::string& msg) {$/;"	f	class:gloo::transport::tcp::Pair
+signalIoFailureExternal	transport/tcp/pair.cc	/^void Pair::signalIoFailureExternal(const std::string& msg) {$/;"	f	class:gloo::transport::tcp::Pair
+signalProcess	test/multiproc_test.cc	/^void MultiProcTest::signalProcess(int rank, int signal) {$/;"	f	class:gloo::test::MultiProcTest
+size	benchmark/timer.h	/^  size_t size() const {$/;"	f	class:gloo::benchmark::Distribution
+size	context.h	/^  const int size;$/;"	m	class:gloo::Context
+size	transport/ibverbs/device.cc	/^  int size() {$/;"	f	class:gloo::transport::ibverbs::IbvDevices
+size_	transport/buffer.h	/^  size_t size_;$/;"	m	class:gloo::transport::Buffer
+size_	transport/ibverbs/device.cc	/^  int size_;$/;"	m	class:gloo::transport::ibverbs::IbvDevices	file:
+slotOffset_	allreduce_halving_doubling.h	/^  int slotOffset_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+slotOffset_	cuda_allreduce_halving_doubling.h	/^  int slotOffset_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+slotOffset_	reduce_scatter.h	/^  int slotOffset_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+slot_	context.h	/^  int slot_;$/;"	m	class:gloo::Context
+slot_	transport/buffer.h	/^  int slot_;$/;"	m	class:gloo::transport::Buffer
+slot_	transport/tcp/pair.h	/^    size_t slot_;$/;"	m	struct:gloo::transport::tcp::Op::__anon23
+smallerBlockRecvDataBuf_	allreduce_halving_doubling.h	/^  std::unique_ptr<transport::Buffer> smallerBlockRecvDataBuf_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+smallerBlockRecvDataBuf_	cuda_allreduce_halving_doubling.h	/^  std::unique_ptr<transport::Buffer> smallerBlockRecvDataBuf_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+smallerBlockRecvDataBuf_	reduce_scatter.h	/^  std::unique_ptr<transport::Buffer> smallerBlockRecvDataBuf_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+smallerBlockSendDataBuf_	allreduce_halving_doubling.h	/^  std::unique_ptr<transport::Buffer> smallerBlockSendDataBuf_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+smallerBlockSendDataBuf_	cuda_allreduce_halving_doubling.h	/^  std::unique_ptr<transport::Buffer> smallerBlockSendDataBuf_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+sockaddrToInterfaceName	transport/tcp/device.cc	/^const std::string sockaddrToInterfaceName(const struct attr& attr) {$/;"	f	namespace:gloo::transport::tcp
+sourcePtr_	cuda_collectives_host.h	/^  CudaDevicePointer<T> sourcePtr_;$/;"	m	class:gloo::CudaLocalHostBroadcast
+sourcePtr_	cuda_collectives_host.h	/^  CudaHostPointer<T> sourcePtr_;$/;"	m	class:gloo::CudaLocalHostBroadcast
+sourcePtr_	cuda_collectives_native.h	/^  Src sourcePtr_;$/;"	m	class:gloo::CudaLocalNativeBroadcast
+sourcePtr_	cuda_collectives_nccl.h	/^  CudaHostPointer<T> sourcePtr_;$/;"	m	class:gloo::CudaLocalNCCLBroadcast
+spawn	benchmark/runner.cc	/^void RunnerThread::spawn() {$/;"	f	class:gloo::benchmark::RunnerThread
+spawn	test/base_test.h	/^  void spawn(int size, std::function<void(std::shared_ptr<Context>)> fn) {$/;"	f	class:gloo::test::BaseTest
+spawn	test/multiproc_test.cc	/^void MultiProcTest::spawn($/;"	f	class:gloo::test::MultiProcTest
+spawnAsync	test/multiproc_test.cc	/^void MultiProcTest::spawnAsync($/;"	f	class:gloo::test::MultiProcTest
+spawnThreads	test/base_test.h	/^  void spawnThreads(int size, std::function<void(int)> fn) {$/;"	f	class:gloo::test::BaseTest
+split	benchmark/options.cc	/^static std::vector<std::string> split(const char* in, char c) {$/;"	f	namespace:gloo::benchmark
+split	common/linux.cc	/^void split(const std::string& s, char delim, Out result) {$/;"	f	namespace:gloo
+src	nccl/nccl.h	/^  CudaDevicePointer<T> src;$/;"	m	struct:gloo::nccl::NCCLElement
+srcStream	nccl/nccl.h	/^  CudaStream& srcStream;$/;"	m	struct:gloo::nccl::NCCLElement
+src_	cuda.h	/^  Src src_;$/;"	m	class:gloo::CudaLocalMemcpy
+src_	transport/ibverbs/memory_region.h	/^  struct ibv_mr src_;$/;"	m	class:gloo::transport::ibverbs::MemoryRegion	typeref:struct:gloo::transport::ibverbs::MemoryRegion::ibv_mr
+srcs	test/base_test.h	/^  std::vector<std::unique_ptr<T[]>> srcs;$/;"	m	class:gloo::test::Fixture
+srcs	test/base_test.h	/^  std::vector<std::unique_ptr<float16[]>> srcs;$/;"	m	class:gloo::test::Fixture
+srcs	test/base_test.h	/^  std::vector<std::unique_ptr<float[]>> srcs;$/;"	m	class:gloo::test::Fixture
+ss_	transport/tcp/address.h	/^  struct sockaddr_storage ss_;$/;"	m	class:gloo::transport::tcp::Address	typeref:struct:gloo::transport::tcp::Address::sockaddr_storage
+start	benchmark/timer.h	/^  void start() {$/;"	f	class:gloo::benchmark::Timer
+start_	benchmark/timer.h	/^  std::chrono::time_point<std::chrono::high_resolution_clock> start_;$/;"	m	class:gloo::benchmark::Timer
+state	transport/tcp/pair.h	/^  enum state {$/;"	g	class:gloo::transport::tcp::Pair
+state_	transport/tcp/pair.h	/^  state state_;$/;"	m	class:gloo::transport::tcp::Pair
+stepsWithinBlock_	allreduce_halving_doubling.h	/^  uint32_t stepsWithinBlock_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+stepsWithinBlock_	cuda_allreduce_halving_doubling.h	/^  uint32_t stepsWithinBlock_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+stepsWithinBlock_	reduce_scatter.h	/^  uint32_t stepsWithinBlock_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+steps_	allreduce_halving_doubling.h	/^  const size_t steps_;$/;"	m	class:gloo::AllreduceHalvingDoubling
+steps_	cuda_allreduce_halving_doubling.h	/^  const size_t steps_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+steps_	cuda_collectives_native.h	/^  const int steps_;$/;"	m	class:gloo::CudaLocalNativeBroadcast
+steps_	cuda_collectives_native.h	/^  const int steps_;$/;"	m	class:gloo::CudaLocalNativeReduce
+steps_	reduce_scatter.h	/^  const size_t steps_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+stop_	benchmark/runner.h	/^  bool stop_;$/;"	m	class:gloo::benchmark::RunnerThread
+storePath_	test/multiproc_test.h	/^  std::string storePath_;$/;"	m	class:gloo::test::MultiProcTest
+store_	rendezvous/prefix_store.h	/^  Store& store_;$/;"	m	class:gloo::rendezvous::PrefixStore
+store_	test/base_test.h	/^  std::unique_ptr<::gloo::rendezvous::Store> store_;$/;"	m	class:gloo::test::BaseTest
+store_	test/multiproc_test.h	/^  std::unique_ptr<::gloo::rendezvous::Store> store_;$/;"	m	class:gloo::test::MultiProcWorker
+str	transport/ibverbs/address.cc	/^std::string Address::str() const {$/;"	f	class:gloo::transport::ibverbs::Address
+str	transport/ibverbs/device.cc	/^std::string Device::str() const {$/;"	f	class:gloo::transport::ibverbs::Device
+str	transport/tcp/address.cc	/^std::string Address::str() const {$/;"	f	class:gloo::transport::tcp::Address
+str	transport/tcp/device.cc	/^std::string Device::str() const {$/;"	f	class:gloo::transport::tcp::Device
+streamOwner_	cuda.h	/^  bool streamOwner_;$/;"	m	class:gloo::CudaStream
+stream_	cuda.h	/^  CudaStream& stream_;$/;"	m	class:gloo::CudaLocalMemcpy
+stream_	cuda.h	/^  cudaStream_t stream_;$/;"	m	class:gloo::CudaStream
+stream_	cuda_collectives_nccl.h	/^  CudaStream& stream_;$/;"	m	class:gloo::CudaLocalNCCLBroadcast
+stream_	cuda_collectives_nccl.h	/^  CudaStream& stream_;$/;"	m	class:gloo::CudaLocalNCCLReduce
+streams_	allreduce_builder.h	/^  std::vector<cudaStream_t> streams_;$/;"	m	class:gloo::AllreduceBuilder
+streams_	broadcast_builder.h	/^  std::vector<cudaStream_t> streams_;$/;"	m	class:gloo::BroadcastBuilder
+streams_	cuda_allreduce_halving_doubling.h	/^  std::vector<CudaStream> streams_;$/;"	m	class:gloo::CudaAllreduceHalvingDoubling
+streams_	cuda_allreduce_local.h	/^  std::vector<CudaStream> streams_;$/;"	m	class:gloo::CudaAllreduceLocal
+streams_	cuda_allreduce_ring.h	/^  std::vector<CudaStream> streams_;$/;"	m	class:gloo::CudaAllreduceRing
+streams_	cuda_allreduce_ring_chunked.h	/^  std::vector<CudaStream> streams_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+streams_	cuda_broadcast_one_to_all.h	/^  std::vector<CudaStream> streams_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+streams_	cuda_collectives_host.h	/^  std::vector<CudaStream>& streams_;$/;"	m	class:gloo::CudaLocalHostBroadcast
+streams_	cuda_collectives_host.h	/^  std::vector<CudaStream>& streams_;$/;"	m	class:gloo::CudaLocalHostReduce
+streams_	cuda_collectives_native.h	/^  std::vector<CudaStream>& streams_;$/;"	m	class:gloo::CudaLocalNativeBroadcast
+streams_	cuda_collectives_native.h	/^  std::vector<CudaStream>& streams_;$/;"	m	class:gloo::CudaLocalNativeReduce
+streams_	cuda_private.h	/^  std::vector<CudaStream> streams_;$/;"	m	class:gloo::CudaDeviceStreams
+sum	algorithm.h	/^  static const ReductionFunction<T>* sum;$/;"	m	class:gloo::ReductionFunction
+sum	algorithm.h	/^const ReductionFunction<T>* ReductionFunction<T>::sum =$/;"	m	class:gloo::ReductionFunction
+sum	benchmark/timer.h	/^  long sum() const {$/;"	f	class:gloo::benchmark::Distribution
+sum	cuda.h	/^  static const CudaReductionFunction<T>* sum;$/;"	m	class:gloo::CudaReductionFunction
+sum	cuda.h	/^const CudaReductionFunction<T>* CudaReductionFunction<T>::sum =$/;"	m	class:gloo::CudaReductionFunction
+sum	math.cc	/^void sum<float16>(float16* x, const float16* y, size_t n) {$/;"	f	namespace:gloo
+sum	math.h	/^void sum(T* x, const T* y, size_t n) {$/;"	f	namespace:gloo
+sync	benchmark/options.h	/^  bool sync = false;$/;"	m	struct:gloo::benchmark::options
+sync_	transport/ibverbs/pair.h	/^  std::atomic<bool> sync_;$/;"	m	class:gloo::transport::ibverbs::Pair
+sync_	transport/tcp/pair.h	/^  std::atomic<bool> sync_;$/;"	m	class:gloo::transport::tcp::Pair
+synchronizeCudaStreams	test/cuda_base_test.h	/^  void synchronizeCudaStreams() {$/;"	f	class:gloo::test::CudaFixture
+synchronizeDeviceOutputs_	cuda_allreduce_local.h	/^  const bool synchronizeDeviceOutputs_;$/;"	m	class:gloo::CudaAllreduceLocal
+synchronizeDeviceOutputs_	cuda_allreduce_ring.h	/^  const bool synchronizeDeviceOutputs_;$/;"	m	class:gloo::CudaAllreduceRing
+synchronizeDeviceOutputs_	cuda_allreduce_ring_chunked.h	/^  const bool synchronizeDeviceOutputs_;$/;"	m	class:gloo::CudaAllreduceRingChunked
+synchronizeDeviceOutputs_	cuda_broadcast_one_to_all.h	/^  const bool synchronizeDeviceOutputs_;$/;"	m	class:gloo::CudaBroadcastOneToAll
+targetPtr_	cuda_collectives_host.h	/^  CudaDevicePointer<T> targetPtr_;$/;"	m	class:gloo::CudaLocalHostReduce
+targetPtr_	cuda_collectives_host.h	/^  CudaHostPointer<T> targetPtr_;$/;"	m	class:gloo::CudaLocalHostReduce
+targetPtr_	cuda_collectives_native.h	/^  Dst targetPtr_;$/;"	m	class:gloo::CudaLocalNativeReduce
+tcp	transport/tcp/address.cc	/^namespace tcp {$/;"	n	namespace:gloo::transport	file:
+tcp	transport/tcp/address.h	/^namespace tcp {$/;"	n	namespace:gloo::transport
+tcp	transport/tcp/buffer.cc	/^namespace tcp {$/;"	n	namespace:gloo::transport	file:
+tcp	transport/tcp/buffer.h	/^namespace tcp {$/;"	n	namespace:gloo::transport
+tcp	transport/tcp/device.cc	/^namespace tcp {$/;"	n	namespace:gloo::transport	file:
+tcp	transport/tcp/device.h	/^namespace tcp {$/;"	n	namespace:gloo::transport
+tcp	transport/tcp/pair.cc	/^namespace tcp {$/;"	n	namespace:gloo::transport	file:
+tcp	transport/tcp/pair.h	/^namespace tcp {$/;"	n	namespace:gloo::transport
+tcpDevice	benchmark/options.h	/^  std::vector<std::string> tcpDevice;$/;"	m	struct:gloo::benchmark::options
+test	test/allgather_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/allreduce_builder_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/allreduce_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/barrier_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/base_test.h	/^namespace test {$/;"	n	namespace:gloo
+test	test/broadcast_builder_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/broadcast_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/buffer_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/context_factory_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/cuda_allreduce_builder_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/cuda_allreduce_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/cuda_base_test.h	/^namespace test {$/;"	n	namespace:gloo
+test	test/cuda_broadcast_builder_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/cuda_broadcast_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/linux_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/multiproc_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/multiproc_test.h	/^namespace test {$/;"	n	namespace:gloo
+test	test/reduce_scatter_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+test	test/transport_test.cc	/^namespace test {$/;"	n	namespace:gloo	file:
+that	transport/ibverbs/memory_region.h	/^  MemoryRegion& operator=(const MemoryRegion& that) = delete;$/;"	m	class:gloo::transport::ibverbs::MemoryRegion
+that	transport/ibverbs/memory_region.h	/^  MemoryRegion(const MemoryRegion& that) = delete;$/;"	m	class:gloo::transport::ibverbs::MemoryRegion
+that	transport/ibverbs/pair.h	/^  Pair& operator=(const Pair& that) = delete;$/;"	m	class:gloo::transport::ibverbs::Pair
+that	transport/ibverbs/pair.h	/^  Pair(const Pair& that) = delete;$/;"	m	class:gloo::transport::ibverbs::Pair
+that	transport/tcp/pair.h	/^  Pair& operator=(const Pair& that) = delete;$/;"	m	class:gloo::transport::tcp::Pair
+that	transport/tcp/pair.h	/^  Pair(const Pair& that) = delete;$/;"	m	class:gloo::transport::tcp::Pair
+thread_	benchmark/runner.h	/^  std::thread thread_;$/;"	m	class:gloo::benchmark::RunnerThread
+threads	benchmark/options.h	/^  int threads = 1;$/;"	m	struct:gloo::benchmark::options
+threads_	benchmark/runner.h	/^  std::vector<std::unique_ptr<RunnerThread>> threads_;$/;"	m	class:gloo::benchmark::Runner
+timeout_	context.h	/^  std::chrono::milliseconds timeout_;$/;"	m	class:gloo::Context
+timeout_	transport/ibverbs/pair.h	/^  const std::chrono::milliseconds timeout_;$/;"	m	class:gloo::transport::ibverbs::Pair
+timeout_	transport/tcp/pair.h	/^  const std::chrono::milliseconds timeout_;$/;"	m	class:gloo::transport::tcp::Pair
+tmpPath	rendezvous/file_store.cc	/^std::string FileStore::tmpPath(const std::string& name) {$/;"	f	class:gloo::rendezvous::FileStore
+tmpPtrs_	cuda_collectives_host.h	/^  std::vector<CudaHostPointer<T> > tmpPtrs_;$/;"	m	class:gloo::CudaLocalHostReduce
+toDeviceElements	cuda_collectives_nccl.h	/^std::vector<nccl::NCCLElement<T> > toDeviceElements($/;"	f	namespace:gloo
+toReductionOp	nccl/nccl.h	/^ncclRedOp_t toReductionOp(const CudaReductionFunction<T>* fn) {$/;"	f	namespace:gloo::nccl
+transport	benchmark/options.h	/^  std::string transport;$/;"	m	struct:gloo::benchmark::options
+transport	transport/address.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/address.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/buffer.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/buffer.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/device.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/device.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/ibverbs/address.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/ibverbs/address.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/ibverbs/buffer.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/ibverbs/buffer.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/ibverbs/device.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/ibverbs/device.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/ibverbs/memory_region.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/ibverbs/memory_region.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/ibverbs/pair.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/ibverbs/pair.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/pair.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/pair.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/tcp/address.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/tcp/address.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/tcp/buffer.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/tcp/buffer.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/tcp/device.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/tcp/device.h	/^namespace transport {$/;"	n	namespace:gloo
+transport	transport/tcp/pair.cc	/^namespace transport {$/;"	n	namespace:gloo	file:
+transport	transport/tcp/pair.h	/^namespace transport {$/;"	n	namespace:gloo
+transportDevices_	benchmark/runner.h	/^  std::vector<std::shared_ptr<transport::Device>> transportDevices_;$/;"	m	class:gloo::benchmark::Runner
+tx_	transport/tcp/pair.h	/^  Op tx_;$/;"	m	class:gloo::transport::tcp::Pair
+type	algorithm.h	/^  ReductionType type() const {$/;"	f	class:gloo::ReductionFunction
+type	cuda.h	/^  ReductionType type() const {$/;"	f	class:gloo::CudaReductionFunction
+type_	algorithm.h	/^  ReductionType type_;$/;"	m	class:gloo::ReductionFunction
+type_	cuda.h	/^  const ReductionType type_;$/;"	m	class:gloo::CudaReductionFunction
+unregisterBuffer	transport/tcp/pair.cc	/^void Pair::unregisterBuffer(Buffer* buf) {$/;"	f	class:gloo::transport::tcp::Pair
+unregisterDescriptor	transport/tcp/device.cc	/^void Device::unregisterDescriptor(int fd) {$/;"	f	class:gloo::transport::tcp::Device
+updateGroupNodes	allreduce_bcube.h	/^  void updateGroupNodes(int step, const allreduce::bcube::Group& group) {$/;"	f	class:gloo::AllreduceBcube
+usage	benchmark/options.cc	/^static void usage(int status, const char* argv0) {$/;"	f	namespace:gloo::benchmark
+value	common/linux.h	/^  int value;$/;"	m	struct:gloo::PCIClassMatch
+verify	benchmark/benchmark.h	/^  virtual void verify() {}$/;"	f	class:gloo::benchmark::Benchmark
+verify	benchmark/options.h	/^  bool verify = false;$/;"	m	struct:gloo::benchmark::options
+verifyConnected	transport/tcp/pair.cc	/^void Pair::verifyConnected() {$/;"	f	class:gloo::transport::tcp::Pair
+wait	benchmark/runner.h	/^  void wait() {$/;"	f	class:gloo::benchmark::RunnerJob
+wait	cuda.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalMemcpy
+wait	cuda_collectives_host.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalHostBroadcast
+wait	cuda_collectives_host.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalHostReduce
+wait	cuda_collectives_native.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalNativeBroadcast
+wait	cuda_collectives_native.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalNativeReduce
+wait	cuda_collectives_nccl.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalNCCLBroadcast
+wait	cuda_collectives_nccl.h	/^  virtual void wait() {$/;"	f	class:gloo::CudaLocalNCCLReduce
+wait	rendezvous/file_store.cc	/^void FileStore::wait($/;"	f	class:gloo::rendezvous::FileStore
+wait	rendezvous/hash_store.cc	/^void HashStore::wait($/;"	f	class:gloo::rendezvous::HashStore
+wait	rendezvous/prefix_store.cc	/^void PrefixStore::wait($/;"	f	class:gloo::rendezvous::PrefixStore
+wait	rendezvous/redis_store.cc	/^void RedisStore::wait($/;"	f	class:gloo::rendezvous::RedisStore
+wait	rendezvous/store.h	/^  virtual void wait($/;"	f	class:gloo::rendezvous::Store
+wait	test/base_test.h	/^  void wait() {$/;"	f	class:gloo::test::Barrier
+wait	test/multiproc_test.cc	/^void MultiProcTest::wait()$/;"	f	class:gloo::test::MultiProcTest
+waitProcess	test/multiproc_test.cc	/^void MultiProcTest::waitProcess(int rank) {$/;"	f	class:gloo::test::MultiProcTest
+waitRecv	transport/ibverbs/buffer.cc	/^void Buffer::waitRecv() {$/;"	f	class:gloo::transport::ibverbs::Buffer
+waitRecv	transport/tcp/buffer.cc	/^void Buffer::waitRecv() {$/;"	f	class:gloo::transport::tcp::Buffer
+waitSend	transport/ibverbs/buffer.cc	/^void Buffer::waitSend() {$/;"	f	class:gloo::transport::ibverbs::Buffer
+waitSend	transport/tcp/buffer.cc	/^void Buffer::waitSend() {$/;"	f	class:gloo::transport::tcp::Buffer
+waitUntilConnected	transport/tcp/pair.cc	/^void Pair::waitUntilConnected($/;"	f	class:gloo::transport::tcp::Pair
+warmupIterationCount	benchmark/options.h	/^  int warmupIterationCount = 5;$/;"	m	struct:gloo::benchmark::options
+wordsPerLine	allreduce_bcube.h	/^  static constexpr int wordsPerLine = 4 * wordsPerSection;$/;"	m	class:gloo::AllreduceBcube
+wordsPerSection	allreduce_bcube.h	/^  static constexpr int wordsPerSection = 4;$/;"	m	class:gloo::AllreduceBcube
+workerResults_	test/multiproc_test.h	/^  std::vector<int> workerResults_;$/;"	m	class:gloo::test::MultiProcTest
+workers_	test/multiproc_test.h	/^  std::vector<pid_t> workers_;$/;"	m	class:gloo::test::MultiProcTest
+write	transport/tcp/pair.cc	/^bool Pair::write(Op& op) {$/;"	f	class:gloo::transport::tcp::Pair
+x	types.h	/^  uint16_t x;$/;"	m	struct:gloo::float16
+xchgBlockRecvDataBuf_	reduce_scatter.h	/^  std::unique_ptr<transport::Buffer> xchgBlockRecvDataBuf_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+xchgBlockSendDataBuf_	reduce_scatter.h	/^  std::unique_ptr<transport::Buffer> xchgBlockSendDataBuf_;$/;"	m	class:gloo::ReduceScatterHalvingDoubling
+~Address	transport/address.cc	/^Address::~Address() {}$/;"	f	class:gloo::transport::Address
+~Address	transport/ibverbs/address.h	/^  virtual ~Address() {}$/;"	f	class:gloo::transport::ibverbs::Address
+~Address	transport/tcp/address.h	/^  virtual ~Address() {}$/;"	f	class:gloo::transport::tcp::Address
+~Algorithm	algorithm.cc	/^Algorithm::~Algorithm() {}$/;"	f	class:gloo::Algorithm
+~AllgatherRing	allgather_ring.h	/^  virtual ~AllgatherRing() {}$/;"	f	class:gloo::AllgatherRing
+~AllreduceNew	allreduce_new.h	/^  virtual ~AllreduceNew() {$/;"	f	class:gloo::AllreduceNew
+~AllreduceRing	allreduce_ring.h	/^  virtual ~AllreduceRing() {$/;"	f	class:gloo::AllreduceRing
+~AllreduceRingChunked	allreduce_ring_chunked.h	/^  virtual ~AllreduceRingChunked() {$/;"	f	class:gloo::AllreduceRingChunked
+~Barrier	barrier.h	/^  virtual ~Barrier(){};$/;"	f	class:gloo::Barrier
+~Benchmark	benchmark/benchmark.h	/^  virtual ~Benchmark() {}$/;"	f	class:gloo::benchmark::Benchmark
+~Buffer	transport/buffer.cc	/^Buffer::~Buffer() {}$/;"	f	class:gloo::transport::Buffer
+~Buffer	transport/ibverbs/buffer.cc	/^Buffer::~Buffer() {$/;"	f	class:gloo::transport::ibverbs::Buffer
+~Buffer	transport/tcp/buffer.cc	/^Buffer::~Buffer() {$/;"	f	class:gloo::transport::tcp::Buffer
+~Context	context.cc	/^Context::~Context() {$/;"	f	class:gloo::Context
+~Context	mpi/context.cc	/^Context::~Context() {$/;"	f	class:gloo::mpi::Context
+~Context	rendezvous/context.cc	/^Context::~Context() {$/;"	f	class:gloo::rendezvous::Context
+~CudaAllreduceRingChunked	cuda_allreduce_ring_chunked.cc	/^CudaAllreduceRingChunked<T, W>::~CudaAllreduceRingChunked() {$/;"	f	class:gloo::CudaAllreduceRingChunked
+~CudaBenchmark	benchmark/cuda_main.cc	/^  virtual ~CudaBenchmark() {}$/;"	f	class:__anon20::CudaBenchmark
+~CudaDeviceGuard	cuda_private.h	/^  ~CudaDeviceGuard() {$/;"	f	class:gloo::CudaDeviceGuard
+~CudaLocalNCCLBroadcast	cuda_collectives_nccl.h	/^  virtual ~CudaLocalNCCLBroadcast() {}$/;"	f	class:gloo::CudaLocalNCCLBroadcast
+~CudaLocalNCCLReduce	cuda_collectives_nccl.h	/^  virtual ~CudaLocalNCCLReduce() {}$/;"	f	class:gloo::CudaLocalNCCLReduce
+~Device	transport/device.cc	/^Device::~Device() {}$/;"	f	class:gloo::transport::Device
+~Device	transport/ibverbs/device.cc	/^Device::~Device() {$/;"	f	class:gloo::transport::ibverbs::Device
+~Device	transport/tcp/device.cc	/^Device::~Device() {$/;"	f	class:gloo::transport::tcp::Device
+~FileStore	rendezvous/file_store.h	/^  virtual ~FileStore() {}$/;"	f	class:gloo::rendezvous::FileStore
+~HashStore	rendezvous/hash_store.h	/^  virtual ~HashStore() {}$/;"	f	class:gloo::rendezvous::HashStore
+~IbvDevices	transport/ibverbs/device.cc	/^  ~IbvDevices() {$/;"	f	class:gloo::transport::ibverbs::IbvDevices
+~LocalOp	algorithm.h	/^  virtual ~LocalOp() {}$/;"	f	class:gloo::LocalOp
+~MPIScope	mpi/context.cc	/^MPIScope::~MPIScope() {$/;"	f	class:gloo::mpi::MPIScope
+~MemoryRegion	transport/ibverbs/memory_region.cc	/^MemoryRegion::~MemoryRegion() {$/;"	f	class:gloo::transport::ibverbs::MemoryRegion
+~MultiProcWorker	test/multiproc_test.h	/^  ~MultiProcWorker() {$/;"	f	class:gloo::test::MultiProcWorker
+~Pair	transport/ibverbs/pair.cc	/^Pair::~Pair() {$/;"	f	class:gloo::transport::ibverbs::Pair
+~Pair	transport/pair.cc	/^Pair::~Pair() {}$/;"	f	class:gloo::transport::Pair
+~Pair	transport/tcp/pair.cc	/^Pair::~Pair() {$/;"	f	class:gloo::transport::tcp::Pair
+~PrefixStore	rendezvous/prefix_store.h	/^  virtual ~PrefixStore() {}$/;"	f	class:gloo::rendezvous::PrefixStore
+~RedisStore	rendezvous/redis_store.cc	/^RedisStore::~RedisStore() {$/;"	f	class:gloo::rendezvous::RedisStore
+~Runner	benchmark/runner.cc	/^Runner::~Runner() {$/;"	f	class:gloo::benchmark::Runner
+~RunnerThread	benchmark/runner.cc	/^RunnerThread::~RunnerThread() {$/;"	f	class:gloo::benchmark::RunnerThread
+~Store	rendezvous/store.cc	/^Store::~Store() {}$/;"	f	class:gloo::rendezvous::Store

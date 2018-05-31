@@ -9,6 +9,8 @@ list(APPEND GLOO_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/algorithm.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_local.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/context.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.cc"
+
   )
 
 list(APPEND GLOO_HDRS
@@ -28,6 +30,8 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/math.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/pairwise_exchange.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_new.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.h"
   )
 
 if(USE_CUDA)

@@ -93,7 +93,7 @@ class AllreduceBenchmark : public Benchmark<T> {
       for (int i = 0; i < input.size(); i++) {
         auto offset = i * stride;
         GLOO_ENFORCE_EQ(
-            T(offset + expected), input[i], "Mismatch at index: ", i);
+            (T(offset + expected)), input[i], "Mismatch at index: ", i);
       }
     }
   }
@@ -266,7 +266,7 @@ int main(int argc, char** argv) {
   } else if (x.halfPrecision) {
     RUN_BENCHMARK(float16);
   } else {
-    RUN_BENCHMARK(float);
+    RUN_BENCHMARK(int);
   }
   return 0;
 }
