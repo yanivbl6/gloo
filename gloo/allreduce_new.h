@@ -54,12 +54,28 @@ class AllreduceNew : public Algorithm {
     auto& leftPair = this->getLeftPair();
     auto& rightPair = this->getRightPair();
     auto slot = this->context_->nextSlot();
-    
-    int g = power(5,3);
-    printf("5^3 = %d\n",g);
-    
+     
     (*buf) = this->contextRank_*10;
     ret = p2p((void*) buf,sizeof(int),1,0);
+
+
+
+    if (count == 64){
+	    uint32_t vec[64];
+	    rearm_tasks tasks;
+	    print_buffer((void*) &vec, 64);
+	    for (int i = 0; i< 32; ++i){
+	      vec[i] = i;
+	      tasks.add(&vec[i], i%3);    
+	    }
+	    tasks.exec(32*sizeof(uint32_t), 0);
+	    print_buffer((void*) &vec, 64);
+	    tasks.exec(32*sizeof(uint32_t), 1);
+            print_buffer((void*) &vec, 64);
+    }
+    
+    
+
 
     // Buffer to send to (rank+1).
     sendDataBuf_ = rightPair->createSendBuffer(slot, outbox_, bytes_);
