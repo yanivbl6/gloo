@@ -7,6 +7,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
+
 #pragma once
 
 #include <stddef.h>
@@ -14,11 +15,11 @@
 
 #include "gloo/algorithm.h"
 #include "gloo/context.h"
-#include "gloo/testbuild.h"
+#include "gloo/mlx5dv_mqp.h"
+#include "gloo/mlx5dv_mgr.h"
+
 
 namespace gloo {
-
-
 
 
 template <typename T>
