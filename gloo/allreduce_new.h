@@ -42,7 +42,7 @@ class AllreduceNew : public Algorithm {
 
 	/* Step #1: Calculate the neighbors for each stage of recursive doubling */
 	unsigned step_idx, step_count = 0;
-	while ((1 << ++step_count) < contextRank_);
+	while ((1 << ++step_count) < contextSize_);
 	rank_t *neighbors = alloca(step_count * sizeof(rank_t));
 	for (step_idx = 0; step_idx < step_count; step_idx++) {
 		int leap = 1 << step_idx;
