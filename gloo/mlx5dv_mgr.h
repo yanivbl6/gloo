@@ -41,6 +41,8 @@
 #include <infiniband/mlx5dv.h>
 #include "mlx5dv_mqp.h"
 
+#include <map>
+
 
 #define memory_store_fence()   asm volatile ("" ::: "memory" )
 #define pci_store_fence()      asm volatile ("sfence" ::: "memory" )
@@ -137,38 +139,67 @@ struct cqe64 {
         uint8_t         op_own;
 };
 
+class val_rearm_tasks{
+public:
+
+	val_rearm_tasks();
+	~val_rearm_tasks();
+	void add(uintptr_t ptr);
+	void expand();
+	
+	size_t size;
+	size_t buf_size;
+	uintptr_t* ptrs;
+};
+
+typedef std::map<int, val_rearm_tasks>  UpdateMap;
+
+class rearm_tasks{
+   public:
+	rearm_tasks(){};
+	~rearm_tasks(){};
+	void add(uintptr_t ptr, uintptr_t inc);
+
+   private:
+	UpdateMap map;
+};
+
 class qp_ctx{
    public:
 
 	qp_ctx(struct ibv_qp* qp);
 	~qp_ctx();
+	void db();
+	void write(struct ibv_sge* local, struct ibv_sge* remote);
+	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
+	void cd_send_enable(qp_ctx* slave_qp);
+	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
+	void cd_wait(uint32_t cqe_num, uint32_t index);
+        void nop(size_t num_pad, int signal);
+
+	void pad();
+	void dup();
+
+
+        uint32_t write_cnt;
+	uint64_t qpn;
 
    private:
+
+
 	struct mlx5dv_qp* qp;
-	uint32_t write_cnt;
-	uint64_t qpn;
+
 	uint32_t exe_cnt;
+	rearm_tasks tasks;
+	struct mlx5_db_seg dbseg;
 };
+
 
 
 
 void print_buffer(volatile void* buf, int count);
 
 int poll_cqe(struct mlx5dv_cq* cq, uint32_t* cqn);
-
-void do_db(struct mlx5dv_qp *qp, uint16_t* send_cnt, uint64_t qpn, uint32_t count);
- 
-int cd_send_wqe(struct mlx5dv_qp* qp, uint16_t send_cnt  ,uint64_t qpn, Akl* src);
-
-int cd_write_imm(struct mlx5dv_qp* qp, uint16_t send_cnt  ,uint64_t qpn, Akl* src, Akl* dst);
-
-int cd_write_vectorcalc_imm(struct mlx5dv_qp* qp, uint16_t send_cnt, uint64_t qpn , Akl* src, uint16_t num_vectors, uint8_t op, uint8_t type, Akl* dst);
-
-int cd_recv_enable(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn ,  uint32_t cqe_num, uint32_t index );
-
-int cd_send_enable(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn ,  uint32_t cqe_num, uint32_t index );
-
-int cd_wait(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn, uint32_t cqe_num, uint32_t index );
 
 int cd_nop(struct mlx5dv_qp* qp, uint16_t send_cnt, uint64_t qpn, size_t num_pad, int signal);
 
