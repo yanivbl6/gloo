@@ -140,7 +140,7 @@ struct ibv_qp* rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_con
 int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr)
 {
 	struct ibv_port_attr attr;
-	if (ibv_query_port(qp->context, qp->ib_port, &attr)) {
+	if (ibv_query_port(qp->context, 1, &attr)) {
 		fprintf(stderr, "Couldn't get port info\n");
 		return 1; // TODO: indicate error?
 	}
@@ -152,29 +152,20 @@ int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr)
 
 int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp)
 {
-	struct ibv_qp_attr attr = {
-			.qp_state		= IBV_QPS_RTR,
-			.path_mtu		= mtu,
-			.dest_qp_num		= dest->qpn,
-			.rq_psn			= dest->psn,
-			.max_dest_rd_atomic	= 1,
-			.min_rnr_timer		= 12,
-			.ah_attr		= {
-					.is_global	= 0,
-					.dlid		= dest->lid,
-					.sl		= sl,
-					.src_path_bits	= 0,
-					.port_num	= port
-			}
-	};
+	struct ibv_qp_attr attr;
+	attr.qp_state			= IBV_QPS_RTR;
+	attr.path_mtu			= IBV_MTU_4096;
+	attr.dest_qp_num		= addr->qpn;
+	attr.rq_psn			= addr->psn;
+	attr.max_dest_rd_atomic		= 1;
+	attr.min_rnr_timer		= 12;
+	attr.ah_attr.is_global		= 0;
+	attr.ah_attr.dlid		= addr->lid;
+	attr.ah_attr.sl			= 0;
+	attr.ah_attr.src_path_bits	= 0;
+	attr.ah_attr.port_num		= 1;
 
-	if (dest->gid.global.interface_id) {
-		attr.ah_attr.is_global = 1;
-		attr.ah_attr.grh.hop_limit = 1;
-		attr.ah_attr.grh.dgid = dest->gid;
-		attr.ah_attr.grh.sgid_index = sgid_idx;
-	}
-	if (ibv_modify_qp(ctx->qp, &attr,
+	if (ibv_modify_qp(qp, &attr,
 			IBV_QP_STATE              |
 			IBV_QP_AV                 |
 			IBV_QP_PATH_MTU           |
@@ -190,9 +181,9 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp)
 	attr.timeout	    = 14;
 	attr.retry_cnt	    = 7;
 	attr.rnr_retry	    = 7;
-	attr.sq_psn	    = my_psn;
+	attr.sq_psn	    = addr->psn;
 	attr.max_rd_atomic  = 1;
-	if (ibv_modify_qp(ctx->qp, &attr,
+	if (ibv_modify_qp(qp, &attr,
 			IBV_QP_STATE              |
 			IBV_QP_TIMEOUT            |
 			IBV_QP_RETRY_CNT          |
