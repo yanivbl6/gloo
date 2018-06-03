@@ -32,6 +32,9 @@
 #define _GNU_SOURCE
 
 #include "mlx5dv_mgr.h"
+#include "assert.h"
+
+
 
 qp_ctx::qp_ctx(struct ibv_qp* qp){
         int ret;
@@ -47,6 +50,8 @@ qp_ctx::qp_ctx(struct ibv_qp* qp){
 	this->write_cnt = 0;
 	this->exe_cnt = 0;
 	this->dbseg.qpn_ds = htobe32(qpn << 8);
+	this->phase = 0;
+	this->offset = this->qp->sq.stride  * (this->qp->sq.wqe_cnt / 2);
 }
 
 qp_ctx::~qp_ctx(){
@@ -185,6 +190,9 @@ void qp_ctx::cd_send_enable(qp_ctx* slave_qp){
     mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, 0 , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, slave_qp->write_cnt, slave_qp->qpn);
+
+    this->tasks.add(slave_qp->qp->sq.wqe_cnt,(uintptr_t) &(wseg->index));
+
     write_cnt+=1;
 }
 
@@ -197,10 +205,13 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp, uint32_t index){
     mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, 0  , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, index, slave_qp->qpn);
+
+    this->tasks.add(index, (uintptr_t)  &(wseg->index));
+
     write_cnt+=1;
 }
 
-void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index ){
+void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index, uint32_t inc ){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
     struct mlx5_wqe_coredirect_seg *wseg; //1
     const uint8_t ds = 2;
@@ -209,6 +220,9 @@ void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index ){
     mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0 , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, index, cqe_num);
+
+    this->tasks.add(inc, (uintptr_t)  &(wseg->index));
+
     write_cnt+=1;
 }
 
@@ -223,10 +237,16 @@ void qp_ctx::nop(size_t num_pad, int signal){
     write_cnt+=num_pad;
 }
 
-void qp_ctx::pad(){
+void qp_ctx::pad(int half){
 	int wqe_count = qp->sq.wqe_cnt;
 	int pad_size = 8;
-	int target_count = wqe_count/2;
+	int target_count = half?(wqe_count/2):(wqe_count);
+	if (write_cnt + pad_size > target_count){
+		printf("ERRPR = wqe buffer exceeded!\n");
+	} else if (write_cnt + pad_size < target_count/2) {
+		printf("ERRPR = wqe buffer too big!\n");
+	}
+
 	while (write_cnt + pad_size < target_count ){
 		this->nop(pad_size,0);
 	}
@@ -234,13 +254,34 @@ void qp_ctx::pad(){
 }
 
 void qp_ctx::dup(){
-	int i =0;
 	int wqe_count = qp->sq.wqe_cnt;
-	void* second_half = (void*) ((char*) qp->sq.buf + qp->sq.stride * (wqe_count / 2));
         void* first_half = qp->sq.buf;
+	void* second_half = (void*) ((char*) qp->sq.buf + qp->sq.stride * (wqe_count / 2));
 	memcpy(second_half, first_half, qp->sq.stride * (wqe_count / 2));
 }
 
+void qp_ctx::rearm(){
+	this->tasks.exec(this->offset, this->phase);
+	phase = !(phase);
+}
+
+void rearm_tasks::exec(int offset, int phase){
+	for (MapIt it = this->map.begin();  it != map.end()  ; ++it){
+		it->second.exec(it->first, offset , phase);
+	}
+}
+
+void val_rearm_tasks::exec(uint32_t inc, int offset, int phase){
+	if (phase){
+		for (int i=0; i < size; ++i){
+			*((uint32_t*) (offset + ptrs[i])) =  *((uint32_t*) ptrs[i]) + inc;
+		}
+	} else {
+                for (int i=0; i < size; ++i){
+                        *((uint32_t*) ptrs[i]) =  *((uint32_t*) (ptrs[i] + offset)) + inc;
+                }
+	}
+}
 
 
 void print_buffer(volatile void* buf, int count){

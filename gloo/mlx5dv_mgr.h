@@ -147,18 +147,23 @@ public:
 	void add(uintptr_t ptr);
 	void expand();
 	
+	void exec(uint32_t inc, int offset, int phase);
+
 	size_t size;
 	size_t buf_size;
 	uintptr_t* ptrs;
 };
 
 typedef std::map<int, val_rearm_tasks>  UpdateMap;
+typedef UpdateMap::iterator MapIt;
+
 
 class rearm_tasks{
    public:
 	rearm_tasks(){};
 	~rearm_tasks(){};
 	void add(uintptr_t ptr, uintptr_t inc);
+        void exec(int offset, int phase);
 
    private:
 	UpdateMap map;
@@ -174,21 +179,24 @@ class qp_ctx{
 	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
-	void cd_wait(uint32_t cqe_num, uint32_t index);
+	void cd_wait(uint32_t cqe_num, uint32_t index,  uint32_t inc);
         void nop(size_t num_pad, int signal);
 
-	void pad();
+	void pad(int half);
 	void dup();
-
 
         uint32_t write_cnt;
 	uint64_t qpn;
 
+
+	void rearm();
+
    private:
 
 
+	int offset;
 	struct mlx5dv_qp* qp;
-
+	int phase;
 	uint32_t exe_cnt;
 	rearm_tasks tasks;
 	struct mlx5_db_seg dbseg;
