@@ -12,6 +12,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <alloca.h>
 
 #include "gloo/algorithm.h"
 #include "gloo/context.h"
@@ -21,6 +22,9 @@
 
 namespace gloo {
 
+#warning "ALLREDUCE_NEW was built"
+
+typedef int rank_t;
 
 template <typename T>
 class AllreduceNew : public Algorithm {
@@ -35,14 +39,26 @@ class AllreduceNew : public Algorithm {
         count_(count),
         bytes_(count_ * sizeof(T)),
         fn_(fn) {
+
+	/* Step #1: Calculate the neighbors for each stage of recursive doubling */
+	unsigned step_idx, step_count = 0;
+	while ((1 << ++step_count) < contextRank_);
+	rank_t *neighbors = alloca(step_count * sizeof(rank_t));
+	for (step_idx = 0; step_idx < step_count; step_idx++) {
+		int leap = 1 << step_idx;
+		if ((contextRank_ % (leap << 1)) >= leap) {
+			leap *= -1;
+		}
+		neighbors[step_idx] = contextRank_ + leap;
+	}
+
+	/* Step #2: Create the buffers for each step */
     inbox_ = static_cast<T*>(malloc(bytes_));
     outbox_ = static_cast<T*>(malloc(bytes_));
 
     if (this->contextSize_ == 1) {
       return;
     }
-
-#warning "ALLREDUCE_NEW was built"
 
 
     int* buf = static_cast<int*>(malloc(sizeof(int)));
