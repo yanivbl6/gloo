@@ -29,6 +29,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#pragma once
+
 #define _GNU_SOURCE
 //#include <config.h>
 
@@ -144,25 +146,24 @@ public:
 
 	val_rearm_tasks();
 	~val_rearm_tasks();
-	void add(uintptr_t ptr);
+	void add(uint32_t* ptr);
 	void expand();
 	
 	void exec(uint32_t inc, int offset, int phase);
 
 	size_t size;
 	size_t buf_size;
-	uintptr_t* ptrs;
+	uint32_t** ptrs;
 };
 
 typedef std::map<int, val_rearm_tasks>  UpdateMap;
 typedef UpdateMap::iterator MapIt;
 
-
 class rearm_tasks{
    public:
 	rearm_tasks(){};
 	~rearm_tasks(){};
-	void add(uintptr_t ptr, uintptr_t inc);
+	void add(uint32_t* ptr, int inc);
         void exec(int offset, int phase);
 
    private:
