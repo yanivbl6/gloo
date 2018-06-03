@@ -30,9 +30,6 @@
  * SOFTWARE.
  */
 
-
-#define _GNU_SOURCE
-
 #include "mlx5dv_mgr.h"
 #include "assert.h"
 
