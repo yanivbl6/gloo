@@ -29,6 +29,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+
 #define _GNU_SOURCE
 
 #include "mlx5dv_mgr.h"
@@ -62,17 +64,17 @@ qp_ctx::~qp_ctx(){
 val_rearm_tasks::val_rearm_tasks(){
 	size= 0;
 	buf_size=4;
-	ptrs = (uintptr_t*) malloc(buf_size  * sizeof(uintptr_t));
+	ptrs = (uint32_t**) malloc(buf_size  * sizeof(uint32_t*));
 }
 
 val_rearm_tasks::~val_rearm_tasks(){
 	free(ptrs);
 }
 
-void val_rearm_tasks::add(uintptr_t ptr){
+void val_rearm_tasks::add(uint32_t* ptr){
 	++size;
 	if (size > buf_size){
-		uintptr_t* tmp_ptrs = (uintptr_t*) malloc((buf_size * 2)  * sizeof(uintptr_t));
+		uint32_t** tmp_ptrs = (uint32_t**) malloc((buf_size * 2)  * sizeof(uint32_t*));
 		int i = 0;
 		for (i = 0; i < buf_size; ++i){
 			tmp_ptrs[i] = ptrs[i];
@@ -84,7 +86,7 @@ void val_rearm_tasks::add(uintptr_t ptr){
 	ptrs[size-1] = ptr;
 }
 
-void rearm_tasks::add(uintptr_t ptr, uintptr_t inc){    
+void rearm_tasks::add(uint32_t* ptr, int inc){    
 	map[inc].add(ptr);
 }
 
@@ -191,7 +193,7 @@ void qp_ctx::cd_send_enable(qp_ctx* slave_qp){
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, slave_qp->write_cnt, slave_qp->qpn);
 
-    this->tasks.add(slave_qp->qp->sq.wqe_cnt,(uintptr_t) &(wseg->index));
+    this->tasks.add((uint32_t*) &(wseg->index),  slave_qp->qp->sq.wqe_cnt);
 
     write_cnt+=1;
 }
@@ -206,7 +208,7 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp, uint32_t index){
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, index, slave_qp->qpn);
 
-    this->tasks.add(index, (uintptr_t)  &(wseg->index));
+    this->tasks.add((uint32_t*)  &(wseg->index), index);
 
     write_cnt+=1;
 }
@@ -221,7 +223,7 @@ void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index, uint32_t inc ){
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, index, cqe_num);
 
-    this->tasks.add(inc, (uintptr_t)  &(wseg->index));
+    this->tasks.add((uint32_t*)  &(wseg->index), inc);
 
     write_cnt+=1;
 }
