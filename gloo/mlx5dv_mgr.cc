@@ -46,6 +46,7 @@ qp_ctx::qp_ctx(struct ibv_qp* qp){
 	ret = mlx5dv_init_obj(&dv_obj, MLX5DV_OBJ_QP);
 	this->write_cnt = 0;
 	this->exe_cnt = 0;
+	this->dbseg.qpn_ds = htobe32(qpn << 8);
 }
 
 qp_ctx::~qp_ctx(){
@@ -53,9 +54,34 @@ qp_ctx::~qp_ctx(){
 }
 
 
+val_rearm_tasks::val_rearm_tasks(){
+	size= 0;
+	buf_size=4;
+	ptrs = (uintptr_t*) malloc(buf_size  * sizeof(uintptr_t));
+}
 
+val_rearm_tasks::~val_rearm_tasks(){
+	free(ptrs);
+}
 
+void val_rearm_tasks::add(uintptr_t ptr){
+	++size;
+	if (size > buf_size){
+		uintptr_t* tmp_ptrs = (uintptr_t*) malloc((buf_size * 2)  * sizeof(uintptr_t));
+		int i = 0;
+		for (i = 0; i < buf_size; ++i){
+			tmp_ptrs[i] = ptrs[i];
+		}
+		buf_size = buf_size *2;
+		free(ptrs);
+		ptrs = tmp_ptrs;
+	}
+	ptrs[size-1] = ptr;
+}
 
+void rearm_tasks::add(uintptr_t ptr, uintptr_t inc){    
+	map[inc].add(ptr);
+}
 
 int poll_cqe(struct mlx5dv_cq* cq, uint32_t* cqn){
 	volatile void* tar =  (volatile void*)  ((volatile char*) cq->buf  + ((*cqn) & (cq->cqe_cnt-1))  * cq->cqe_size);
@@ -76,31 +102,15 @@ int poll_cqe(struct mlx5dv_cq* cq, uint32_t* cqn){
 	} 
 };
 
-
-void  do_db(struct mlx5dv_qp *qp, uint16_t* send_cnt, uint64_t qpn, uint32_t count)
-{
+void qp_ctx::db(){
 	struct mlx5_db_seg db;
-	(*send_cnt) += count;
-	db.qpn_ds = htobe32(qpn << 8); 
-        db.opmod_idx_opcode = htobe32(*send_cnt << 8);
+	exe_cnt += (qp->sq.wqe_cnt/2);
+        dbseg.opmod_idx_opcode = htobe32(exe_cnt << 8);
 	udma_to_device_barrier();
-	qp->dbrec[1] = htobe32(*send_cnt);
+	qp->dbrec[1] = htobe32(exe_cnt);
 	pci_store_fence();
-	*(uint64_t*) qp->bf.reg = *(uint64_t*) &(db);
+	*(uint64_t*) qp->bf.reg = *(uint64_t*) &(dbseg);
 	pci_store_fence();
-}
-
-int cd_send_wqe(struct mlx5dv_qp* qp, uint16_t send_cnt  ,uint64_t qpn, Akl* src) 
-{
-    struct mlx5_wqe_ctrl_seg *ctrl;
-    struct mlx5_wqe_data_seg *dseg;
-    const uint8_t ds = 2;
-    int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (send_cnt), MLX5_OPCODE_SEND, 0, qpn, 8 , ds, 0, 0);
-    dseg = (struct mlx5_wqe_data_seg*)(ctrl + 1);
-    mlx5dv_set_data_seg(dseg, src->len, src->key, src->addr);
-    return 1;
 }
 
 static inline void mlx5dv_set_remote_data_seg(struct mlx5_wqe_raddr_seg *seg,
@@ -110,28 +120,6 @@ static inline void mlx5dv_set_remote_data_seg(struct mlx5_wqe_raddr_seg *seg,
 	seg->rkey       = htonl(rkey);
 	seg->reserved	= 0;
 }
-
-
-
-int cd_write_imm(struct mlx5dv_qp* qp, uint16_t send_cnt  ,uint64_t qpn, Akl* src, Akl* dst){
-    struct mlx5_wqe_ctrl_seg *ctrl;
-    struct mlx5_wqe_raddr_seg *rseg;
-    struct mlx5_wqe_data_seg *dseg;
-    const uint8_t ds = 3;
-    int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (send_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0, qpn, 8 , ds, 0, 0);
-    rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
-    mlx5dv_set_remote_data_seg(rseg, dst->addr, dst->key);
-    dseg = (struct mlx5_wqe_data_seg*)(rseg + 1);
-    mlx5dv_set_data_seg(dseg, src->len, src->key, src->addr);
-//    print_buffer(ctrl, 64);
-    return 1;
-}
-
-
-
-
 
 static void set_vectorcalc_seg(struct mlx5_wqe_vectorcalc_seg *vseg,
                                uint8_t op, uint8_t type, uint8_t chunks, uint16_t num_vectors )
@@ -148,24 +136,6 @@ static void set_vectorcalc_seg(struct mlx5_wqe_vectorcalc_seg *vseg,
                                                  num_vectors);
 }
 
-int cd_write_vectorcalc_imm(struct mlx5dv_qp* qp, uint16_t send_cnt, uint64_t qpn , Akl* src, uint16_t num_vectors, uint8_t op, uint8_t type, Akl* dst){
-    struct mlx5_wqe_ctrl_seg *ctrl; //1
-    struct mlx5_wqe_raddr_seg *rseg; //1
-    struct mlx5_wqe_vectorcalc_seg *vseg;  //2
-    struct mlx5_wqe_data_seg *dseg; //1
-    const uint8_t ds = 5;
-    int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (send_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0xff, qpn, 8 , ds, 0, 0);
-    rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
-    mlx5dv_set_remote_data_seg(rseg, dst->addr, dst->key);
-    vseg = (struct mlx5_wqe_vectorcalc_seg*)(rseg + 1);
-    set_vectorcalc_seg(vseg, op, type, 4, num_vectors);
-    dseg = (struct mlx5_wqe_data_seg*)(vseg + 1);
-    mlx5dv_set_data_seg(dseg, src->len, src->key, src->addr);
-    return 2;
-}
-
 static inline void cd_set_wait(struct mlx5_wqe_coredirect_seg  *seg,
                          uint32_t index, uint32_t number)
 {
@@ -173,52 +143,105 @@ static inline void cd_set_wait(struct mlx5_wqe_coredirect_seg  *seg,
         seg->number   = htonl(number);
 }
 
-#define cd_f_ce (0)
-
-int cd_recv_enable(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn ,  uint32_t qp_num, uint32_t index ){
-    struct mlx5_wqe_ctrl_seg *ctrl; //1
-    struct mlx5_wqe_coredirect_seg *wseg; //1
-    const uint8_t ds = 2;
+void qp_ctx::write(struct ibv_sge* local, struct ibv_sge* remote){
+    struct mlx5_wqe_ctrl_seg *ctrl;
+    struct mlx5_wqe_raddr_seg *rseg;
+    struct mlx5_wqe_data_seg *dseg;
+    const uint8_t ds = 3;
     int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (send_cnt), 0x16, 0x00, qpn, cd_f_ce  , ds, 0, 0);
-    wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
-    cd_set_wait(wseg, index, qp_num);
-    return 1;
+    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0, qpn, 8 , ds, 0, 0);
+    rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
+    mlx5dv_set_remote_data_seg(rseg, remote->addr, remote->lkey);
+    dseg = (struct mlx5_wqe_data_seg*)(rseg + 1);
+    mlx5dv_set_data_seg(dseg, local->length, local->lkey, local->addr);
+    write_cnt+=1;   
 }
 
-int cd_send_enable(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn ,  uint32_t qp_num, uint32_t index ){
+void qp_ctx::reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
-    struct mlx5_wqe_coredirect_seg *wseg; //1
-    const uint8_t ds = 2;
+    struct mlx5_wqe_raddr_seg *rseg; //1
+    struct mlx5_wqe_vectorcalc_seg *vseg;  //2
+    struct mlx5_wqe_data_seg *dseg; //1
+    const uint8_t ds = 5;
     int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (send_cnt), 0x17, 0x00, qpn,  cd_f_ce , ds, 0, 0);
-    wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
-    cd_set_wait(wseg, index, qp_num);
-    return 1;
+    ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0xff, qpn, 8 , ds, 0, 0);
+    rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
+    mlx5dv_set_remote_data_seg(rseg, remote->addr, remote->lkey);
+    vseg = (struct mlx5_wqe_vectorcalc_seg*)(rseg + 1);
+    set_vectorcalc_seg(vseg, op, type, 4, num_vectors);
+    dseg = (struct mlx5_wqe_data_seg*)(vseg + 1);
+    mlx5dv_set_data_seg(dseg, local->length, local->lkey, local->addr);
+    write_cnt+=2;
 }
 
-int cd_wait(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn ,  uint32_t cqe_num, uint32_t index ){
+void qp_ctx::cd_send_enable(qp_ctx* slave_qp){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
     struct mlx5_wqe_coredirect_seg *wseg; //1
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (send_cnt), 0x0f, 0x00, qpn,  cd_f_ce , ds, 0, 0);
+    ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, 0 , ds, 0, 0);
+    wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
+    cd_set_wait(wseg, slave_qp->write_cnt, slave_qp->qpn);
+    write_cnt+=1;
+}
+
+void qp_ctx::cd_recv_enable(qp_ctx* slave_qp, uint32_t index){
+    struct mlx5_wqe_ctrl_seg *ctrl; //1
+    struct mlx5_wqe_coredirect_seg *wseg; //1
+    const uint8_t ds = 2;
+    int wqe_count = qp->sq.wqe_cnt;
+    ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, 0  , ds, 0, 0);
+    wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
+    cd_set_wait(wseg, index, slave_qp->qpn);
+    write_cnt+=1;
+}
+
+void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index ){
+    struct mlx5_wqe_ctrl_seg *ctrl; //1
+    struct mlx5_wqe_coredirect_seg *wseg; //1
+    const uint8_t ds = 2;
+    int wqe_count = qp->sq.wqe_cnt;
+    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0 , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, index, cqe_num);
-    return 1;
+    write_cnt+=1;
 }
 
-int cd_nop(struct mlx5dv_qp* qp,  uint16_t send_cnt, uint64_t qpn, size_t num_pad, int signal){
+
+
+void qp_ctx::nop(size_t num_pad, int signal){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
     const uint8_t ds = (num_pad*(qp->sq.stride/ 16));
     int wqe_count = qp->sq.wqe_cnt;
-    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((send_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, send_cnt, 0x00, 0x00, qpn, (signal==1)?8:0 , ds, 0, 0);
-    return num_pad;
+    ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
+    mlx5dv_set_ctrl_seg(ctrl, write_cnt, 0x00, 0x00, qpn, (signal==1)?8:0 , ds, 0, 0);
+    write_cnt+=num_pad;
 }
+
+void qp_ctx::pad(){
+	int wqe_count = qp->sq.wqe_cnt;
+	int pad_size = 8;
+	int target_count = wqe_count/2;
+	while (write_cnt + pad_size < target_count ){
+		this->nop(pad_size,0);
+	}
+	this->nop(target_count - write_cnt,0);
+}
+
+void qp_ctx::dup(){
+	int i =0;
+	int wqe_count = qp->sq.wqe_cnt;
+	void* second_half = (void*) ((char*) qp->sq.buf + qp->sq.stride * (wqe_count / 2));
+        void* first_half = qp->sq.buf;
+	memcpy(second_half, first_half, qp->sq.stride * (wqe_count / 2));
+}
+
+
 
 void print_buffer(volatile void* buf, int count){
         printf("buffer:\n");
