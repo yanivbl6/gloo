@@ -184,7 +184,7 @@ class qp_ctx{
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
 	void cd_wait(uint32_t cqe_num, uint32_t index,  uint32_t inc);
-        void nop(size_t num_pad, int signal);
+    void nop(size_t num_pad, int signal);
 
 	void pad(int half);
 	void dup();
