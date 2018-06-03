@@ -74,6 +74,8 @@ add_subdirectory(transport)
 # Depend on pthreads for transport device threads
 list(APPEND gloo_DEPENDENCY_LIBS pthread)
 
+##list(APPEND gloo_DEPENDENCY_LIBS mlx5)
+
 # Enable the following to get a list of source files
 if(FALSE)
   message(STATUS "Sources: ")

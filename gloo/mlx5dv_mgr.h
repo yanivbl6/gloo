@@ -40,7 +40,10 @@
 #include <string.h>
 #include <inttypes.h>
 #include "udma_barrier.h"
+extern "C"{
 #include <infiniband/mlx5dv.h>
+}
+
 #include "mlx5dv_mqp.h"
 
 #include <map>

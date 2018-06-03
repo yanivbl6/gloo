@@ -17,9 +17,17 @@ endif()
 
 if(USE_IBVERBS)
   find_package(ibverbs REQUIRED)
+  find_package(mlx5 REQUIRED)
   if(IBVERBS_FOUND)
     include_directories(SYSTEM ${IBVERBS_INCLUDE_DIRS})
     list(APPEND gloo_DEPENDENCY_LIBS ${IBVERBS_LIBRARIES})
+
+    message(INFO " ibverbs lib: ${IBVERBS_LIBRARIES} ibverbs include: ${IBVERBS_INCLUDE_DIRS}  ")
+    include_directories(SYSTEM ${MLX5_INCLUDE_DIRS})
+    list(APPEND gloo_DEPENDENCY_LIBS ${MLX5_LIBRARIES} )
+    message(INFO " mlx5 lib: ${MLX5_LIBRARIES} mlx5 include: ${MLX5_INCLUDE_DIRS}  ")
+
+
   else()
     message(WARNING "Not compiling with ibverbs support. Suppress this warning with -DUSE_IBVERBS=OFF.")
     set(USE_IBVERBS OFF)
@@ -64,6 +72,12 @@ if(USE_CUDA AND USE_NCCL)
     endif()
   endif()
 endif()
+
+##add_library(mlx5dv "/usr/lib/libmlx5.so")
+##target_link_libraries(mlx5dv INTERFACE)
+
+message(INFO "Added the libraries")
+
 
 # Make sure we can find googletest if building the tests
 if(BUILD_TEST)
