@@ -26,12 +26,6 @@ namespace gloo {
 
 typedef int rank_t;
 
-typedef struct mem_registration {
-	struct ibv_exp_mem_region *mem_reg;
-	struct ibv_mr *umr_mr;
-	unsigned mrs_cnt;
-} mem_registration_t;
-
 typedef struct verb_ctx {
 	struct ibv_context		  *context;
 	struct ibv_exp_device_attr attrs;
@@ -39,6 +33,30 @@ typedef struct verb_ctx {
 	struct ibv_cq			  *cq;
 	struct ibv_qp			  *qp;
 } verb_ctx_t;
+
+typedef struct mem_registration {
+	struct ibv_exp_mem_region *mem_reg;
+	struct ibv_mr *umr_mr;
+	unsigned mrs_cnt;
+} mem_registration_t;
+
+typedef struct rd_peer_info {
+	uintptr  buf;
+	uint32_t rkey;
+	uint16_t qpn;
+} rd_peer_info_t;
+
+typedef struct rd_peer {
+	rank_t rank;
+	struct ibv_sge buffer;
+	struct ibv_qp *qp;
+	rd_peer_info_t remote;
+} rd_peer_t;
+
+typedef struct rd_connections {
+	struct ibv_qp *mgmt_qp;
+	rd_peer_t *peers;
+} rd_connections_t;
 
 template <typename T>
 class AllreduceNew : public Algorithm {
@@ -57,82 +75,15 @@ class AllreduceNew : public Algorithm {
 	  return;
 	}
 
-	/* Step #1: Calculate the neighbors for each stage of recursive doubling */
-	unsigned step_idx, step_count = 0;
-	while ((1 << ++step_count) < contextSize_);
-	rank_t *neighbors = alloca(step_count * sizeof(rank_t));
-	for (step_idx = 0; step_idx < step_count; step_idx++) {
-		int leap = 1 << step_idx;
-		if ((contextRank_ % (leap << 1)) >= leap) {
-			leap *= -1;
-		}
-		neighbors[step_idx] = contextRank_ + leap;
-	}
-
-	/* Step #2: register the user's buffers */
+	/* Step #1: Initialize verbs for all to use */
 	init_verbs();
+
+	/* Step #2: Register existing memory buffers with UMR */
 	register_memory();
 
-	/* Step #3: Create the buffers for each step */
-	for (buf_idx = 0; buf_idx < step_count; buf_idx++) {
-		inbox_[buf_idx] = static_cast<T*>(malloc(bytes_));
-	}
-    outbox_ = static_cast<T*>(malloc(bytes_));
-
-
-
-
-    int* buf = static_cast<int*>(malloc(sizeof(int)));
-
-
-    (*buf) = this->contextRank_;
-    int ret = p2p((void*) buf,sizeof(int),0,1);
-
-    auto& leftPair = this->getLeftPair();
-    auto& rightPair = this->getRightPair();
-    auto slot = this->context_->nextSlot();
-     
-    (*buf) = this->contextRank_*10;
-    ret = p2p((void*) buf,sizeof(int),1,0);
-
-
-
-    if (count == 64){
-	    uint32_t vec[64];
-	    rearm_tasks tasks;
-	    print_buffer((void*) &vec, 64);
-	    for (int i = 0; i< 32; ++i){
-	      vec[i] = i;
-	      tasks.add(&vec[i], i%3);    
-	    }
-	    tasks.exec(32*sizeof(uint32_t), 0);
-	    print_buffer((void*) &vec, 64);
-	    tasks.exec(32*sizeof(uint32_t), 1);
-            print_buffer((void*) &vec, 64);
-    }
-    
-    
-
-
-    // Buffer to send to (rank+1).
-    sendDataBuf_ = rightPair->createSendBuffer(slot, outbox_, bytes_);
-
-    // Buffer that (rank-1) writes to.
-    recvDataBuf_ = leftPair->createRecvBuffer(slot, inbox_, bytes_);
-
-    // Dummy buffers for localized barrier.
-    // Before sending to the right, we only need to know that the node
-    // on the right is done using the inbox that's about to be written
-    // into. No need for a global barrier.
-    auto notificationSlot = this->context_->nextSlot();
-    sendNotificationBuf_ =
-      leftPair->createSendBuffer(notificationSlot, &dummy_, sizeof(dummy_));
-    recvNotificationBuf_ =
-      rightPair->createRecvBuffer(notificationSlot, &dummy_, sizeof(dummy_));
+    /* Step #3: Connect to the (recursive-doubling) peers */
+    establish_connections();
   }
-
-
-
 
   virtual ~AllreduceNew() {
 	deregister_memory();
@@ -447,6 +398,65 @@ int p2p(void* buf, size_t size, uint32_t src_rank, uint32_t dst_rank){
 	  }
   }
 
+  void establish_connections()
+  {
+	  unsigned send_wq_size = 4; // TODO: calc
+	  unsigned recv_rq_size = 4; // TODO: calc
+
+	  /* Calculate the number of recursive-doubling rounds */
+	  unsigned step_idx, step_count = 0;
+	  while ((1 << ++step_count) < contextSize_);
+	  rd_.peers_cnt = step_count;
+	  rd_.peers = malloc(step_count * sizeof(*rd_.peers));
+	  if (!rd_.peers) {
+    	  return; // TODO: indicate error!
+	  }
+
+	  /* Establish a connection with each peer */
+	  for (step_idx = 0; step_idx < step_count; step_idx++) {
+		  /* calculate the rank of each peer */
+		  int lefty = 0;
+		  int leap = 1 << step_idx;
+		  if ((contextRank_ % (leap << 1)) >= leap) {
+			  leap *= -1;
+			  lefty = 1;
+		  }
+		  rd_.peers[step_idx].rank = contextRank_ + leap;
+
+		  /* Create a QP and a buffer for this peer */
+		  rd_.peers[step_idx].qp = rc_qp_create(ibv_.cq,
+			  ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
+		  rd_.peers[step_idx].buffer.mr = ibv_reg_mr(ibv_.pd, 0, bytes_,
+				  IBV_ACCESS_LOCAL_WRITE  |
+                  IBV_ACCESS_REMOTE_WRITE |
+				  IBV_ACCESS_REMOTE_READ);
+		  rd_.peers[step_idx].buffer.addr = rd_.peers[step_idx].buffer.mr.addr;
+		  rd_.peers[step_idx].buffer.len = bytes_;
+
+		  /* Exchange the QP+buffer address with this peer */
+		  rd_peer_info_t info = {
+				  .buf = rd_.peers[step_idx].buffer.addr,
+				  .rkey = rd_.peers[step_idx].buffer.mr->rkey,
+				  .qpn = rd_.peers[step_idx].qp->qpn
+		  };
+		  if (lefty)
+			  p2p(rd_.peers[step_idx].remote, sizeof(info), rd_.peers[step_idx].rank, contextRank_);
+		  p2p(&info, sizeof(info), contextRank_, rd_.peers[step_idx].rank);
+		  if (!lefty)
+			  p2p(rd_.peers[step_idx].remote, sizeof(info), rd_.peers[step_idx].rank, contextRank_);
+
+
+		  /* Set the logic to trigger the next step */
+		  if (step_idx) {
+			  //TODO: send/recv using "rd_.peers[step_idx].remote"
+		  }
+	  }
+
+	  /* Create a single management QP */
+	  rd_.mgmt_qp = hmca_bcol_cc_mq_create(ibv_.cq,
+			  ibv_.pd, ibv_.context, send_wq_size);
+  }
+
  protected:
   std::vector<T*> ptrs_;
   const int count_;
@@ -457,6 +467,7 @@ int p2p(void* buf, size_t size, uint32_t src_rank, uint32_t dst_rank){
   T* outbox_;
   verb_ctx_t ibv_;
   mem_registration_t mem_;
+  rd_connections_t rd_;
   std::unique_ptr<transport::Buffer> sendDataBuf_;
   std::unique_ptr<transport::Buffer> recvDataBuf_;
 
