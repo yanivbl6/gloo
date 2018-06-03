@@ -18,7 +18,8 @@ list(APPEND GLOO_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/scatter.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/types.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.cc"
-
+  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mgr.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mqp.cc"
   )
 
 list(APPEND GLOO_HDRS
@@ -31,6 +32,8 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_local.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_ring.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_ring_chunked.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_new.h"
+
   "${CMAKE_CURRENT_SOURCE_DIR}/barrier.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/barrier_all_to_all.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/barrier_all_to_one.h"
@@ -46,6 +49,10 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_new.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mgr.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mqp.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/udma_barrier.h"
+
   )
 
 if(USE_CUDA)
