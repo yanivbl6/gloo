@@ -38,7 +38,7 @@ typedef struct verb_ctx {
 	struct ibv_pd			  *pd;
 	struct ibv_cq			  *cq;
 	struct ibv_qp			  *umr_qp;
-        struct ibv_comp_channel channel;
+        struct ibv_comp_channel 	  *channel;
 
 } verb_ctx_t;
 
@@ -62,14 +62,18 @@ typedef struct rd_peer {
 	struct ibv_cq *cq;
 
 	struct ibv_sge outgoing_buf;
+        struct ibv_mr* outgoing_mr;
 	struct ibv_sge incoming_buf;
+        struct ibv_mr* incoming_mr;
+
 	struct ibv_sge remote_buf;
 	rd_peer_info_t remote;
 
 } rd_peer_t;
 
 typedef struct rd_connections {
-	struct ibv_mr result;
+	struct ibv_sge result;
+        struct ibv_mr* result_mr;
 
 
 	struct ibv_qp *mgmt_qp;
@@ -258,7 +262,7 @@ public:
 	int fini_verbs()
 	{
 		verb_ctx_t *ctx = &ibv_;
-		if (ibv_destroy_qp(ctx->qp)) {
+		if (ibv_destroy_qp(ctx->umr_qp)) {
 			fprintf(stderr, "Couldn't destroy QP\n");
 			return 0; // TODO indicate failure?
 		}
@@ -280,7 +284,7 @@ public:
 		return 1;
 	}
 
-	struct ibv_mr *register_umr(struct ibv_exp_mem_region mem_reg, unsigned mem_reg_cnt,
+	struct ibv_mr *register_umr(struct ibv_exp_mem_region* mem_reg, unsigned mem_reg_cnt,
 			struct ibv_exp_mkey_list_container *umr_mkey)
 	{
 		struct ibv_exp_mr_init_attr umr_init_attr = {
@@ -307,7 +311,7 @@ public:
 		wr.ext_op.umr.umr_type				= IBV_EXP_UMR_MR_LIST;
 		wr.ext_op.umr.memory_objects		= umr_mkey;
 		wr.ext_op.umr.modified_mr			= res_mr;
-		wr.ext_op.umr.base_addr				= mem_reg[0].addr;
+		wr.ext_op.umr.base_addr				= mem_reg[0].base_addr;
 		wr.ext_op.umr.num_mrs				= mem_reg_cnt;
 		wr.ext_op.umr.mem_list.mem_reg_list	= mem_.mem_reg;
 		if (!umr_mkey) {
@@ -315,7 +319,7 @@ public:
 		}
 
 		/* Post WR and wait for it to complete */
-		if (ibv_exp_post_send(ibv_.qp, &wr, &bad_wr)) {
+		if (ibv_exp_post_send(ibv_.umr_qp, &wr, &bad_wr)) {
 			return nullptr;
 		}
 		struct ibv_wc wc;
@@ -337,13 +341,15 @@ public:
 
 	void register_memory()
 	{
-		if (count_ > ibv_.attrs.umr_caps.max_klm_list_size) {
+
+		int inputs = ptrs_.size();
+		if (inputs > ibv_.attrs.umr_caps.max_klm_list_size) {
 			return; // TODO: indicate error!
 		}
 
 		/* Register the user's buffers */
 		int buf_idx;
-		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
+		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
 			mem_.mem_reg[buf_idx].base_addr = ptrs_[buf_idx];
 			mem_.mem_reg[buf_idx].length	= bytes_;
 			mem_.mem_reg[buf_idx].mr		= ibv_reg_mr(ibv_.pd,
@@ -352,11 +358,11 @@ public:
 
 		/* Step #2: Create a UMR memory region */
 		struct ibv_exp_mkey_list_container *umr_mkey = nullptr;
-		if (count > ibv_.attrs.umr_caps.max_send_wqe_inline_klms) {
+		if (inputs > ibv_.attrs.umr_caps.max_send_wqe_inline_klms) {
 			struct ibv_exp_mkey_list_container_attr list_container_attr = {
 					.pd					= ibv_.pd,
 					.mkey_list_type		= IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR,
-					.max_klm_list_size	= count,
+					.max_klm_list_size	= inputs,
 					.comp_mask 			= 0
 			};
 			umr_mkey = ibv_exp_alloc_mkey_list_memory(&list_container_attr);
@@ -367,7 +373,7 @@ public:
 			umr_mkey = nullptr;
 		}
 
-		mem_.umr_mr = register_umr(mem_.mem_reg, count_, umr_mkey);
+		mem_.umr_mr = register_umr(mem_.mem_reg, inputs, umr_mkey);
 		if (!mem_.umr_mr) {
 			return; // TODO: indicate error!
 		}
@@ -395,6 +401,8 @@ public:
 
 		int inputs = ptrs_.size();
 
+		verb_ctx_t* ctx = this->ibv_;	
+
                 rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
                                 ctx->channel, 0);
 
@@ -407,10 +415,10 @@ public:
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(ibv_.cq,
 				ibv_.pd, ibv_.context, send_wq_size);
 
-		rd.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq); 
+		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq); 
 
 
-		qp_ctx* mqp = rd.mgmt_qp_cd;
+		qp_ctx* mqp = rd_.mgmt_qp_cd;
 
 		/* Create a loopback QP */
 
@@ -426,18 +434,17 @@ public:
 				ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
 		peer_addr_t loopback_addr;
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
-		rc_qp_connect(rd_.loopback_qp, &loopback_addr);
-
+		rc_qp_connect(&loopback_addr,rd_.loopback_qp);
 
 		rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp, rd_.loopback_cq);
 
 
 
 		/* Prepare the first (intra-node) VectorCalc WQE - loobpack */
-		rd_.result.mr = ibv_reg_mr(ibv_.pd, nullptr, bytes_, IB_ACCESS_FLAGS);
-		rd_.result.addr = rd_.result.mr->addr;
-		rd_.result.len = bytes_;
-
+		rd_.result_mr = ibv_reg_mr(ibv_.pd, nullptr, bytes_, IB_ACCESS_FLAGS);
+		rd_.result.addr = rd_.result_mr->addr;
+		rd_.result.length = bytes_;
+		rd_.result.lkey = rd_.result_mr->lkey;
 
 		/* Calculate the number of recursive-doubling rounds */
 		unsigned step_idx, step_count = 0;
@@ -472,19 +479,21 @@ public:
 			}
 
 
-			rd_.peers[step_idx].cq = rc_qp_create(rd_.peers[step_idx].cq,
+			rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq,
 					ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
 			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, 0, bytes_, IB_ACCESS_FLAGS);
-			rd_.peers[step_idx].incoming_buf.mr	  = mr;
+			rd_.peers[step_idx].incoming_mr	      = mr;
 			rd_.peers[step_idx].incoming_buf.addr = mr->addr;
-			rd_.peers[step_idx].incoming_buf.len  = bytes_;
+			rd_.peers[step_idx].incoming_buf.length  = bytes_;
+
+			uint32_t rkey = mr->rkey;
 
 			/* Create a UMR for VectorCalc-ing each buffer with the result */
 			struct ibv_exp_mem_region mem_reg[2] = {
 					{
 							.addr = rd_.result.addr,
 							.len  = bytes_,
-							.lkey = rd_.result.mr->lkey
+							.lkey = rd_.result.lkey
 					},
 					{
 							.addr = mr->addr,
@@ -496,17 +505,26 @@ public:
 			if (!mr) {
 				return; // TODO: indicate error!
 			}
-			rd_.peers[step_idx].outgoing_buf.mr = mr;
+			rd_.peers[step_idx].outgoing_mr = mr;
 			rd_.peers[step_idx].outgoing_buf.addr = rd_.result.addr;
-			rd_.peers[step_idx].outgoing_buf.len = bytes_;
+			rd_.peers[step_idx].outgoing_buf.length = bytes_;
 
 			/* Exchange the QP+buffer address with this peer */
-			rd_peer_info_t info = {
-			, rd_.peers[step_idx].buffer.mr->rkey
-			};
+			rd_peer_info_t info;
+
+			info.rkey = rkey;
+			info.buf = (uintptr_t) rd_.peers[step_idx].incoming_buf.addr;
+
 			rc_qp_get_addr(rd_.peers[step_idx].qp, &info.addr);
+
+			
+
 			p2p_exchange(&info, rd_.peers[step_idx].remote,
 					sizeof(info), rd_.peers[step_idx].rank);
+
+			rd_.peers[step_idx].remote_buf.addr = info.buf;
+			rd_.peers[step_idx].remote_buf.lkey = info.rkey;
+
 			rc_qp_connect(rd_.peers[step_idx].qp,
 					&rd_.peers[step_idx].remote.addr);
 
@@ -566,7 +584,8 @@ public:
 			delete rd_.peers[step_idx].qp_cd;
 			ibv_destroy_qp(rd_.peers[step_idx].qp);
                         ibv_destroy_cq(rd_.peers[step_idx].cq);
-			ibv_dereg_mr(rd_.peers[step_idx].incoming_buf.mr);
+			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
+                        ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
 		}
 		delete rd_.loopback_qp_dc;
 		ibv_destroy_qp(rd_.loopback_qp);
@@ -574,7 +593,7 @@ public:
 		delete rd_.mgmt_qp_dc;
 		ibv_destroy_qp(rd_.mgmt_qp);
                 ibv_destroy_cq(rd_.mgmt_cq);
-		ibv_dereg_mr(rd_.result.mr);
+		ibv_dereg_mr(rd_.result_mr);
 		free(rd_.peers);
 	}
 
