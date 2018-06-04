@@ -2,7 +2,7 @@
 
 #include <infiniband/verbs_exp.h>
 
-
+#define GID_INDEX 3
 
 enum cd_statuses{
 	HCOLL_SUCCESS = 0,
