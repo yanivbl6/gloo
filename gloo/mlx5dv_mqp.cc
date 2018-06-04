@@ -10,7 +10,7 @@ int hmca_bcol_cc_mq_destroy(struct ibv_qp *mq) {
     return rc;
 }
 
-struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_context *ctx, uint16_t send_wq_size){
+struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_context *ctx, uint16_t send_wq_size) {
 			   
     int rc = HCOLL_SUCCESS;
     struct ibv_exp_qp_init_attr init_attr;
@@ -59,6 +59,7 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
     }
 
     if (rc == HCOLL_SUCCESS) {
+        union ibv_gid gid;
         memset(&attr, 0, sizeof(attr));
         attr.qp_state              = IBV_QPS_RTR;
         attr.path_mtu              = IBV_MTU_1024;
@@ -66,11 +67,20 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
         attr.rq_psn                = 0;
         attr.max_dest_rd_atomic    = 1;
         attr.min_rnr_timer         = 12;
-        attr.ah_attr.is_global     = 0;
+        attr.ah_attr.is_global     = 1;
+        attr.ah_attr.grh.hop_limit = 1;
+        attr.ah_attr.grh.sgid_index = GID_INDEX;
         attr.ah_attr.dlid          = 0;
         attr.ah_attr.sl            = 0;
         attr.ah_attr.src_path_bits = 0;
         attr.ah_attr.port_num      = 1;
+
+        if (ibv_query_gid(ctx, 1, GID_INDEX, &gid)) {
+            fprintf(stderr, "can't read sgid of index %d\n", gidx);
+            rc = HCOLL_ERROR;
+        }
+
+        attr.ah_attr.grh.dgid = gid;
 
         rc = ibv_modify_qp(_mq, &attr,
                            IBV_QP_STATE              |
@@ -148,22 +158,30 @@ int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr)
 	addr->lid = attr.lid;
 	addr->qpn = qp->qp_num;
 	addr->psn = 0x1234;
+
+	if (ibv_query_gid(qp->context, 1, GID_INDEX, &addr->gid)) {
+	    fprintf(stderr, "can't read sgid of index %d\n", GID_INDEX);
+	    return 1;
+	}
 }
 
 int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp)
 {
 	struct ibv_qp_attr attr;
 	attr.qp_state			= IBV_QPS_RTR;
-	attr.path_mtu			= IBV_MTU_4096;
+	attr.path_mtu			= IBV_MTU_1024;
 	attr.dest_qp_num		= addr->qpn;
 	attr.rq_psn			= addr->psn;
 	attr.max_dest_rd_atomic		= 1;
 	attr.min_rnr_timer		= 12;
-	attr.ah_attr.is_global		= 0;
+	attr.ah_attr.is_global		= 1;
 	attr.ah_attr.dlid		= addr->lid;
 	attr.ah_attr.sl			= 0;
 	attr.ah_attr.src_path_bits	= 0;
 	attr.ah_attr.port_num		= 1;
+	attr.ah_attr.grh.hop_limit = 1;
+	attr.ah_attr.grh.dgid = addr->gid;
+	attr.ah_attr.grh.sgid_index = GID_INDEX;
 
 	if (ibv_modify_qp(qp, &attr,
 			IBV_QP_STATE              |
