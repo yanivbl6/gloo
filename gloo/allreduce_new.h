@@ -25,8 +25,8 @@ namespace gloo {
 #warning "ALLREDUCE_NEW was built"
 
 #define IB_ACCESS_FLAGS (IBV_ACCESS_LOCAL_WRITE  | \
-						 IBV_ACCESS_REMOTE_WRITE | \
-						 IBV_ACCESS_REMOTE_READ)
+		IBV_ACCESS_REMOTE_WRITE | \
+		IBV_ACCESS_REMOTE_READ)
 
 #define RX_SIZE 16
 
@@ -38,7 +38,7 @@ typedef struct verb_ctx {
 	struct ibv_pd			  *pd;
 	struct ibv_cq			  *cq;
 	struct ibv_qp			  *umr_qp;
-        struct ibv_comp_channel 	  *channel;
+	struct ibv_comp_channel 	  *channel;
 
 } verb_ctx_t;
 
@@ -62,9 +62,9 @@ typedef struct rd_peer {
 	struct ibv_cq *cq;
 
 	struct ibv_sge outgoing_buf;
-        struct ibv_mr* outgoing_mr;
+	struct ibv_mr* outgoing_mr;
 	struct ibv_sge incoming_buf;
-        struct ibv_mr* incoming_mr;
+	struct ibv_mr* incoming_mr;
 
 	struct ibv_sge remote_buf;
 	rd_peer_info_t remote;
@@ -73,16 +73,16 @@ typedef struct rd_peer {
 
 typedef struct rd_connections {
 	struct ibv_sge result;
-        struct ibv_mr* result_mr;
+	struct ibv_mr* result_mr;
 
 
 	struct ibv_qp *mgmt_qp;
-        struct ibv_cq *mgmt_cq;
+	struct ibv_cq *mgmt_cq;
 
 	qp_ctx *mgmt_qp_cd;
 
 	struct ibv_qp *loopback_qp;
-        struct ibv_cq *loopback_cq;
+	struct ibv_cq *loopback_cq;
 
 	qp_ctx *loopback_qp_cd;
 	unsigned peers_cnt;
@@ -147,7 +147,7 @@ public:
 #endif
 	}
 
-	void init_verbs(char *ib_devname= "", int port=1)
+	void init_verbs(char *ib_devname=nullptr, int port=1)
 	{
 		verb_ctx_t *ctx = &ibv_;
 		int n;
@@ -203,17 +203,17 @@ public:
 
 		{
 			struct ibv_exp_qp_init_attr attr;
-					attr.qp_context	  = ctx->context;
-					attr.send_cq	  = ctx->cq;
-					attr.recv_cq	  = ctx->cq;
-					attr.srq		  = nullptr;
-					attr.qp_type	  = IBV_QPT_UD;
-					attr.comp_mask	  = IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
-					attr.exp_create_flags = IBV_EXP_QP_CREATE_UMR;
-					attr.cap.max_send_wr = 1;
-                                        attr.cap.max_recv_wr = 0;
-                                        attr.cap.max_send_sge = 1;
-                                        attr.cap.max_recv_sge = 1;
+			attr.qp_context	  = ctx->context;
+			attr.send_cq	  = ctx->cq;
+			attr.recv_cq	  = ctx->cq;
+			attr.srq		  = nullptr;
+			attr.qp_type	  = IBV_QPT_UD;
+			attr.comp_mask	  = IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
+			attr.exp_create_flags = IBV_EXP_QP_CREATE_UMR;
+			attr.cap.max_send_wr = 1;
+			attr.cap.max_recv_wr = 0;
+			attr.cap.max_send_sge = 1;
+			attr.cap.max_recv_sge = 1;
 
 			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
 			if (!ctx->umr_qp)  {
@@ -224,10 +224,10 @@ public:
 
 		{
 			struct ibv_qp_attr attr;
-				attr.qp_state        = IBV_QPS_INIT;
-				attr.pkey_index      = 0;
-				attr.port_num        = port;
-				attr.qkey            = 0x11111111;
+			attr.qp_state        = IBV_QPS_INIT;
+			attr.pkey_index      = 0;
+			attr.port_num        = port;
+			attr.qkey            = 0x11111111;
 
 			if (ibv_modify_qp(ctx->umr_qp, &attr,
 					IBV_QP_STATE              |
@@ -285,14 +285,13 @@ public:
 			struct ibv_exp_mkey_list_container *umr_mkey)
 	{
 		struct ibv_exp_mr_init_attr umr_init_attr;
-				umr_init_attr.max_klm_list_size	= mem_reg_cnt,
-				umr_init_attr.create_flags	= IBV_EXP_MR_INDIRECT_KLMS,
-				umr_init_attr.exp_access_flags	= IB_ACCESS_FLAGS;
-
 		struct ibv_exp_create_mr_in umr_create_mr_in;
-				umr_create_mr_in.pd	   = ibv_.pd;
-				umr_create_mr_in.attr      = umr_init_attr;
-				umr_create_mr_in.comp_mask = 0;
+		umr_init_attr.max_klm_list_size	= mem_reg_cnt;
+		umr_init_attr.create_flags		= IBV_EXP_MR_INDIRECT_KLMS;
+		umr_init_attr.exp_access_flags	= IB_ACCESS_FLAGS;
+		umr_create_mr_in.pd				= ibv_.pd;
+		umr_create_mr_in.attr			= umr_init_attr;
+		umr_create_mr_in.comp_mask		= 0;
 
 		struct ibv_mr *res_mr = ibv_exp_create_mr(&umr_create_mr_in);
 		if (!res_mr) {
@@ -355,10 +354,10 @@ public:
 		struct ibv_exp_mkey_list_container *umr_mkey = nullptr;
 		if (inputs > ibv_.attrs.umr_caps.max_send_wqe_inline_klms) {
 			struct ibv_exp_mkey_list_container_attr list_container_attr;
-					list_container_attr.pd				= ibv_.pd;
-					list_container_attr.mkey_list_type		= IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR;
-					list_container_attr.max_klm_list_size		= inputs;
-					list_container_attr.comp_mask 			= 0;
+			list_container_attr.pd				= ibv_.pd;
+			list_container_attr.mkey_list_type		= IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR;
+			list_container_attr.max_klm_list_size		= inputs;
+			list_container_attr.comp_mask 			= 0;
 			umr_mkey = ibv_exp_alloc_mkey_list_memory(&list_container_attr);
 			if (!umr_mkey) {
 				return; // TODO: indicate error!
@@ -397,14 +396,14 @@ public:
 
 		verb_ctx_t* ctx = &(this->ibv_);	
 
-                rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
-                                ctx->channel, 0);
+		rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+				ctx->channel, 0);
 
-                if (!rd_.mgmt_cq) {
-                        fprintf(stderr, "Couldn't create CQ\n");
-                        return; // TODO indicate failure?
-                }
-		
+		if (!rd_.mgmt_cq) {
+			fprintf(stderr, "Couldn't create CQ\n");
+			return; // TODO indicate failure?
+		}
+
 
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(ibv_.cq,
 				ibv_.pd, ibv_.context, send_wq_size);
@@ -488,8 +487,8 @@ public:
 			mem_reg[0].length = bytes_;
 			mem_reg[0].mr = rd_.result_mr;
 			mem_reg[1].base_addr = (uint64_t) mr->addr;
-                        mem_reg[1].length = bytes_;
-                        mem_reg[1].mr = mr;
+			mem_reg[1].length = bytes_;
+			mem_reg[1].mr = mr;
 
 			mr = register_umr(mem_reg, 2, nullptr);
 			if (!mr) {
@@ -507,7 +506,7 @@ public:
 
 			rc_qp_get_addr(rd_.peers[step_idx].qp, &info.addr);
 
-			
+
 
 			p2p_exchange((void*) &info, (void*) rd_.peers[step_idx].remote_buf.addr,
 					sizeof(info), (int) rd_.peers[step_idx].rank);
@@ -546,7 +545,7 @@ public:
 			rd_.peers[step_idx].qp_cd->pad();
 
 			rd_.loopback_qp_cd->reduce_write(&dummy, &rd_.result, 2,
-                                MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
+					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
 			mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes , 1);
 		}
@@ -554,10 +553,10 @@ public:
 
 		sg.length =  bytes_;
 		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
-                        sg.addr = (uint64_t)  ptrs_[buf_idx];
-                        sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
-                        rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
-                }
+			sg.addr = (uint64_t)  ptrs_[buf_idx];
+			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
+			rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
+		}
 
 		mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
 		mqp->cd_wait(rd_.peers[step_idx].qp_cd, loopback_wqes, inputs);
@@ -570,16 +569,16 @@ public:
 		for (int step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
 			delete rd_.peers[step_idx].qp_cd;
 			ibv_destroy_qp(rd_.peers[step_idx].qp);
-                        ibv_destroy_cq(rd_.peers[step_idx].cq);
+			ibv_destroy_cq(rd_.peers[step_idx].cq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
-                        ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
+			ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
 		}
 		delete rd_.loopback_qp_cd;
 		ibv_destroy_qp(rd_.loopback_qp);
 		ibv_destroy_cq(rd_.loopback_cq);
 		delete rd_.mgmt_qp_cd;
 		ibv_destroy_qp(rd_.mgmt_qp);
-                ibv_destroy_cq(rd_.mgmt_cq);
+		ibv_destroy_cq(rd_.mgmt_cq);
 		ibv_dereg_mr(rd_.result_mr);
 		free(rd_.peers);
 	}
