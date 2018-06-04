@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 project(gloo CXX C)
 
+
+add_definitions(
+    -Wfatal-errors
+    )
+
 set(GLOO_VERSION_MAJOR 0)
 set(GLOO_VERSION_MINOR 5)
 set(GLOO_VERSION_PATCH 0)
