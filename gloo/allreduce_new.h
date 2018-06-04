@@ -38,13 +38,12 @@ namespace gloo {
 typedef int rank_t;
 
 typedef struct verb_ctx {
-	struct ibv_context		  *context;
+	struct ibv_context	*context;
+	struct ibv_pd		*pd;
+	struct ibv_cq		*cq;
+	struct ibv_qp		*umr_qp;
+	struct ibv_comp_channel *channel;
 	struct ibv_exp_device_attr attrs;
-	struct ibv_pd			  *pd;
-	struct ibv_cq			  *cq;
-	struct ibv_qp			  *umr_qp;
-	struct ibv_comp_channel 	  *channel;
-
 } verb_ctx_t;
 
 typedef struct mem_registration {
@@ -158,8 +157,7 @@ public:
 	void init_verbs(char *ib_devname=nullptr, int port=1)
 	{
 		verb_ctx_t *ctx = &ibv_;
-		int n;
-		struct ibv_device **dev_list = ibv_get_device_list(&n);
+		struct ibv_device **dev_list = ibv_get_device_list(nullptr);
 		struct ibv_device* ib_dev;
 		if (!dev_list) {
 			perror("Failed to get IB devices list");
@@ -197,13 +195,14 @@ public:
 			goto clean_comp_channel;
 		}
 
-		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
-				NULL, 0);
+		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE, NULL, NULL, 0);
 		if (!ctx->cq) {
 			PRINT("Couldn't create CQ");
 			return; // TODO indicate failure?
 		}
 
+		memset(&ctx->attrs, 0, sizeof(ctx->attrs));
+		ctx->attrs.comp_mask = IBV_EXP_DEVICE_ATTR_UMR;
 		if (ibv_exp_query_device(ctx->context ,&ctx->attrs)) {
 			PRINT("Couldn't query device attributes");
 			return; // TODO indicate failure?
@@ -212,21 +211,42 @@ public:
 		{
 			struct ibv_exp_qp_init_attr attr;
 			memset(&attr, 0, sizeof(attr));
-			attr.qp_context		= ctx->context;
+			attr.pd                 = ctx->pd;
 			attr.send_cq		= ctx->cq;
 			attr.recv_cq		= ctx->cq;
 			attr.qp_type		= IBV_QPT_RC;
-			attr.comp_mask		= IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
+			attr.comp_mask		= IBV_EXP_QP_INIT_ATTR_PD |
+						  IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS |
+						  IBV_EXP_QP_INIT_ATTR_MAX_INL_KLMS;
 			attr.exp_create_flags	= IBV_EXP_QP_CREATE_UMR;
 			attr.cap.max_send_wr	= 1;
-			attr.cap.max_recv_wr	= 1;
+			attr.cap.max_recv_wr	= 0;
 			attr.cap.max_send_sge	= 1;
-			attr.cap.max_recv_sge	= 1;
+			attr.cap.max_recv_sge	= 0;
+			attr.max_inl_send_klms  = 4;
 
 			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
 			if (!ctx->umr_qp)  {
 				PRINT("Couldn't create UMR QP");
 				return; // TODO indicate failure?
+			}
+		}
+
+		{
+			struct ibv_qp_attr qp_attr;
+			memset(&qp_attr, 0, sizeof(qp_attr));
+			qp_attr.qp_state	= IBV_QPS_INIT;
+			qp_attr.pkey_index	= 0;
+			qp_attr.port_num	= 1;
+			qp_attr.qp_access_flags = 0;
+			
+			if (ibv_modify_qp(ctx->umr_qp, &qp_attr,
+				IBV_QP_STATE |
+				IBV_QP_PKEY_INDEX | 
+				IBV_QP_PORT |
+				IBV_QP_ACCESS_FLAGS)) {
+				PRINT("Failed to INIT the UMR QP");
+				return; // TODO: indicate failure?
 			}
 		}
 
