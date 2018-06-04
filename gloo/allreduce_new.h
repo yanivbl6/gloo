@@ -130,6 +130,7 @@ public:
 	}
 
 	int p2p_exchange(void* send_buf, void* recv_buf, size_t size, int peer){
+		fprintf(stderr,"me: %d, my peer: %d\n", context_->rank, peer);
 		auto& pair = this->getPair(peer);
 		auto slot = this->context_->nextSlot();
 
@@ -602,7 +603,7 @@ public:
 			ibv_destroy_cq(rd_.peers[step_idx].cq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
 			ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
-			free(rd_.peers[step_idx].incoming_buf.addr);
+			free((void*) rd_.peers[step_idx].incoming_buf.addr);
 		}
 		delete rd_.loopback_qp_cd;
 		ibv_destroy_qp(rd_.loopback_qp);
