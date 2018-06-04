@@ -150,7 +150,7 @@ struct ibv_qp* rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_con
 	qp_attr.qp_state	= IBV_QPS_INIT;
 	qp_attr.pkey_index	= 0;
 	qp_attr.port_num	= 1;
-	qp_attr.qp_access_flags = 0;
+	qp_attr.qp_access_flags = IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE;
 	
 	if (ibv_modify_qp(qp, &qp_attr,
 		IBV_QP_STATE |

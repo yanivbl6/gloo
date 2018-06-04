@@ -60,6 +60,9 @@ qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq){
 	volatile void* tar =  (volatile void*) this->cq->buf;
 	this->cur_cqe = (volatile struct cqe64*) tar;
 
+	printf("wqe_cnt = %d, stride = %d\n",this->qp->sq.wqe_cnt,this->qp->sq.stride);
+        printf("cqn num = %d\n", this->cq->cqn);
+
 }
 
 qp_ctx::~qp_ctx(){
@@ -192,13 +195,15 @@ void qp_ctx::reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_
     write_cnt+=2;
 }
 
+#define CE 8
+
 void qp_ctx::cd_send_enable(qp_ctx* slave_qp){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
     struct mlx5_wqe_coredirect_seg *wseg; //1
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*) ( (char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, 0 , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, CE , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, slave_qp->write_cnt, slave_qp->qpn);
     this->tasks.add((uint32_t*) &(wseg->index),  slave_qp->qp->sq.wqe_cnt);
@@ -212,7 +217,7 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp, uint32_t index){
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*) ((char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, 0  , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, CE  , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, slave_qp->qp->rq.wqe_cnt, slave_qp->qpn);
     this->tasks.add((uint32_t*)  &(wseg->index), index);
@@ -226,7 +231,7 @@ void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index, uint32_t inc ){
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*)  ( (char*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0 , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, CE , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, index, cqe_num);
 
@@ -288,17 +293,17 @@ void RearmTasks::exec(uint32_t offset, int phase){
 void ValRearmTasks::exec(uint32_t inc, uint32_t offset, int phase){
 	if (!phase){
 		for (int i=0; i < size; ++i){
-			ptrs[i][offset] =  ptrs[i][0] + inc;	
+			ptrs[i][offset] =  htonl(ntohl(ptrs[i][0]) + inc);	
 		}
 	} else {
                 for (int i=0; i < size; ++i){
-                        ptrs[i][0] =  ptrs[i][offset] + inc;
+                        ptrs[i][0] =  htonl( ntohl( ptrs[i][offset]) + inc);
                 }
 	}
 }
 
 void qp_ctx::printSq(){
-	printf("Sq:\n");
+	printf("Sq: %dX%d\n", qp->sq.stride,  qp->sq.wqe_cnt);
 	print_buffer(this->qp->sq.buf, qp->sq.stride * qp->sq.wqe_cnt);
 }
 

@@ -163,7 +163,11 @@ public:
 			if (count == 100000000){
 				rd_.mgmt_qp_cd->printCq();
 				rd_.mgmt_qp_cd->printSq();
-				rd_.mgmt_qp_cd->printRq();			
+				rd_.loopback_qp_cd->printCq();
+                                rd_.loopback_qp_cd->printSq();
+				rd_.peers[0].qp_cd->printCq();
+				rd_.peers[0].qp_cd->printSq();
+				rd_.peers[0].qp_cd->printRq();
 			}
 		}
 
@@ -182,7 +186,7 @@ public:
 		}
 
 		if (!ib_devname) {
-			ib_dev = dev_list[3];
+			ib_dev = dev_list[0];
 			if (!ib_dev) {
 				PRINT("No IB devices found");
 				return; // TODO indicate failure?
@@ -573,7 +577,7 @@ public:
 		/* Trigger the intra-node broadcast - loopback */
 		struct ibv_sge sg;
 		sg.addr = (uint64_t)  ptrs_[0];
-		sg.length = bytes_ * inputs;
+		sg.length = 4; //  bytes_; // * inputs;
 		sg.lkey = mem_.umr_mr->lkey;
 
 		unsigned buf_idx;	
@@ -591,7 +595,6 @@ public:
 			mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
 			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
 			rd_.peers[step_idx].qp_cd->pad();
-			PRINT("D");
 			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf  , &rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
@@ -605,6 +608,7 @@ public:
 			sg.addr = (uint64_t)  ptrs_[buf_idx];
 			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
 			rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
+			rd_.loopback_qp_cd->pad();
 		}
 
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
