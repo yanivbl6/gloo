@@ -47,7 +47,7 @@ typedef struct mem_registration {
 } mem_registration_t;
 
 typedef struct rd_peer_info {
-	uintptr  buf;
+	uintptr_t  buf;
 	uint32_t rkey;
 	peer_addr_t addr;
 } rd_peer_info_t;
@@ -67,7 +67,7 @@ typedef struct rd_peer {
 } rd_peer_t;
 
 typedef struct rd_connections {
-	struct ibv_sge result;
+	struct ibv_mr result;
 
 
 	struct ibv_qp *mgmt_qp;
@@ -151,7 +151,7 @@ public:
 		}
 
 		if (!ib_devname) {
-			ib_dev = *dev_list;
+			struct ibv_device* ib_dev = *dev_list;
 			if (!ib_dev) {
 				fprintf(stderr, "No IB devices found\n");
 				return; // TODO indicate failure?
@@ -219,12 +219,11 @@ public:
 		}
 
 		{
-			struct ibv_qp_attr attr = {
-					.qp_state        = IBV_QPS_INIT,
-					.pkey_index      = 0,
-					.port_num        = port,
-					.qkey            = 0x11111111
-			};
+			struct ibv_qp_attr attr;
+				attr.qp_state        = IBV_QPS_INIT;
+				attr.pkey_index      = 0;
+				attr.port_num        = port;
+				attr.qkey            = 0x11111111;
 
 			if (ibv_modify_qp(ctx->qp, &attr,
 					IBV_QP_STATE              |
@@ -258,23 +257,24 @@ public:
 		verb_ctx_t *ctx = &ibv_;
 		if (ibv_destroy_qp(ctx->qp)) {
 			fprintf(stderr, "Couldn't destroy QP\n");
-			return; // TODO indicate failure?
+			return 0; // TODO indicate failure?
 		}
 
 		if (ibv_destroy_cq(ctx->cq)) {
 			fprintf(stderr, "Couldn't destroy CQ\n");
-			return; // TODO indicate failure?
+			return 0; // TODO indicate failure?
 		}
 
 		if (ibv_dealloc_pd(ctx->pd)) {
 			fprintf(stderr, "Couldn't deallocate PD\n");
-			return; // TODO indicate failure?
+			return 0; // TODO indicate failure?
 		}
 
 		if (ibv_close_device(ctx->context)) {
 			fprintf(stderr, "Couldn't release context\n");
-			return; // TODO indicate failure?
+			return 0; // TODO indicate failure?
 		}
+		return 1;
 	}
 
 	struct ibv_mr *register_umr(struct ibv_exp_mem_region mem_reg, unsigned mem_reg_cnt,
@@ -548,7 +548,7 @@ public:
 		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
                         sg.addr = ptrs_[buf_idx];
                         sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
-                        rd_.loopback_qp_cd->write(&rd_.result, &sg);
+                        rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
                 }
 
 		mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
@@ -561,8 +561,8 @@ public:
 	{
 		for (step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
 			delete rd_.peers[step_idx].qp_cd;
-                        ibv_cq_destroy(rd_.peers[step_idx].cq);
-			ibv_qp_destroy(rd_.peers[step_idx].qp);
+			ibv_destroy_qp(rd_.peers[step_idx].qp);
+                        ibv_destroy_cq(rd_.peers[step_idx].cq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_buf.mr);
 		}
 		delete rd_.loopback_qp_dc;
@@ -582,6 +582,8 @@ protected:
 	verb_ctx_t ibv_;
 	mem_registration_t mem_;
 	rd_connections_t rd_;
+
+	const ReductionFunction<T>* fn_;
 };
 
 } // namespace gloo
