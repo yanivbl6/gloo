@@ -124,7 +124,8 @@ public:
 
 	int p2p_exchange(void* send_buf, void* recv_buf, size_t size, int peer){
 		auto& pair = this->getPair(peer);
-		auto slot = this->context_.nextSlot();
+		auto slot = this->context_->nextSlot();
+
 		auto sendBuf = pair->createSendBuffer(slot, send_buf, size);
 		auto recvBuf = pair->createRecvBuffer(slot, recv_buf, size);
 		sendBuf->send();
@@ -146,7 +147,7 @@ public:
 #endif
 	}
 
-	void init_verbs(char *ib_devname="", int port=1)
+	void init_verbs(char *ib_devname= "", int port=1)
 	{
 		verb_ctx_t *ctx = &ibv_;
 		int n;
@@ -180,7 +181,6 @@ public:
 		if (!ctx->context) {
 			fprintf(stderr, "Couldn't get context for %s\n",
 					ibv_get_device_name(ib_dev));
-			goto clean_buffer;
 		}
 
 		ctx->pd = ibv_alloc_pd(ctx->context);
@@ -202,21 +202,18 @@ public:
 		}
 
 		{
-			struct ibv_exp_qp_init_attr attr = {
-					.qp_context	  = ctx->context,
-					.send_cq	  = ctx->cq,
-					.recv_cq	  = ctx->cq,
-					.srq		  = nullptr,
-					.qp_type	  = IBV_QPT_UD,
-					.comp_mask	  = IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS,
-					.create_flags = IBV_EXP_QP_CREATE_UMR,
-					.cap		  = {
-							.max_send_wr  = 1,
-							.max_recv_wr  = 0,
-							.max_send_sge = 1,
-							.max_recv_sge = 1
-					}
-			};
+			struct ibv_exp_qp_init_attr attr;
+					attr.qp_context	  = ctx->context;
+					attr.send_cq	  = ctx->cq;
+					attr.recv_cq	  = ctx->cq;
+					attr.srq		  = nullptr;
+					attr.qp_type	  = IBV_QPT_UD;
+					attr.comp_mask	  = IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
+					attr.exp_create_flags = IBV_EXP_QP_CREATE_UMR;
+					attr.cap.max_send_wr = 1;
+                                        attr.cap.max_recv_wr = 0;
+                                        attr.cap.max_send_sge = 1;
+                                        attr.cap.max_recv_sge = 1;
 
 			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
 			if (!ctx->umr_qp)  {
@@ -287,17 +284,15 @@ public:
 	struct ibv_mr *register_umr(struct ibv_exp_mem_region* mem_reg, unsigned mem_reg_cnt,
 			struct ibv_exp_mkey_list_container *umr_mkey)
 	{
-		struct ibv_exp_mr_init_attr umr_init_attr = {
-				.max_klm_list_size	= mem_reg_cnt,
-				.create_flags		= IBV_EXP_MR_INDIRECT_KLMS,
-				.exp_access_flags	= IB_ACCESS_FLAGS
-		};
+		struct ibv_exp_mr_init_attr umr_init_attr;
+				umr_init_attr.max_klm_list_size	= mem_reg_cnt,
+				umr_init_attr.create_flags	= IBV_EXP_MR_INDIRECT_KLMS,
+				umr_init_attr.exp_access_flags	= IB_ACCESS_FLAGS;
 
-		struct ibv_exp_create_mr_in umr_create_mr_in = {
-				.pd		 = ibv_.pd,
-				.attr		 = &umr_init_attr,
-				.comp_mask = 0
-		};
+		struct ibv_exp_create_mr_in umr_create_mr_in;
+				umr_create_mr_in.pd	   = ibv_.pd;
+				umr_create_mr_in.attr      = umr_init_attr;
+				umr_create_mr_in.comp_mask = 0;
 
 		struct ibv_mr *res_mr = ibv_exp_create_mr(&umr_create_mr_in);
 		if (!res_mr) {
@@ -350,7 +345,7 @@ public:
 		/* Register the user's buffers */
 		int buf_idx;
 		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
-			mem_.mem_reg[buf_idx].base_addr = ptrs_[buf_idx];
+			mem_.mem_reg[buf_idx].base_addr = (uintptr_t)  ptrs_[buf_idx];
 			mem_.mem_reg[buf_idx].length	= bytes_;
 			mem_.mem_reg[buf_idx].mr		= ibv_reg_mr(ibv_.pd,
 					ptrs_[buf_idx], bytes_, IB_ACCESS_FLAGS);
@@ -359,12 +354,11 @@ public:
 		/* Step #2: Create a UMR memory region */
 		struct ibv_exp_mkey_list_container *umr_mkey = nullptr;
 		if (inputs > ibv_.attrs.umr_caps.max_send_wqe_inline_klms) {
-			struct ibv_exp_mkey_list_container_attr list_container_attr = {
-					.pd					= ibv_.pd,
-					.mkey_list_type		= IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR,
-					.max_klm_list_size	= inputs,
-					.comp_mask 			= 0
-			};
+			struct ibv_exp_mkey_list_container_attr list_container_attr;
+					list_container_attr.pd				= ibv_.pd;
+					list_container_attr.mkey_list_type		= IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR;
+					list_container_attr.max_klm_list_size		= inputs;
+					list_container_attr.comp_mask 			= 0;
 			umr_mkey = ibv_exp_alloc_mkey_list_memory(&list_container_attr);
 			if (!umr_mkey) {
 				return; // TODO: indicate error!
@@ -401,7 +395,7 @@ public:
 
 		int inputs = ptrs_.size();
 
-		verb_ctx_t* ctx = this->ibv_;	
+		verb_ctx_t* ctx = &(this->ibv_);	
 
                 rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
                                 ctx->channel, 0);
@@ -442,7 +436,7 @@ public:
 
 		/* Prepare the first (intra-node) VectorCalc WQE - loobpack */
 		rd_.result_mr = ibv_reg_mr(ibv_.pd, nullptr, bytes_, IB_ACCESS_FLAGS);
-		rd_.result.addr = rd_.result_mr->addr;
+		rd_.result.addr = (uint64_t) rd_.result_mr->addr;
 		rd_.result.length = bytes_;
 		rd_.result.lkey = rd_.result_mr->lkey;
 
@@ -450,7 +444,7 @@ public:
 		unsigned step_idx, step_count = 0;
 		while ((1 << ++step_count) < contextSize_);
 		rd_.peers_cnt = step_count;
-		rd_.peers = malloc(step_count * sizeof(*rd_.peers));
+		rd_.peers = (rd_peer_t*)  malloc(step_count * sizeof(*rd_.peers));
 		if (!rd_.peers) {
 			return; // TODO: indicate error!
 		}
@@ -483,30 +477,26 @@ public:
 					ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
 			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, 0, bytes_, IB_ACCESS_FLAGS);
 			rd_.peers[step_idx].incoming_mr	      = mr;
-			rd_.peers[step_idx].incoming_buf.addr = mr->addr;
+			rd_.peers[step_idx].incoming_buf.addr   =  (uint64_t)  mr->addr;
 			rd_.peers[step_idx].incoming_buf.length  = bytes_;
 
 			uint32_t rkey = mr->rkey;
 
 			/* Create a UMR for VectorCalc-ing each buffer with the result */
-			struct ibv_exp_mem_region mem_reg[2] = {
-					{
-							.addr = rd_.result.addr,
-							.len  = bytes_,
-							.lkey = rd_.result.lkey
-					},
-					{
-							.addr = mr->addr,
-							.len  = bytes_,
-							.lkey = mr->lkey
-					}
-			};
+			struct ibv_exp_mem_region mem_reg[2];
+			mem_reg[0].base_addr = (uint64_t) rd_.result.addr;
+			mem_reg[0].length = bytes_;
+			mem_reg[0].mr = rd_.result_mr;
+			mem_reg[1].base_addr = (uint64_t) mr->addr;
+                        mem_reg[1].length = bytes_;
+                        mem_reg[1].mr = mr;
+
 			mr = register_umr(mem_reg, 2, nullptr);
 			if (!mr) {
 				return; // TODO: indicate error!
 			}
 			rd_.peers[step_idx].outgoing_mr = mr;
-			rd_.peers[step_idx].outgoing_buf.addr = rd_.result.addr;
+			rd_.peers[step_idx].outgoing_buf.addr = (uint64_t)  rd_.result.addr;
 			rd_.peers[step_idx].outgoing_buf.length = bytes_;
 
 			/* Exchange the QP+buffer address with this peer */
@@ -519,15 +509,13 @@ public:
 
 			
 
-			p2p_exchange(&info, rd_.peers[step_idx].remote,
-					sizeof(info), rd_.peers[step_idx].rank);
+			p2p_exchange((void*) &info, (void*) rd_.peers[step_idx].remote_buf.addr,
+					sizeof(info), (int) rd_.peers[step_idx].rank);
 
-			rd_.peers[step_idx].remote_buf.addr = info.buf;
+			rd_.peers[step_idx].remote_buf.addr = (uint64_t)  info.buf;
 			rd_.peers[step_idx].remote_buf.lkey = info.rkey;
 
-			rc_qp_connect(rd_.peers[step_idx].qp,
-					&rd_.peers[step_idx].remote.addr);
-
+			rc_qp_connect(&rd_.peers[step_idx].remote.addr, rd_.peers[step_idx].qp);
 
 			rd_.peers[step_idx].qp_cd = new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq );
 
@@ -536,18 +524,17 @@ public:
 		}
 
 		/* Trigger the intra-node broadcast - loopback */
-		struct ibv_sge sg = {
-				.addr = ptrs_[0],
-				.len = bytes_ * inputs ,
-				.lkey = mem_.umr_mr->lkey
-		};
+		struct ibv_sge sg;
+		sg.addr = (uint64_t)  ptrs_[0];
+		sg.length = bytes_ * inputs;
+		sg.lkey = mem_.umr_mr->lkey;
 
 		unsigned buf_idx;	
 		rd_.loopback_qp_cd->reduce_write(&sg, &rd_.result, inputs,
 				MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
-		mqp->cd_wait(rd_.loopback_qp, loopback_wqes);
+		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, 1);
 
 		struct ibv_sge dummy;
 
@@ -561,13 +548,13 @@ public:
 			rd_.loopback_qp_cd->reduce_write(&dummy, &rd_.result, 2,
                                 MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
-			mqp->cd_wait(rd_.loopback_qp, loopback_wqes);
+			mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes , 1);
 		}
 
 
-		sg.len =  bytes_;
+		sg.length =  bytes_;
 		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
-                        sg.addr = ptrs_[buf_idx];
+                        sg.addr = (uint64_t)  ptrs_[buf_idx];
                         sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
                         rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
                 }
@@ -580,17 +567,17 @@ public:
 
 	void teardown()
 	{
-		for (step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
+		for (int step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
 			delete rd_.peers[step_idx].qp_cd;
 			ibv_destroy_qp(rd_.peers[step_idx].qp);
                         ibv_destroy_cq(rd_.peers[step_idx].cq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
                         ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
 		}
-		delete rd_.loopback_qp_dc;
+		delete rd_.loopback_qp_cd;
 		ibv_destroy_qp(rd_.loopback_qp);
 		ibv_destroy_cq(rd_.loopback_cq);
-		delete rd_.mgmt_qp_dc;
+		delete rd_.mgmt_qp_cd;
 		ibv_destroy_qp(rd_.mgmt_qp);
                 ibv_destroy_cq(rd_.mgmt_cq);
 		ibv_dereg_mr(rd_.result_mr);
