@@ -38,6 +38,8 @@ typedef struct verb_ctx {
 	struct ibv_pd			  *pd;
 	struct ibv_cq			  *cq;
 	struct ibv_qp			  *umr_qp;
+        struct ibv_comp_channel channel;
+
 } verb_ctx_t;
 
 typedef struct mem_registration {
@@ -118,7 +120,7 @@ public:
 
 	int p2p_exchange(void* send_buf, void* recv_buf, size_t size, int peer){
 		auto& pair = this->getPair(peer);
-		auto slot = context_.nextSlot();
+		auto slot = this->context_.nextSlot();
 		auto sendBuf = pair->createSendBuffer(slot, send_buf, size);
 		auto recvBuf = pair->createRecvBuffer(slot, recv_buf, size);
 		sendBuf->send();
@@ -143,15 +145,16 @@ public:
 	void init_verbs(char *ib_devname="", int port=1)
 	{
 		verb_ctx_t *ctx = &ibv_;
-
-		struct ibv_device **dev_list = ibv_get_device_list(ib_devname);
+		int n;
+		struct ibv_device **dev_list = ibv_get_device_list(&n);
+		struct ibv_device* ib_dev;
 		if (!dev_list) {
 			perror("Failed to get IB devices list");
 			return; // TODO indicate failure?
 		}
 
 		if (!ib_devname) {
-			struct ibv_device* ib_dev = *dev_list;
+			ib_dev = *dev_list;
 			if (!ib_dev) {
 				fprintf(stderr, "No IB devices found\n");
 				return; // TODO indicate failure?
@@ -183,13 +186,13 @@ public:
 		}
 
 		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
-				ctx->channel, 0);
+				NULL, 0);
 		if (!ctx->cq) {
 			fprintf(stderr, "Couldn't create CQ\n");
 			return; // TODO indicate failure?
 		}
 
-		if (ibv_exp_query_device(&ctx->attrs)) {
+		if (ibv_exp_query_device(ctx->context ,&ctx->attrs)) {
 			fprintf(stderr, "Couldn't query device attributes\n");
 			return; // TODO indicate failure?
 		}
@@ -211,8 +214,8 @@ public:
 					}
 			};
 
-			ctx->qp = ibv_exp_create_qp(ctx->pd, &attr);
-			if (!ctx->qp)  {
+			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
+			if (!ctx->umr_qp)  {
 				fprintf(stderr, "Couldn't create QP\n");
 				return; // TODO indicate failure?
 			}
@@ -225,7 +228,7 @@ public:
 				attr.port_num        = port;
 				attr.qkey            = 0x11111111;
 
-			if (ibv_modify_qp(ctx->qp, &attr,
+			if (ibv_modify_qp(ctx->umr_qp, &attr,
 					IBV_QP_STATE              |
 					IBV_QP_PKEY_INDEX         |
 					IBV_QP_PORT               |
@@ -238,7 +241,7 @@ public:
 		return; // SUCCESS!
 
 		clean_qp:
-		ibv_destroy_qp(ctx->qp);
+		ibv_destroy_qp(ctx->umr_qp);
 
 		clean_cq:
 		ibv_destroy_cq(ctx->cq);
@@ -412,7 +415,7 @@ public:
 		/* Create a loopback QP */
 
 		rd_.loopback_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
-				ctx->channel, 0);
+				NULL, 0);
 
 		if (!rd_.loopback_cq) {
 			fprintf(stderr, "Couldn't create CQ\n");
@@ -461,7 +464,7 @@ public:
 			/* Create a QP and a buffer for this peer */
 
 			rd_.peers[step_idx].cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
-					ctx->channel, 0);
+					NULL, 0);
 
 			if (!rd_.peers[step_idx].cq) {
 				fprintf(stderr, "Couldn't create CQ\n");
