@@ -191,7 +191,7 @@ class qp_ctx{
 	void dup();
 
 	int poll(int x);
-
+	int cq_db(int x);
         uint32_t write_cnt;
 
         uint32_t cmpl_cnt;

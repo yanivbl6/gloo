@@ -33,9 +33,16 @@ namespace gloo {
 						 IBV_ACCESS_REMOTE_WRITE | \
 						 IBV_ACCESS_REMOTE_READ)
 
+
 #define RX_SIZE 32
+#define CX_SIZE 1024
+
+
 
 typedef int rank_t;
+
+
+
 
 typedef struct verb_ctx {
 	struct ibv_context	*context;
@@ -151,6 +158,8 @@ public:
 			
 
 			res = rd_.loopback_qp_cd->poll(loopback_wqes);
+//                        res = rd_.mgmt_qp_cd->poll(1);
+
 			++count;
 #if 0
 			if (count == 1000000000){
@@ -174,14 +183,12 @@ public:
 #endif
 		}
 
-		//while (!res){
-			//res = rd_.loopback_qp_cd->poll(loopback_wqes);
-		//}
-
-		//rd_.loopback_qp_cd->printCq();
+		//rd_.peers[0].qp_cd->cq_db(1);	
+                //rd_.mgmt_qp_cd->cq_db(1);
 
 		++mone;
-		printf("iteration: %d\n", mone);
+		//printf("iteration: %d\n", mone);
+		// sleep(1);
 	}
 
 	void init_verbs(char *ib_devname=nullptr, int port=1)
@@ -225,7 +232,7 @@ public:
 			goto clean_comp_channel;
 		}
 
-		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE , NULL, NULL, 0);
+		ctx->cq = ibv_create_cq(ctx->context, CX_SIZE , NULL, NULL, 0);
 		if (!ctx->cq) {
 			PRINT("Couldn't create CQ");
 			return; // TODO indicate failure?
@@ -442,8 +449,8 @@ public:
 
 		verb_ctx_t* ctx = &(this->ibv_);	
 
-		rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE , NULL,
-				ctx->channel, 0);
+		rd_.mgmt_cq = ibv_create_cq(ctx->context, CX_SIZE , NULL,
+				0, 0);
 
 		if (!rd_.mgmt_cq) {
 			PRINT("Couldn't create CQ\n");
@@ -452,7 +459,7 @@ public:
 
 
 		PRINT("creating MGMT QP\n");
-		rd_.mgmt_qp = hmca_bcol_cc_mq_create(ibv_.cq,
+		rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq,
 				ibv_.pd, ibv_.context, send_wq_size);
 		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq); 
 
@@ -462,7 +469,7 @@ public:
 
 		/* Create a loopback QP */
 
-		rd_.loopback_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+		rd_.loopback_cq = ibv_create_cq(ctx->context, CX_SIZE, NULL,
 				NULL, 0);
 
 		if (!rd_.loopback_cq) {
@@ -518,7 +525,7 @@ public:
 
 			/* Create a QP and a buffer for this peer */
 
-			rd_.peers[step_idx].cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+			rd_.peers[step_idx].cq = ibv_create_cq(ctx->context, CX_SIZE, NULL,
 					NULL, 0);
 
 			if (!rd_.peers[step_idx].cq) {

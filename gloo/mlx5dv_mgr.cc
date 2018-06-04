@@ -59,8 +59,8 @@ qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq){
 	this->poll_cnt = 0;
 	volatile void* tar =  (volatile void*) this->cq->buf;
 
-	printf("wqe_cnt = %d, stride = %d\n",this->qp->sq.wqe_cnt,this->qp->sq.stride);
-        printf("cqn num = %d\n", this->cq->cqn);
+	//printf("wqe_cnt = %d, stride = %d\n",this->qp->sq.wqe_cnt,this->qp->sq.stride);
+        //printf("cqn num = %d\n", this->cq->cqn);
 
 }
 
@@ -121,6 +121,13 @@ int qp_ctx::poll(int x){
                 return 0;
         }
 }
+
+int qp_ctx::cq_db(int x){
+        uint32_t val = (this->poll_cnt + x - 1);
+      	this->cq->dbrec[0] = htobe32(val & 0xffffff);
+        this->poll_cnt += x;
+}
+
 
 
 void qp_ctx::db(){
@@ -270,7 +277,7 @@ void qp_ctx::pad(int half){
 	while (write_cnt + pad_size < target_count ){
 		this->nop(pad_size,0);
 	}
-	this->nop(target_count - write_cnt,half);
+	this->nop(target_count - write_cnt,0);
 }
 
 void qp_ctx::dup(){
