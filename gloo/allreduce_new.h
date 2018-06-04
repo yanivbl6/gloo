@@ -142,16 +142,32 @@ public:
 	}
 
 	void run() {
-#if 0
-		rd.mgmt_qp_cd->db();
+#if 1
 
-		rd.mgmt_qp_cd->rearm();
 
+		
+
+		rd_.mgmt_qp_cd->db();
+
+		PRINT("db");
+
+		rd_.mgmt_qp_cd->rearm();
+
+                PRINT("rearm");
 
 		int res = 0;
+		uint64_t count = 0;
 		while (!res){
-			res = rd.mgmt_qp_cd->poll();
+			res = rd_.mgmt_qp_cd->poll();
+			++count;
+			if (count == 100000000){
+				rd_.mgmt_qp_cd->printCq();
+				rd_.mgmt_qp_cd->printSq();
+				rd_.mgmt_qp_cd->printRq();			
+			}
 		}
+
+		PRINT("polled");
 #endif
 	}
 
