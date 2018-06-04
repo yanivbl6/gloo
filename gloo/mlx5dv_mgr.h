@@ -175,7 +175,7 @@ class RearmTasks{
 class qp_ctx{
    public:
 
-	qp_ctx(struct ibv_qp* qp);
+	qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq);
 	~qp_ctx();
 	void db();
 	void write(struct ibv_sge* local, struct ibv_sge* remote, int signal);
@@ -183,24 +183,36 @@ class qp_ctx{
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
 	void cd_wait(uint32_t cqe_num, uint32_t index,  uint32_t inc);
-    void nop(size_t num_pad, int signal);
+        void cd_wait(qp_ctx* slave_qp, uint32_t increment = 1, uint32_t index = 1);
+
+        void nop(size_t num_pad, int signal);
 
 	void pad(int half);
 	void dup();
 
-        uint32_t write_cnt;
-	uint64_t qpn;
+	int poll();
 
+        uint32_t write_cnt;
+
+        uint32_t cmpl_cnt;
+	uint32_t poll_cnt;
+
+	uint64_t qpn;
 
 	void rearm();
 
 	void printSq();
 	void printRq();
+	void printCq();
    private:
 
 
 	int offset;
 	struct mlx5dv_qp* qp;
+        struct mlx5dv_cq* cq;
+
+	volatile struct cqe64* cur_cqe;
+
 	int phase;
 	uint32_t exe_cnt;
 	RearmTasks tasks;
@@ -211,8 +223,6 @@ class qp_ctx{
 
 
 void print_buffer(volatile void* buf, int count);
-
-int poll_cqe(struct mlx5dv_cq* cq, uint32_t* cqn);
 
 int cd_nop(struct mlx5dv_qp* qp, uint16_t send_cnt, uint64_t qpn, size_t num_pad, int signal);
 

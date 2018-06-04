@@ -35,26 +35,36 @@
 
 
 
-qp_ctx::qp_ctx(struct ibv_qp* qp){
+qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq){
         int ret;
         struct mlx5dv_obj dv_obj = {};
 
         this->qp = (struct mlx5dv_qp*)  malloc(sizeof(struct mlx5dv_qp));
+	this->cq = (struct mlx5dv_cq*)  malloc(sizeof(struct mlx5dv_cq));
         this->qpn = qp->qp_num;
 
         dv_obj.qp.in = qp;
         dv_obj.qp.out = this->qp;
+        dv_obj.cq.in = cq;
+        dv_obj.cq.out = this->cq;
+
                 //pingpong_context
-	ret = mlx5dv_init_obj(&dv_obj, MLX5DV_OBJ_QP);
+	ret = mlx5dv_init_obj(&dv_obj, MLX5DV_OBJ_QP | MLX5DV_OBJ_CQ  );
 	this->write_cnt = 0;
 	this->exe_cnt = 0;
 	this->dbseg.qpn_ds = htobe32(qpn << 8);
 	this->phase = 0;
 	this->offset = (this->qp->sq.stride  * (this->qp->sq.wqe_cnt / 2)) / sizeof(uint32_t);
+	this->cmpl_cnt = 0;
+	this->poll_cnt = 0;
+	volatile void* tar =  (volatile void*) this->cq->buf;
+	this->cur_cqe = (volatile struct cqe64*) tar;
+
 }
 
 qp_ctx::~qp_ctx(){
 	free(this->qp);
+	free(this->cq);
 }
 
 
@@ -91,24 +101,22 @@ void RearmTasks::add(uint32_t* ptr, int inc){
 	map[inc].add(ptr);
 }
 
-int poll_cqe(struct mlx5dv_cq* cq, uint32_t* cqn){
-	volatile void* tar =  (volatile void*)  ((volatile char*) cq->buf  + ((*cqn) & (cq->cqe_cnt-1))  * cq->cqe_size);
-	//tar = cq->buf;
-	volatile struct cqe64* cqe = (volatile struct cqe64*) tar;
-	uint8_t opcode = cqe->op_own >> 4;
- 
-	if (opcode != 15 && !((cqe->op_own & 1) ^ !!((*cqn) & (cq->cqe_cnt)))){
+int qp_ctx::poll(){
+        uint8_t opcode = cur_cqe->op_own >> 4;
+        if (opcode != 15 && !((cur_cqe->op_own & 1) ^ !!(this->poll_cnt & (this->cq->cqe_cnt)))){
+                if (opcode==13 || opcode == 14){
+                        printf("bad CQE: %X\n hw_syn = %X, vendor_syn = %X, syn = %X\n",cur_cqe->wqe_counter, cur_cqe->hw_syn,cur_cqe->vendor_syn,cur_cqe->syn);
+                }
+                this->cq->dbrec[0] = htobe32((this->poll_cnt) & 0xffffff);
+                ++(this->poll_cnt);
+		volatile void* tar =  (volatile void*)  ((volatile char*) this->cq->buf  + ((this->poll_cnt) & (this->cq->cqe_cnt-1))  * this->cq->cqe_size);
+		this->cur_cqe = (volatile struct cqe64*) tar;
+                return 1;
+        } else {
+                return 0;
+        }
+}
 
-		if (opcode==13 || opcode == 14){
-			printf("bad CQE: %X\n hw_syn = %X, vendor_syn = %X, syn = %X\n",cqe->wqe_counter, cqe->hw_syn,cqe->vendor_syn,cqe->syn);
-		}	
-        	cq->dbrec[0] = htobe32(*cqn & 0xffffff);
-		++(*cqn);
-		return 1;
-	} else {
-		return 0;
-	} 
-};
 
 void qp_ctx::db(){
 	struct mlx5_db_seg db;
@@ -229,6 +237,10 @@ void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index, uint32_t inc ){
     write_cnt+=1;
 }
 
+void qp_ctx::cd_wait(qp_ctx* slave_qp, uint32_t increment, uint32_t index){
+	slave_qp->cmpl_cnt+= 1;
+	this->cd_wait(slave_qp->cq->cqn, index, increment);
+}
 
 
 void qp_ctx::nop(size_t num_pad, int signal){
@@ -297,6 +309,10 @@ void qp_ctx::printRq(){
         print_buffer(this->qp->rq.buf, qp->rq.stride * qp->rq.wqe_cnt);
 }
 
+void qp_ctx::printCq(){
+        printf("Cq:\n");
+        print_buffer(this->cq->buf, cq->cqe_size * cq->cqe_cnt);
+}
 
 void print_buffer(volatile void* buf, int count){
         printf("buffer:\n");
