@@ -190,7 +190,7 @@ class qp_ctx{
 	void pad(int half = 0);
 	void dup();
 
-	int poll();
+	int poll(int x);
 
         uint32_t write_cnt;
 
@@ -210,8 +210,6 @@ class qp_ctx{
 	int offset;
 	struct mlx5dv_qp* qp;
         struct mlx5dv_cq* cq;
-
-	volatile struct cqe64* cur_cqe;
 
 	int phase;
 	uint32_t exe_cnt;
