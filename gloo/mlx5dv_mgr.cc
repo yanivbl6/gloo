@@ -256,9 +256,9 @@ void qp_ctx::pad(int half){
 	int pad_size = 8;
 	int target_count = half?(wqe_count/2):(wqe_count);
 	if (write_cnt + pad_size > target_count){
-		printf("ERRPR = wqe buffer exceeded!\n");
+		printf("ERROR = wqe buffer exceeded! should be at least %d, is %d\n", write_cnt , target_count  );
 	} else if (write_cnt + pad_size < target_count/2) {
-		printf("ERRPR = wqe buffer too big!\n");
+		printf("ERROR = wqe buffer too big!\n");
 	}
 
 	while (write_cnt + pad_size < target_count ){
