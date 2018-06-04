@@ -76,7 +76,7 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
         attr.ah_attr.port_num      = 1;
 
         if (ibv_query_gid(ctx, 1, GID_INDEX, &gid)) {
-            fprintf(stderr, "can't read sgid of index %d\n", gidx);
+            fprintf(stderr, "can't read sgid of index %d\n", GID_INDEX);
             rc = HCOLL_ERROR;
         }
 
