@@ -359,15 +359,12 @@ public:
 		/* Register the user's buffers */
 		int buf_idx;
 		mem_.mem_reg = (struct ibv_exp_mem_region*) malloc(inputs * sizeof(struct ibv_exp_mem_region));
-
 		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
 			mem_.mem_reg[buf_idx].base_addr = (uint64_t)  ptrs_[buf_idx];
 			mem_.mem_reg[buf_idx].length	= bytes_;
 			mem_.mem_reg[buf_idx].mr	= ibv_reg_mr(ibv_.pd,
 					ptrs_[buf_idx], bytes_, IB_ACCESS_FLAGS);
 		}
-
-
 
 		/* Step #2: Create a UMR memory region */
 		struct ibv_exp_mkey_list_container *umr_mkey = nullptr;
@@ -384,8 +381,6 @@ public:
 		} else {
 			umr_mkey = nullptr;
 		}
-
-
 
 		mem_.umr_mr = register_umr(mem_.mem_reg, inputs, umr_mkey);
 		if (!mem_.umr_mr) {
@@ -506,28 +501,29 @@ public:
 
 			rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq,
 					ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
-			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, 0, bytes_, IB_ACCESS_FLAGS);
+			void *incoming_buf = malloc(bytes_);
+			rd_.peers[step_idx].incoming_buf.addr   = (uint64_t) incoming_buf;
+			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, incoming_buf, bytes_, IB_ACCESS_FLAGS);
 			rd_.peers[step_idx].incoming_mr	      = mr;
-			rd_.peers[step_idx].incoming_buf.addr   =  (uint64_t)  mr->addr;
 			rd_.peers[step_idx].incoming_buf.length  = bytes_;
 			PRINT("RC created for peer\n");
 			uint32_t rkey = mr->rkey;
 
 			/* Create a UMR for VectorCalc-ing each buffer with the result */
 			struct ibv_exp_mem_region mem_reg[2];
-			mem_reg[0].base_addr = (uint64_t) rd_.result.addr;
-			mem_reg[0].length = bytes_;
-			mem_reg[0].mr = rd_.result_mr;
-			mem_reg[1].base_addr = (uint64_t) mr->addr;
-			mem_reg[1].length = bytes_;
-			mem_reg[1].mr = mr;
+			mem_reg[0].base_addr	= (uint64_t) rd_.result.addr;
+			mem_reg[0].length	= bytes_;
+			mem_reg[0].mr	= rd_.result_mr;
+			mem_reg[1].base_addr	= (uint64_t) mr->addr;
+			mem_reg[1].length	= bytes_;
+			mem_reg[1].mr	= mr;
 
 			mr = register_umr(mem_reg, 2, nullptr);
 			if (!mr) {
 				return; // TODO: indicate error!
 			}
 			rd_.peers[step_idx].outgoing_mr = mr;
-			rd_.peers[step_idx].outgoing_buf.addr = (uint64_t)  rd_.result.addr;
+			rd_.peers[step_idx].outgoing_buf.addr = (uint64_t) rd_.result.addr;
 			rd_.peers[step_idx].outgoing_buf.length = bytes_;
 
 			/* Exchange the QP+buffer address with this peer */
@@ -606,6 +602,7 @@ public:
 			ibv_destroy_cq(rd_.peers[step_idx].cq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
 			ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
+			free(rd_.peers[step_idx].incoming_buf.addr);
 		}
 		delete rd_.loopback_qp_cd;
 		ibv_destroy_qp(rd_.loopback_qp);
