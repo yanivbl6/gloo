@@ -382,7 +382,7 @@ public:
 			umr_mkey = nullptr;
 		}
 
-		mem_.umr_mr = register_umr(mem_.mem_reg, inputs, umr_mkey);
+		mem_.umr_mr = register_umr(inputs, mem_.mem_reg, umr_mkey);
 		if (!mem_.umr_mr) {
 			return; // TODO: indicate error!
 		}
@@ -406,7 +406,7 @@ public:
 	void connect_and_prepare()
 	{
 		/* Create a single management QP */
-		unsigned send_wq_size = 4; // FIXME: calc
+		unsigned send_wq_size = 16; // FIXME: calc
 		unsigned recv_rq_size = RX_SIZE; // FIXME: calc
 
 		int inputs = ptrs_.size();
@@ -441,8 +441,11 @@ public:
 			return; // TODO indicate failure?
 		}
 
+		unsigned step_idx, step_count = 0;
+		while ((1 << ++step_count) < contextSize_);
+
 		rd_.loopback_qp = rc_qp_create(rd_.loopback_cq ,
-				ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
+				ibv_.pd, ibv_.context, inputs +  step_count +1  , recv_rq_size, 1, 1);
 		peer_addr_t loopback_addr;
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
 		rc_qp_connect(&loopback_addr,rd_.loopback_qp);
@@ -461,8 +464,7 @@ public:
 
 
 		/* Calculate the number of recursive-doubling rounds */
-		unsigned step_idx, step_count = 0;
-		while ((1 << ++step_count) < contextSize_);
+
 		rd_.peers_cnt = step_count;
 		rd_.peers = (rd_peer_t*)  malloc(step_count * sizeof(*rd_.peers));
 		if (!rd_.peers) {
@@ -477,9 +479,6 @@ public:
 		/* Establish a connection with each peer */
 
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
-
-
-	                printf("Iteration step %d\n", step_idx);
 
 			/* calculate the rank of each peer */
 			int leap = 1 << step_idx;
@@ -519,7 +518,7 @@ public:
 			mem_reg[1].mr	= mr;
 
 			PRINT("before UMR"); 
-			mr = register_umr(mem_reg, 2, nullptr);
+			mr = register_umr(2, mem_reg, nullptr);
 			if (!mr) {
 				return; // TODO: indicate error!
 			}
@@ -539,6 +538,7 @@ public:
 			p2p_exchange((void*)&local_info, (void*)&remote_info,
 					sizeof(local_info), (int) rd_.peers[step_idx].rank);
 
+			PRINT("Exchanged");
 			/* Connect to the remote peer */
 			rd_.peers[step_idx].remote_buf.addr = remote_info.buf;
 			rd_.peers[step_idx].remote_buf.lkey = remote_info.rkey;
@@ -548,7 +548,11 @@ public:
 
 			/* Set the logic to trigger the next step */
 			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd, 1);
+			PRINT("Rcv_enabled");
 		}
+
+
+
 
 		/* Trigger the intra-node broadcast - loopback */
 		struct ibv_sge sg;
@@ -560,6 +564,8 @@ public:
 		rd_.loopback_qp_cd->reduce_write(&sg, &rd_.result, inputs,
 				MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 
+
+
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
 		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, 1);
 		
@@ -569,7 +575,7 @@ public:
 			mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
 			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
 			rd_.peers[step_idx].qp_cd->pad();
-
+			PRINT("D");
 			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf  , &rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
@@ -577,15 +583,16 @@ public:
 		}
 
 
+
 		sg.length =  bytes_;
-		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
+		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
 			sg.addr = (uint64_t)  ptrs_[buf_idx];
 			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
 			rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
 		}
 
-		mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
-		mqp->cd_wait(rd_.peers[step_idx].qp_cd, loopback_wqes, inputs);
+		mqp->cd_send_enable(rd_.loopback_qp_cd);
+		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, inputs);
 		mqp->pad(1);
 		mqp->dup();
 	}
