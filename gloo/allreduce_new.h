@@ -167,7 +167,7 @@ public:
 		}
 
 		if (!ib_devname) {
-			ib_dev = *dev_list;
+			ib_dev = dev_list[3];
 			if (!ib_dev) {
 				PRINT("No IB devices found");
 				return; // TODO indicate failure?
@@ -389,7 +389,7 @@ public:
 	{
 		int buf_idx;
 		ibv_dereg_mr(mem_.umr_mr);
-		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
+		for (buf_idx = 0; buf_idx < ptrs_.size(); buf_idx++) {
 			ibv_dereg_mr(mem_.mem_reg[buf_idx].mr);
 		}
 	}
@@ -456,7 +456,7 @@ public:
 			return; // TODO: indicate error!
 		}
 
-		int loopback_wqes = step_count+1 + count_;
+		int loopback_wqes = step_count+1 + inputs;
 		mqp->cd_recv_enable(rd_.loopback_qp_cd, loopback_wqes);
 
 		/* Establish a connection with each peer */
