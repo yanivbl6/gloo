@@ -178,7 +178,7 @@ class qp_ctx{
 	qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq);
 	~qp_ctx();
 	void db();
-	void write(struct ibv_sge* local, struct ibv_sge* remote, int signal);
+	void write(struct ibv_sge* local, struct ibv_sge* remote, int signal = 0);
 	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
@@ -187,7 +187,7 @@ class qp_ctx{
 
         void nop(size_t num_pad, int signal);
 
-	void pad(int half);
+	void pad(int half = 0);
 	void dup();
 
 	int poll();

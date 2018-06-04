@@ -28,6 +28,8 @@ namespace gloo {
 						 IBV_ACCESS_REMOTE_WRITE | \
 						 IBV_ACCESS_REMOTE_READ)
 
+#define RX_SIZE 16
+
 typedef int rank_t;
 
 typedef struct verb_ctx {
@@ -53,17 +55,29 @@ typedef struct rd_peer_info {
 typedef struct rd_peer {
 	rank_t rank;
 	qp_ctx *qp_cd;
+
 	struct ibv_qp *qp;
+	struct ibv_cq *cq;
+
 	struct ibv_sge outgoing_buf;
 	struct ibv_sge incoming_buf;
 	struct ibv_sge remote_buf;
 	rd_peer_info_t remote;
+
 } rd_peer_t;
 
 typedef struct rd_connections {
 	struct ibv_sge result;
+
+
 	struct ibv_qp *mgmt_qp;
+        struct ibv_cq *mgmt_cq;
+
+	qp_ctx *mgmt_qp_cd;
+
 	struct ibv_qp *loopback_qp;
+        struct ibv_cq *loopback_cq;
+
 	qp_ctx *loopback_qp_cd;
 	unsigned peers_cnt;
 	rd_peer_t *peers;
@@ -113,7 +127,17 @@ public:
 	}
 
 	void run() {
-		/// TODO: Doorbell + rearm
+#if 0
+		rd.mgmt_qp_cd->db();
+
+		rd.mgmt_qp_cd->rearm();
+
+
+		int res = 0;
+		while (!res){
+			res = rd.mgmt_qp_cd->poll();
+		}
+#endif
 	}
 
 	void init_verbs(char *ib_devname="", int port=1)
@@ -158,7 +182,7 @@ public:
 			goto clean_comp_channel;
 		}
 
-		ctx->cq = ibv_create_cq(ctx->context, rx_depth + 1, NULL,
+		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
 				ctx->channel, 0);
 		if (!ctx->cq) {
 			fprintf(stderr, "Couldn't create CQ\n");
@@ -364,29 +388,53 @@ public:
 	{
 		/* Create a single management QP */
 		unsigned send_wq_size = 4; // FIXME: calc
-		unsigned recv_rq_size = 4; // FIXME: calc
+		unsigned recv_rq_size = RX_SIZE; // FIXME: calc
+
+		int inputs = ptrs_.size();
+
+                rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+                                ctx->channel, 0);
+
+                if (!rd_.mgmt_cq) {
+                        fprintf(stderr, "Couldn't create CQ\n");
+                        return; // TODO indicate failure?
+                }
+		
+
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(ibv_.cq,
 				ibv_.pd, ibv_.context, send_wq_size);
 
+		rd.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq); 
+
+
+		qp_ctx* mqp = rd.mgmt_qp_cd;
+
 		/* Create a loopback QP */
-		rd_.loopback_qp = rc_qp_create(ibv_.cq,
+
+		rd_.loopback_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+				ctx->channel, 0);
+
+		if (!rd_.loopback_cq) {
+			fprintf(stderr, "Couldn't create CQ\n");
+			return; // TODO indicate failure?
+		}
+
+		rd_.loopback_qp = rc_qp_create(rd_.loopback_cq ,
 				ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
-		rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp);
 		peer_addr_t loopback_addr;
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
 		rc_qp_connect(rd_.loopback_qp, &loopback_addr);
+
+
+		rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp, rd_.loopback_cq);
+
+
 
 		/* Prepare the first (intra-node) VectorCalc WQE - loobpack */
 		rd_.result.mr = ibv_reg_mr(ibv_.pd, nullptr, bytes_, IB_ACCESS_FLAGS);
 		rd_.result.addr = rd_.result.mr->addr;
 		rd_.result.len = bytes_;
-		struct ibv_sge sg = {
-				.addr = ptrs_[0],
-				.len = mem_.umr_mr->len, // FIXME: is it initialized by UMR?!
-				.lkey = mem_.umr_mr->lkey
-		};
-		rd_.loopback_qp->reduce_write(&sg, rd_.result, count_,
-				MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_UINT32);
+
 
 		/* Calculate the number of recursive-doubling rounds */
 		unsigned step_idx, step_count = 0;
@@ -397,7 +445,11 @@ public:
 			return; // TODO: indicate error!
 		}
 
+		int loopback_wqes = step_count+1 + count_;
+		mqp->cd_recv_enable(rd_.loopback_qp_cd, loopback_wqes);
+
 		/* Establish a connection with each peer */
+
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
 			/* calculate the rank of each peer */
 			int leap = 1 << step_idx;
@@ -407,9 +459,18 @@ public:
 			rd_.peers[step_idx].rank = contextRank_ + leap;
 
 			/* Create a QP and a buffer for this peer */
-			rd_.peers[step_idx].qp = rc_qp_create(ibv_.cq,
+
+			rd_.peers[step_idx].cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+					ctx->channel, 0);
+
+			if (!rd_.peers[step_idx].cq) {
+				fprintf(stderr, "Couldn't create CQ\n");
+				return; // TODO indicate failure?
+			}
+
+
+			rd_.peers[step_idx].cq = rc_qp_create(rd_.peers[step_idx].cq,
 					ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
-			rd_.peers[step_idx].qp_cd = new qp_ctx(rd_.peers[step_idx].qp);
 			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, 0, bytes_, IB_ACCESS_FLAGS);
 			rd_.peers[step_idx].incoming_buf.mr	  = mr;
 			rd_.peers[step_idx].incoming_buf.addr = mr->addr;
@@ -438,8 +499,7 @@ public:
 
 			/* Exchange the QP+buffer address with this peer */
 			rd_peer_info_t info = {
-					.buf = rd_.peers[step_idx].buffer.addr,
-					.rkey = rd_.peers[step_idx].buffer.mr->rkey
+			, rd_.peers[step_idx].buffer.mr->rkey
 			};
 			rc_qp_get_addr(rd_.peers[step_idx].qp, &info.addr);
 			p2p_exchange(&info, rd_.peers[step_idx].remote,
@@ -447,34 +507,70 @@ public:
 			rc_qp_connect(rd_.peers[step_idx].qp,
 					&rd_.peers[step_idx].remote.addr);
 
+
+			rd_.peers[step_idx].qp_cd = new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq );
+
 			/* Set the logic to trigger the next step */
-			rd_.peers[step_idx].qp_cd->reduce_write(rd_.peers[step_idx].send_umr,
-					rd_.peers[step_idx].remote_buf, 2,
-					MLX5DV_VECTOR_CALC_OP_ADD,
-					MLX5DV_VECTOR_CALC_DATA_TYPE_UINT32);
-			rd_.peers[step_idx].qp_cd->cd_wait();
-			rd_.peers[step_idx].qp_cd->pad();
+			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd, 1);
 		}
 
 		/* Trigger the intra-node broadcast - loopback */
-		unsigned buf_idx;
-		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
-			sg.addr = ptrs_[buf_idx];
-			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
-			rd_.peers[step_idx].qp->write(&rd_.result, &sg);
+		struct ibv_sge sg = {
+				.addr = ptrs_[0],
+				.len = bytes_ * inputs ,
+				.lkey = mem_.umr_mr->lkey
+		};
+
+		unsigned buf_idx;	
+		rd_.loopback_qp_cd->reduce_write(&sg, &rd_.result, inputs,
+				MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
+
+		mqp->cd_send_enable(rd_.loopback_qp_cd);
+		mqp->cd_wait(rd_.loopback_qp, loopback_wqes);
+
+		struct ibv_sge dummy;
+
+		for (step_idx = 0; step_idx < step_count; step_idx++) {
+			rd_.peers[step_idx].qp_cd->write(&rd_.result, &rd_.peers[step_idx].remote_buf);
+
+			mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
+			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+			rd_.peers[step_idx].qp_cd->pad();
+
+			rd_.loopback_qp_cd->reduce_write(&dummy, &rd_.result, 2,
+                                MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
+			mqp->cd_send_enable(rd_.loopback_qp_cd);
+			mqp->cd_wait(rd_.loopback_qp, loopback_wqes);
 		}
+
+
+		sg.len =  bytes_;
+		for (buf_idx = 0; buf_idx < count_; buf_idx++) {
+                        sg.addr = ptrs_[buf_idx];
+                        sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
+                        rd_.loopback_qp_cd->write(&rd_.result, &sg);
+                }
+
+		mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
+		mqp->cd_wait(rd_.peers[step_idx].qp_cd, loopback_wqes, inputs);
+		mqp->pad(1);
+		mqp->dup();
 	}
 
 	void teardown()
 	{
 		for (step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
 			delete rd_.peers[step_idx].qp_cd;
+                        ibv_cq_destroy(rd_.peers[step_idx].cq);
 			ibv_qp_destroy(rd_.peers[step_idx].qp);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_buf.mr);
 		}
-
+		delete rd_.loopback_qp_dc;
 		ibv_destroy_qp(rd_.loopback_qp);
+		ibv_destroy_cq(rd_.loopback_cq);
+		delete rd_.mgmt_qp_dc;
 		ibv_destroy_qp(rd_.mgmt_qp);
+                ibv_destroy_cq(rd_.mgmt_cq);
 		ibv_dereg_mr(rd_.result.mr);
 		free(rd_.peers);
 	}
