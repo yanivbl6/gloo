@@ -22,7 +22,7 @@
 
 namespace gloo {
 
-#define DEBUG
+#define XDEBUG
 #ifdef DEBUG
 #define PRINT(x) fprintf(stderr, "%s\n", x);
 #else
@@ -33,7 +33,7 @@ namespace gloo {
 						 IBV_ACCESS_REMOTE_WRITE | \
 						 IBV_ACCESS_REMOTE_READ)
 
-#define RX_SIZE 16
+#define RX_SIZE 32
 
 typedef int rank_t;
 
@@ -121,6 +121,7 @@ public:
 		/* Step #3: Connect to the (recursive-doubling) peers and pre-post operations */
 		connect_and_prepare();
 		PRINT("connect_and_prepare DONE");
+		mone = 0;
 	}
 
 	virtual ~AllreduceNew() {
@@ -130,7 +131,6 @@ public:
 	}
 
 	int p2p_exchange(void* send_buf, void* recv_buf, size_t size, int peer){
-		fprintf(stderr,"me: %d, my peer: %d\n", context_->rank, peer);
 		auto& pair = this->getPair(peer);
 		auto slot = this->context_->nextSlot();
 
@@ -142,37 +142,46 @@ public:
 	}
 
 	void run() {
-#if 1
-
-
-		
-
 		rd_.mgmt_qp_cd->db();
-
-		PRINT("db");
-
 		rd_.mgmt_qp_cd->rearm();
-
-                PRINT("rearm");
 
 		int res = 0;
 		uint64_t count = 0;
 		while (!res){
-			res = rd_.mgmt_qp_cd->poll();
+			
+
+			res = rd_.loopback_qp_cd->poll(loopback_wqes);
 			++count;
-			if (count == 100000000){
+#if 0
+			if (count == 1000000000){
+                                printf("mqp:\n");
+
 				rd_.mgmt_qp_cd->printCq();
 				rd_.mgmt_qp_cd->printSq();
+
+                                printf("lqp:\n");
+
 				rd_.loopback_qp_cd->printCq();
                                 rd_.loopback_qp_cd->printSq();
+
+				printf("rc_qp:\n");
+
 				rd_.peers[0].qp_cd->printCq();
 				rd_.peers[0].qp_cd->printSq();
 				rd_.peers[0].qp_cd->printRq();
 			}
+
+#endif
 		}
 
-		PRINT("polled");
-#endif
+		//while (!res){
+			//res = rd_.loopback_qp_cd->poll(loopback_wqes);
+		//}
+
+		//rd_.loopback_qp_cd->printCq();
+
+		++mone;
+		printf("iteration: %d\n", mone);
 	}
 
 	void init_verbs(char *ib_devname=nullptr, int port=1)
@@ -216,7 +225,7 @@ public:
 			goto clean_comp_channel;
 		}
 
-		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE, NULL, NULL, 0);
+		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE , NULL, NULL, 0);
 		if (!ctx->cq) {
 			PRINT("Couldn't create CQ");
 			return; // TODO indicate failure?
@@ -433,7 +442,7 @@ public:
 
 		verb_ctx_t* ctx = &(this->ibv_);	
 
-		rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
+		rd_.mgmt_cq = ibv_create_cq(ctx->context, RX_SIZE , NULL,
 				ctx->channel, 0);
 
 		if (!rd_.mgmt_cq) {
@@ -493,7 +502,7 @@ public:
 
 
 
-		int loopback_wqes = step_count+1 + inputs;
+		loopback_wqes = step_count+1 + inputs;
 		mqp->cd_recv_enable(rd_.loopback_qp_cd, loopback_wqes);
 
 		/* Establish a connection with each peer */
@@ -519,7 +528,7 @@ public:
 
 
 			rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq,
-					ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
+					ibv_.pd, ibv_.context, 4, RX_SIZE, 1, 1);
 			void *incoming_buf = malloc(bytes_);
 			rd_.peers[step_idx].incoming_buf.addr   = (uint64_t) incoming_buf;
 			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, incoming_buf, bytes_, IB_ACCESS_FLAGS);
@@ -577,7 +586,7 @@ public:
 		/* Trigger the intra-node broadcast - loopback */
 		struct ibv_sge sg;
 		sg.addr = (uint64_t)  ptrs_[0];
-		sg.length = 4; //  bytes_; // * inputs;
+		sg.length =  bytes_ ;// *  inputs; //  bytes_; // * inputs;
 		sg.lkey = mem_.umr_mr->lkey;
 
 		unsigned buf_idx;	
@@ -608,9 +617,8 @@ public:
 			sg.addr = (uint64_t)  ptrs_[buf_idx];
 			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
 			rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
-			rd_.loopback_qp_cd->pad();
 		}
-
+		rd_.loopback_qp_cd->pad();
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
 		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, inputs);
 		mqp->pad(1);
@@ -645,8 +653,9 @@ protected:
 	verb_ctx_t ibv_;
 	mem_registration_t mem_;
 	rd_connections_t rd_;
-
+	int loopback_wqes;
 	const ReductionFunction<T>* fn_;
+	int mone;
 };
 
 } // namespace gloo

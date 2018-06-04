@@ -58,7 +58,6 @@ qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq){
 	this->cmpl_cnt = 0;
 	this->poll_cnt = 0;
 	volatile void* tar =  (volatile void*) this->cq->buf;
-	this->cur_cqe = (volatile struct cqe64*) tar;
 
 	printf("wqe_cnt = %d, stride = %d\n",this->qp->sq.wqe_cnt,this->qp->sq.stride);
         printf("cqn num = %d\n", this->cq->cqn);
@@ -104,16 +103,19 @@ void RearmTasks::add(uint32_t* ptr, int inc){
 	map[inc].add(ptr);
 }
 
-int qp_ctx::poll(){
+int qp_ctx::poll(int x){
+	uint32_t val = (this->poll_cnt + x - 1);
+	volatile void* tar =  (volatile void*)  ((volatile char*) this->cq->buf  + (val & (this->cq->cqe_cnt-1))  * this->cq->cqe_size);
+	volatile struct cqe64* cur_cqe = (volatile struct cqe64*) tar;
         uint8_t opcode = cur_cqe->op_own >> 4;
-        if (opcode != 15 && !((cur_cqe->op_own & 1) ^ !!(this->poll_cnt & (this->cq->cqe_cnt)))){
+
+        if (opcode != 15 && !((cur_cqe->op_own & 1) ^ !!(val  & (this->cq->cqe_cnt)))){
                 if (opcode==13 || opcode == 14){
                         printf("bad CQE: %X\n hw_syn = %X, vendor_syn = %X, syn = %X\n",cur_cqe->wqe_counter, cur_cqe->hw_syn,cur_cqe->vendor_syn,cur_cqe->syn);
                 }
-                this->cq->dbrec[0] = htobe32((this->poll_cnt) & 0xffffff);
-                ++(this->poll_cnt);
-		volatile void* tar =  (volatile void*)  ((volatile char*) this->cq->buf  + ((this->poll_cnt) & (this->cq->cqe_cnt-1))  * this->cq->cqe_size);
-		this->cur_cqe = (volatile struct cqe64*) tar;
+                this->cq->dbrec[0] = htobe32(val & 0xffffff);
+                (this->poll_cnt) += x;
+
                 return 1;
         } else {
                 return 0;
@@ -195,7 +197,7 @@ void qp_ctx::reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_
     write_cnt+=2;
 }
 
-#define CE 8
+#define CE 0
 
 void qp_ctx::cd_send_enable(qp_ctx* slave_qp){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
@@ -241,8 +243,8 @@ void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index, uint32_t inc ){
 }
 
 void qp_ctx::cd_wait(qp_ctx* slave_qp, uint32_t increment, uint32_t index){
-	slave_qp->cmpl_cnt+= index;
 	this->cd_wait(slave_qp->cq->cqn, slave_qp->cmpl_cnt, increment);
+	slave_qp->cmpl_cnt+= index;
 }
 
 
@@ -285,7 +287,6 @@ void qp_ctx::rearm(){
 
 void RearmTasks::exec(uint32_t offset, int phase){
 	for (MapIt it = this->map.begin();  it != map.end()  ; ++it){
-		print_buffer(it->second.ptrs,it->second.size * 4);
 		it->second.exec(it->first, offset , phase);
 	}
 }
