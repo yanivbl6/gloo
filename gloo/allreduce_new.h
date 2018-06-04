@@ -67,7 +67,7 @@ typedef struct rd_peer {
 
 	struct ibv_qp *qp;
 	struct ibv_cq *cq;
-
+	struct ibv_exp_dm *dm;
 	struct ibv_sge outgoing_buf;
 	struct ibv_mr* outgoing_mr;
 	struct ibv_sge incoming_buf;
@@ -76,7 +76,8 @@ typedef struct rd_peer {
 } rd_peer_t;
 
 typedef struct rd_connections {
-	struct ibv_sge result;
+    struct ibv_exp_dm *dm;
+    struct ibv_sge result;
 	struct ibv_mr* result_mr;
 
 
@@ -204,9 +205,16 @@ public:
 
 		memset(&ctx->attrs, 0, sizeof(ctx->attrs));
 		ctx->attrs.comp_mask = IBV_EXP_DEVICE_ATTR_UMR;
+		ctx->attrs.comp_mask = IBV_EXP_DEVICE_ATTR_MAX_DM_SIZE;
+
 		if (ibv_exp_query_device(ctx->context ,&ctx->attrs)) {
 			PRINT("Couldn't query device attributes");
 			return; // TODO indicate failure?
+		}
+
+		if (!(ctx->attrs.comp_mask & IBV_EXP_DEVICE_ATTR_MAX_DM_SIZE) || !(ctx->attrs.max_dm_size)) {
+		    PRINT("Device memory not supported by driver\n");
+		    return; // TODO indicate failure?
 		}
 
 		{
@@ -451,10 +459,27 @@ public:
 
 
 		/* Prepare the first (intra-node) VectorCalc WQE - loobpack */
-		void* tmp  =  malloc(bytes_);
-		rd_.result.addr =  (uint64_t) tmp;
-		rd_.result_mr = ibv_reg_mr(ibv_.pd, tmp  , bytes_, IB_ACCESS_FLAGS);
+		struct ibv_exp_alloc_dm_attr dm_attr = {0};
+		dm_attr.length = bytes_;
+		rd_.dm = ibv_exp_alloc_dm(ctx->context, &dm_attr);
 
+		if (!rd_.dm) {
+		    PRINT("Couldn't create Memic\n");
+		    return; // TODO indicate failure?
+		}
+
+		struct ibv_exp_reg_mr_in mr_in = {
+		        .pd = ibv_->pd,
+		        .addr = 0,
+		        .length = bytes_,
+		        .exp_access = IB_ACCESS_FLAGS,
+		        .create_flags = 0,
+		        .dm = rd_->dm,
+		        .comp_mask = IBV_EXP_REG_MR_DM
+		};
+
+		rd_.result_mr = ibv_exp_reg_mr(&mr_in);
+		rd_.result.addr = 0;
 		rd_.result.length = bytes_;
 		rd_.result.lkey = rd_.result_mr->lkey;
 
@@ -501,45 +526,67 @@ public:
 
 			rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq,
 					ibv_.pd, ibv_.context, send_wq_size, recv_rq_size, 1, 1);
-			void *incoming_buf = malloc(bytes_);
-			rd_.peers[step_idx].incoming_buf.addr   = (uint64_t) incoming_buf;
-			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, incoming_buf, bytes_, IB_ACCESS_FLAGS);
-			rd_.peers[step_idx].incoming_mr	      = mr;
+
+			struct ibv_exp_alloc_dm_attr dm_attr = {0};
+			dm_attr.length = bytes_;
+			rd_.peers[step_idx].dm = ibv_exp_alloc_dm(ibv_->context, &dm_attr);
+
+			if (!rd_.peers[step_idx].dm) {
+			    PRINT("Couldn't create Memic\n");
+			    return; // TODO indicate failure?
+			}
+
+			struct ibv_exp_reg_mr_in mr_in = {
+			        .pd = ibv_->pd,
+			        .addr = 0,
+			        .length = bytes_,
+			        .exp_access = IB_ACCESS_FLAGS,
+			        .create_flags = 0,
+			        .dm = rd_.peers[step_idx].dm,
+			        .comp_mask = IBV_EXP_REG_MR_DM
+			};
+
+			struct ibv_mr *mr = ibv_exp_reg_mr(&mr_in);
+			rd_.peers[step_idx].incoming_mr = mr;
+			rd_.peers[step_idx].incoming_buf.addr = 0;
 			rd_.peers[step_idx].incoming_buf.length  = bytes_;
 			PRINT("RC created for peer\n");
 			uint32_t rkey = mr->rkey;
 
 			/* Create a UMR for VectorCalc-ing each buffer with the result */
 			struct ibv_exp_mem_region mem_reg[2];
-			mem_reg[0].base_addr	= (uint64_t) rd_.result.addr;
-			mem_reg[0].length	= bytes_;
-			mem_reg[0].mr	= rd_.result_mr;
-			mem_reg[1].base_addr	= (uint64_t) mr->addr;
-			mem_reg[1].length	= bytes_;
-			mem_reg[1].mr	= mr;
+			mem_reg[0].base_addr = 0;
+			mem_reg[0].length = bytes_;
+			mem_reg[0].mr = rd_.result_mr;
+			mem_reg[1].base_addr = 0;
+			mem_reg[1].length = bytes_;
+			mem_reg[1].mr = mr;
 
 			mr = register_umr(mem_reg, 2, nullptr);
 			if (!mr) {
+			    PRINT("UMR creation failed\n");
 				return; // TODO: indicate error!
 			}
+
 			rd_.peers[step_idx].outgoing_mr = mr;
-			rd_.peers[step_idx].outgoing_buf.addr = (uint64_t) rd_.result.addr;
+			rd_.peers[step_idx].outgoing_buf.addr = 0;
+			rd_.peers[step_idx].outgoing_buf.lkey = mr->lkey;
 			rd_.peers[step_idx].outgoing_buf.length = bytes_;
 
 			/* Exchange the QP+buffer address with this peer */
-			rd_peer_info_t local_info, remote_info;
-			local_info.buf  = (uintptr_t) incoming_buf;
-			local_info.rkey = rkey;
-			rc_qp_get_addr(rd_.peers[step_idx].qp, &local_info.addr);
-			p2p_exchange((void*)&info, (void*)&remote_info,
-					sizeof(info), (int) rd_.peers[step_idx].rank);
+            rd_peer_info_t local_info, remote_info;
+            local_info.buf  = 0;
+            local_info.rkey = rkey;
+            rc_qp_get_addr(rd_.peers[step_idx].qp, &local_info.addr);
+            p2p_exchange((void*)&info, (void*)&remote_info,
+                    sizeof(info), (int) rd_.peers[step_idx].rank);
 
-			/* Connect to the remote peer */
-			rd_.peers[step_idx].remote_buf.addr = remote_info.buf;
+            /* Connect to the remote peer */
+			rd_.peers[step_idx].remote_buf.addr = 0;
 			rd_.peers[step_idx].remote_buf.lkey = remote_info.rkey;
-			rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
-			rd_.peers[step_idx].qp_cd =
-					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq);
+            rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
+            rd_.peers[step_idx].qp_cd =
+                    new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq);
 
 			/* Set the logic to trigger the next step */
 			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd, 1);
@@ -589,6 +636,7 @@ public:
 	{
 		for (int step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
 			delete rd_.peers[step_idx].qp_cd;
+			ibv_exp_free_dm(rd_.peers[step_idx].dm);
 			ibv_destroy_qp(rd_.peers[step_idx].qp);
 			ibv_destroy_cq(rd_.peers[step_idx].cq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
@@ -596,6 +644,7 @@ public:
 			free((void*) rd_.peers[step_idx].incoming_buf.addr);
 		}
 		delete rd_.loopback_qp_cd;
+		ibv_exp_free_dm(rd_.dm);
 		ibv_destroy_qp(rd_.loopback_qp);
 		ibv_destroy_cq(rd_.loopback_cq);
 		delete rd_.mgmt_qp_cd;
