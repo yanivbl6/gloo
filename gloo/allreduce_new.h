@@ -24,9 +24,9 @@ namespace gloo {
 
 #define DEBUG
 #ifdef DEBUG
-#define PRINT(%s) PRINT(%s)
+#define PRINT(x) fprintf(stderr, "%s\n", x);
 #else
-#define PRINT(%s)
+#define PRINT(x)
 #endif
 
 #define IB_ACCESS_FLAGS (IBV_ACCESS_LOCAL_WRITE  | \
@@ -114,9 +114,7 @@ public:
 		/* Step #1: Initialize verbs for all to use */
 		PRINT("starting AllreduceNew");
 		init_verbs();
-		PRINT("init_verbs DONE");
-
-
+	
 		/* Step #2: Register existing memory buffers with UMR */
 		register_memory();
 		PRINT("register_memory DONE");
@@ -171,7 +169,7 @@ public:
 		if (!ib_devname) {
 			ib_dev = *dev_list;
 			if (!ib_dev) {
-				PRINT("No IB devices found\n");
+				PRINT("No IB devices found");
 				return; // TODO indicate failure?
 			}
 		} else {
@@ -181,54 +179,53 @@ public:
 					break;
 			ib_dev = dev_list[i];
 			if (!ib_dev) {
-				PRINT("IB device %s not found\n", ib_devname);
+				PRINT("IB device not found");
 				return; // TODO indicate failure?
 			}
 		}
 
-		PRINT(ibv_get_device_name(ib_dev);
+		PRINT(ibv_get_device_name(ib_dev));
 		ctx->context = ibv_open_device(ib_dev);
 		ibv_free_device_list(dev_list);
 		if (!ctx->context) {
-			PRINT("Couldn't get context for %s\n",
-					ibv_get_device_name(ib_dev));
+			PRINT("Couldn't get context");
 		}
 
 		ctx->pd = ibv_alloc_pd(ctx->context);
 		if (!ctx->pd) {
-			PRINT("Couldn't allocate PD\n");
+			PRINT("Couldn't allocate PD");
 			goto clean_comp_channel;
 		}
 
 		ctx->cq = ibv_create_cq(ctx->context, RX_SIZE, NULL,
 				NULL, 0);
 		if (!ctx->cq) {
-			PRINT("Couldn't create CQ\n");
+			PRINT("Couldn't create CQ");
 			return; // TODO indicate failure?
 		}
 
 		if (ibv_exp_query_device(ctx->context ,&ctx->attrs)) {
-			PRINT("Couldn't query device attributes\n");
+			PRINT("Couldn't query device attributes");
 			return; // TODO indicate failure?
 		}
 
 		{
 			struct ibv_exp_qp_init_attr attr;
-			attr.qp_context	  = ctx->context;
-			attr.send_cq	  = ctx->cq;
-			attr.recv_cq	  = ctx->cq;
-			attr.srq		  = nullptr;
-			attr.qp_type	  = IBV_QPT_UD;
-			attr.comp_mask	  = IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
-			attr.exp_create_flags = IBV_EXP_QP_CREATE_UMR;
-			attr.cap.max_send_wr = 1;
-			attr.cap.max_recv_wr = 0;
-			attr.cap.max_send_sge = 1;
-			attr.cap.max_recv_sge = 1;
+			attr.qp_context		= ctx->context;
+			attr.send_cq		= ctx->cq;
+			attr.recv_cq		= ctx->cq;
+			attr.srq		= nullptr;
+			attr.qp_type		= IBV_QPT_UD;
+			attr.comp_mask		= IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
+			attr.exp_create_flags	= IBV_EXP_QP_CREATE_UMR;
+			attr.cap.max_send_wr	= 1;
+			attr.cap.max_recv_wr	= 0;
+			attr.cap.max_send_sge	= 1;
+			attr.cap.max_recv_sge	= 1;
 
 			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
 			if (!ctx->umr_qp)  {
-				PRINT("Couldn't create QP\n");
+				PRINT("Couldn't create UNR QP");
 				return; // TODO indicate failure?
 			}
 		}
@@ -245,11 +242,12 @@ public:
 					IBV_QP_PKEY_INDEX         |
 					IBV_QP_PORT               |
 					IBV_QP_QKEY)) {
-				PRINT("Failed to modify QP to INIT\n");
+				PRINT("Failed to modify QP to INIT");
 				return; // TODO indicate failure?
 			}
 		}
 
+		PRINT("init_verbs DONE");
 		return; // SUCCESS!
 
 		clean_qp:
@@ -271,22 +269,22 @@ public:
 	{
 		verb_ctx_t *ctx = &ibv_;
 		if (ibv_destroy_qp(ctx->umr_qp)) {
-			PRINT("Couldn't destroy QP\n");
+			PRINT("Couldn't destroy QP");
 			return 0; // TODO indicate failure?
 		}
 
 		if (ibv_destroy_cq(ctx->cq)) {
-			PRINT("Couldn't destroy CQ\n");
+			PRINT("Couldn't destroy CQ");
 			return 0; // TODO indicate failure?
 		}
 
 		if (ibv_dealloc_pd(ctx->pd)) {
-			PRINT("Couldn't deallocate PD\n");
+			PRINT("Couldn't deallocate PD");
 			return 0; // TODO indicate failure?
 		}
 
 		if (ibv_close_device(ctx->context)) {
-			PRINT("Couldn't release context\n");
+			PRINT("Couldn't release context");
 			return 0; // TODO indicate failure?
 		}
 		return 1;
