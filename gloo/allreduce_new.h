@@ -519,21 +519,26 @@ public:
 			mem_reg[1].length	= bytes_;
 			mem_reg[1].mr	= mr;
 
+			PRINT("before UMR"); 
 			mr = register_umr(mem_reg, 2, nullptr);
 			if (!mr) {
 				return; // TODO: indicate error!
 			}
+                        PRINT("after UMR");
+
 			rd_.peers[step_idx].outgoing_mr = mr;
 			rd_.peers[step_idx].outgoing_buf.addr = (uint64_t) rd_.result.addr;
 			rd_.peers[step_idx].outgoing_buf.length = bytes_;
+                        rd_.peers[step_idx].outgoing_buf.lkey = mr->lkey;
+
 
 			/* Exchange the QP+buffer address with this peer */
 			rd_peer_info_t local_info, remote_info;
 			local_info.buf  = (uintptr_t) incoming_buf;
 			local_info.rkey = rkey;
 			rc_qp_get_addr(rd_.peers[step_idx].qp, &local_info.addr);
-			p2p_exchange((void*)&info, (void*)&remote_info,
-					sizeof(info), (int) rd_.peers[step_idx].rank);
+			p2p_exchange((void*)&local_info, (void*)&remote_info,
+					sizeof(local_info), (int) rd_.peers[step_idx].rank);
 
 			/* Connect to the remote peer */
 			rd_.peers[step_idx].remote_buf.addr = remote_info.buf;
