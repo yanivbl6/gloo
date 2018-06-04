@@ -565,9 +565,7 @@ public:
 
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
 		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, 1);
-
-		struct ibv_sge dummy;
-
+		
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
 			rd_.peers[step_idx].qp_cd->write(&rd_.result, &rd_.peers[step_idx].remote_buf);
 
@@ -575,7 +573,7 @@ public:
 			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
 			rd_.peers[step_idx].qp_cd->pad();
 
-			rd_.loopback_qp_cd->reduce_write(&dummy, &rd_.result, 2,
+			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf  , &rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
 			mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes , 1);
