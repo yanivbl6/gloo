@@ -215,8 +215,7 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp, uint32_t index){
     ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
     mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, 0  , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
-    cd_set_wait(wseg, index, slave_qp->qpn);
-
+    cd_set_wait(wseg, slave_qp->rq.wqe_cnt, slave_qp->qpn);
     this->tasks.add((uint32_t*)  &(wseg->index), index);
 
     write_cnt+=1;
@@ -238,8 +237,8 @@ void qp_ctx::cd_wait(uint32_t cqe_num, uint32_t index, uint32_t inc ){
 }
 
 void qp_ctx::cd_wait(qp_ctx* slave_qp, uint32_t increment, uint32_t index){
-	slave_qp->cmpl_cnt+= 1;
-	this->cd_wait(slave_qp->cq->cqn, index, increment);
+	slave_qp->cmpl_cnt+= index;
+	this->cd_wait(slave_qp->cq->cqn, slave_qp->cmpl_cnt, increment);
 }
 
 
@@ -265,7 +264,7 @@ void qp_ctx::pad(int half){
 	while (write_cnt + pad_size < target_count ){
 		this->nop(pad_size,0);
 	}
-	this->nop(target_count - write_cnt,0);
+	this->nop(target_count - write_cnt,half);
 }
 
 void qp_ctx::dup(){
