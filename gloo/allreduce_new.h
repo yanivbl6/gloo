@@ -54,7 +54,10 @@ typedef struct mem_registration {
 
 typedef struct rd_peer_info {
 	uintptr_t  buf;
-	uint32_t rkey;
+	union {
+		uint32_t rkey;
+		uint32_t lkey;
+	};
 	peer_addr_t addr;
 } rd_peer_info_t;
 
@@ -69,10 +72,7 @@ typedef struct rd_peer {
 	struct ibv_mr* outgoing_mr;
 	struct ibv_sge incoming_buf;
 	struct ibv_mr* incoming_mr;
-
 	struct ibv_sge remote_buf;
-	rd_peer_info_t remote;
-
 } rd_peer_t;
 
 typedef struct rd_connections {
@@ -528,26 +528,19 @@ public:
 			rd_.peers[step_idx].outgoing_buf.length = bytes_;
 
 			/* Exchange the QP+buffer address with this peer */
-			rd_peer_info_t info;
-
-			info.rkey = rkey;
-			info.buf = (uintptr_t) rd_.peers[step_idx].incoming_buf.addr;
-
-			rc_qp_get_addr(rd_.peers[step_idx].qp, &info.addr);
-
-
-
-			p2p_exchange((void*) &info, (void*) rd_.peers[step_idx].remote_buf.addr,
+			rd_peer_info_t local_info, remote_info;
+			local_info.buf  = (uintptr_t) incoming_buf;
+			local_info.rkey = rkey;
+			rc_qp_get_addr(rd_.peers[step_idx].qp, &local_info.addr);
+			p2p_exchange((void*)&info, (void*)&remote_info,
 					sizeof(info), (int) rd_.peers[step_idx].rank);
 
-			rd_.peers[step_idx].remote_buf.addr = (uint64_t)  info.buf;
-			rd_.peers[step_idx].remote_buf.lkey = info.rkey;
-
-			PRINT("Connecting RC...\n");
-			rc_qp_connect(&rd_.peers[step_idx].remote.addr, rd_.peers[step_idx].qp);
-			PRINT("Connected RC!\n");
-
-			rd_.peers[step_idx].qp_cd = new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq );
+			/* Connect to the remote peer */
+			rd_.peers[step_idx].remote_buf.addr = remote_info.buf;
+			rd_.peers[step_idx].remote_buf.lkey = remote_info.rkey;
+			rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
+			rd_.peers[step_idx].qp_cd =
+					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq);
 
 			/* Set the logic to trigger the next step */
 			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd, 1);
