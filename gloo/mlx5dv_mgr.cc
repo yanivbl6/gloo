@@ -50,7 +50,7 @@ qp_ctx::qp_ctx(struct ibv_qp* qp){
 	this->exe_cnt = 0;
 	this->dbseg.qpn_ds = htobe32(qpn << 8);
 	this->phase = 0;
-	this->offset = this->qp->sq.stride  * (this->qp->sq.wqe_cnt / 2);
+	this->offset = (this->qp->sq.stride  * (this->qp->sq.wqe_cnt / 2)) / sizeof(uint32_t);
 }
 
 qp_ctx::~qp_ctx(){
@@ -58,17 +58,17 @@ qp_ctx::~qp_ctx(){
 }
 
 
-val_rearm_tasks::val_rearm_tasks(){
+ValRearmTasks::ValRearmTasks(){
 	size= 0;
 	buf_size=4;
 	ptrs = (uint32_t**) malloc(buf_size  * sizeof(uint32_t*));
 }
 
-val_rearm_tasks::~val_rearm_tasks(){
+ValRearmTasks::~ValRearmTasks(){
 	free(ptrs);
 }
 
-void val_rearm_tasks::add(uint32_t* ptr){
+void ValRearmTasks::add(uint32_t* ptr){
 	++size;
 	if (size > buf_size){
 		uint32_t** tmp_ptrs = (uint32_t**) malloc((buf_size * 2)  * sizeof(uint32_t*));
@@ -83,7 +83,11 @@ void val_rearm_tasks::add(uint32_t* ptr){
 	ptrs[size-1] = ptr;
 }
 
-void rearm_tasks::add(uint32_t* ptr, int inc){    
+void RearmTasks::add(uint32_t* ptr, int inc){
+	//MapIt it =  map.find(inc);
+	//if (it != map.end()){
+	//	map[inc].add(ptr);
+	//}
 	map[inc].add(ptr);
 }
 
@@ -147,14 +151,14 @@ static inline void cd_set_wait(struct mlx5_wqe_coredirect_seg  *seg,
         seg->number   = htonl(number);
 }
 
-void qp_ctx::write(struct ibv_sge* local, struct ibv_sge* remote){
+void qp_ctx::write(struct ibv_sge* local, struct ibv_sge* remote, int signal){
     struct mlx5_wqe_ctrl_seg *ctrl;
     struct mlx5_wqe_raddr_seg *rseg;
     struct mlx5_wqe_data_seg *dseg;
     const uint8_t ds = 3;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0, qpn, 8 , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0, qpn, ((signal)?8:0)  , ds, 0, 0);
     rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
     mlx5dv_set_remote_data_seg(rseg, remote->addr, remote->lkey);
     dseg = (struct mlx5_wqe_data_seg*)(rseg + 1);
@@ -170,7 +174,7 @@ void qp_ctx::reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_
     const uint8_t ds = 5;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count);
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0xff, qpn, 8 , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0xff, qpn, 0 , ds, 0, 0);
     rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
     mlx5dv_set_remote_data_seg(rseg, remote->addr, remote->lkey);
     vseg = (struct mlx5_wqe_vectorcalc_seg*)(rseg + 1);
@@ -264,22 +268,33 @@ void qp_ctx::rearm(){
 	phase = !(phase);
 }
 
-void rearm_tasks::exec(int offset, int phase){
+void RearmTasks::exec(uint32_t offset, int phase){
 	for (MapIt it = this->map.begin();  it != map.end()  ; ++it){
+		print_buffer(it->second.ptrs,it->second.size * 4);
 		it->second.exec(it->first, offset , phase);
 	}
 }
 
-void val_rearm_tasks::exec(uint32_t inc, int offset, int phase){
-	if (phase){
+void ValRearmTasks::exec(uint32_t inc, uint32_t offset, int phase){
+	if (!phase){
 		for (int i=0; i < size; ++i){
-			*((uint32_t*) (offset + ptrs[i])) =  *((uint32_t*) ptrs[i]) + inc;
+			ptrs[i][offset] =  ptrs[i][0] + inc;	
 		}
 	} else {
                 for (int i=0; i < size; ++i){
-                        *((uint32_t*) ptrs[i]) =  *((uint32_t*) (ptrs[i] + offset)) + inc;
+                        ptrs[i][0] =  ptrs[i][offset] + inc;
                 }
 	}
+}
+
+void qp_ctx::printSq(){
+	printf("Sq:\n");
+	print_buffer(this->qp->sq.buf, qp->sq.stride * qp->sq.wqe_cnt);
+}
+
+void qp_ctx::printRq(){
+        printf("Rq:\n");
+        print_buffer(this->qp->rq.buf, qp->rq.stride * qp->rq.wqe_cnt);
 }
 
 

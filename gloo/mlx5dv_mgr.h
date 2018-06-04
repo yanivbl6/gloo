@@ -31,7 +31,6 @@
  */
 #pragma once
 
-#define _GNU_SOURCE
 //#include <config.h>
 
 #include <stdio.h>
@@ -128,7 +127,7 @@ struct cqe64 {
 	__be16          vlan_info;
                 /* TMH is scattered to CQE upon match */
         __be32          srqn_uidx;
-        __be32          imm_inval_pkey;
+        __be32          imm_inValpkey;
         uint8_t         app;
         uint8_t         app_op;
         __be16          app_info;
@@ -144,30 +143,30 @@ struct cqe64 {
         uint8_t         op_own;
 };
 
-class val_rearm_tasks{
+class ValRearmTasks{
 public:
 
-	val_rearm_tasks();
-	~val_rearm_tasks();
+	ValRearmTasks();
+	~ValRearmTasks();
 	void add(uint32_t* ptr);
 	void expand();
 	
-	void exec(uint32_t inc, int offset, int phase);
+	void exec(uint32_t inc, uint32_t offset, int phase);
 
 	size_t size;
 	size_t buf_size;
 	uint32_t** ptrs;
 };
 
-typedef std::map<int, val_rearm_tasks>  UpdateMap;
+typedef std::map<int, ValRearmTasks>  UpdateMap;
 typedef UpdateMap::iterator MapIt;
 
-class rearm_tasks{
+class RearmTasks{
    public:
-	rearm_tasks(){};
-	~rearm_tasks(){};
+	RearmTasks(){};
+	~RearmTasks(){};
 	void add(uint32_t* ptr, int inc);
-        void exec(int offset, int phase);
+        void exec(uint32_t offset, int phase);
 
    private:
 	UpdateMap map;
@@ -179,7 +178,7 @@ class qp_ctx{
 	qp_ctx(struct ibv_qp* qp);
 	~qp_ctx();
 	void db();
-	void write(struct ibv_sge* local, struct ibv_sge* remote);
+	void write(struct ibv_sge* local, struct ibv_sge* remote, int signal);
 	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
@@ -195,6 +194,8 @@ class qp_ctx{
 
 	void rearm();
 
+	void printSq();
+	void printRq();
    private:
 
 
@@ -202,7 +203,7 @@ class qp_ctx{
 	struct mlx5dv_qp* qp;
 	int phase;
 	uint32_t exe_cnt;
-	rearm_tasks tasks;
+	RearmTasks tasks;
 	struct mlx5_db_seg dbseg;
 };
 
