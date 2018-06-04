@@ -47,9 +47,9 @@ typedef struct verb_ctx {
 } verb_ctx_t;
 
 typedef struct mem_registration {
+	unsigned mem_reg_cnt;
 	struct ibv_exp_mem_region *mem_reg;
 	struct ibv_mr *umr_mr;
-	unsigned mrs_cnt;
 } mem_registration_t;
 
 typedef struct rd_peer_info {
@@ -298,25 +298,24 @@ public:
 		return 1;
 	}
 
-	struct ibv_mr *register_umr(struct ibv_exp_mem_region* mem_reg, unsigned mem_reg_cnt,
+	struct ibv_mr *register_umr(unsigned mem_reg_cnt,
+			struct ibv_exp_mem_region *mem_reg,
 			struct ibv_exp_mkey_list_container *umr_mkey)
 	{
-		struct ibv_exp_mr_init_attr umr_init_attr;
-		struct ibv_exp_create_mr_in umr_create_mr_in;
-		umr_init_attr.max_klm_list_size	= mem_reg_cnt;
-		umr_init_attr.create_flags		= IBV_EXP_MR_INDIRECT_KLMS;
-		umr_init_attr.exp_access_flags	= IB_ACCESS_FLAGS;
-		umr_create_mr_in.pd				= ibv_.pd;
-		umr_create_mr_in.attr			= umr_init_attr;
-		umr_create_mr_in.comp_mask		= 0;
-
-		struct ibv_mr *res_mr = ibv_exp_create_mr(&umr_create_mr_in);
+		struct ibv_exp_create_mr_in mrin;
+	    memset(&mrin, 0, sizeof(mrin));
+	    mrin.pd                     = ibv_.pd;
+	    mrin.attr.create_flags      = IBV_EXP_MR_INDIRECT_KLMS;
+	    mrin.attr.exp_access_flags  = IB_ACCESS_FLAGS;
+	    mrin.attr.max_klm_list_size = mem_reg_cnt;
+		struct ibv_mr *res_mr = ibv_exp_create_mr(&mrin);
 		if (!res_mr) {
-			return res_mr;
+			return nullptr;
 		}
 
 		/* Create the UMR work request */
-		struct ibv_exp_send_wr wr = {0}, *bad_wr;
+		struct ibv_exp_send_wr wr, *bad_wr;
+		memset(&wr, 0, sizeof(wr));
 		wr.exp_opcode						= IBV_EXP_WR_UMR_FILL;
 		wr.exp_send_flags					= IBV_EXP_SEND_SIGNALED;
 		wr.ext_op.umr.umr_type				= IBV_EXP_UMR_MR_LIST;
@@ -324,7 +323,7 @@ public:
 		wr.ext_op.umr.modified_mr			= res_mr;
 		wr.ext_op.umr.base_addr				= mem_reg[0].base_addr;
 		wr.ext_op.umr.num_mrs				= mem_reg_cnt;
-		wr.ext_op.umr.mem_list.mem_reg_list	= mem_.mem_reg;
+		wr.ext_op.umr.mem_list.mem_reg_list	= mem_reg;
 		if (!umr_mkey) {
 			wr.exp_send_flags 			   |= IBV_EXP_SEND_INLINE;
 		}
