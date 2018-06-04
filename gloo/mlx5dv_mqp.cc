@@ -143,8 +143,25 @@ struct ibv_qp* rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_con
 		init_attr.exp_create_flags |= IBV_EXP_QP_CREATE_MANAGED_RECV;
 	}
 
-	struct ibv_qp *qp;
-	return ibv_exp_create_qp(ctx, &init_attr);
+	struct ibv_qp* qp= ibv_exp_create_qp(ctx, &init_attr);
+
+	struct ibv_qp_attr qp_attr;
+	memset(&qp_attr, 0, sizeof(qp_attr));
+	qp_attr.qp_state	= IBV_QPS_INIT;
+	qp_attr.pkey_index	= 0;
+	qp_attr.port_num	= 1;
+	qp_attr.qp_access_flags = 0;
+	
+	if (ibv_modify_qp(qp, &qp_attr,
+		IBV_QP_STATE |
+		IBV_QP_PKEY_INDEX | 
+		IBV_QP_PORT |
+		IBV_QP_ACCESS_FLAGS)) {
+		fprintf(stderr, "Failed to INIT the RC QP");
+		return nullptr; // TODO: indicate failure?
+	}
+
+	return qp;
 }
 
 int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr)

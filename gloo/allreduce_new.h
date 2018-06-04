@@ -358,12 +358,16 @@ public:
 
 		/* Register the user's buffers */
 		int buf_idx;
+		mem_.mem_reg = (struct ibv_exp_mem_region*) malloc(inputs * sizeof(struct ibv_exp_mem_region));
+
 		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
-			mem_.mem_reg[buf_idx].base_addr = (uintptr_t)  ptrs_[buf_idx];
+			mem_.mem_reg[buf_idx].base_addr = (uint64_t)  ptrs_[buf_idx];
 			mem_.mem_reg[buf_idx].length	= bytes_;
-			mem_.mem_reg[buf_idx].mr		= ibv_reg_mr(ibv_.pd,
+			mem_.mem_reg[buf_idx].mr	= ibv_reg_mr(ibv_.pd,
 					ptrs_[buf_idx], bytes_, IB_ACCESS_FLAGS);
 		}
+
+
 
 		/* Step #2: Create a UMR memory region */
 		struct ibv_exp_mkey_list_container *umr_mkey = nullptr;
@@ -380,6 +384,8 @@ public:
 		} else {
 			umr_mkey = nullptr;
 		}
+
+
 
 		mem_.umr_mr = register_umr(mem_.mem_reg, inputs, umr_mkey);
 		if (!mem_.umr_mr) {
@@ -399,6 +405,7 @@ public:
 		for (buf_idx = 0; buf_idx < ptrs_.size(); buf_idx++) {
 			ibv_dereg_mr(mem_.mem_reg[buf_idx].mr);
 		}
+		free(mem_.mem_reg);
 	}
 
 	void connect_and_prepare()
@@ -445,14 +452,18 @@ public:
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
 		rc_qp_connect(&loopback_addr,rd_.loopback_qp);
 		rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp, rd_.loopback_cq);
-		PRINT("loopback connected\n");
+		PRINT("loopback connected");
 
 
 		/* Prepare the first (intra-node) VectorCalc WQE - loobpack */
-		rd_.result_mr = ibv_reg_mr(ibv_.pd, nullptr, bytes_, IB_ACCESS_FLAGS);
-		rd_.result.addr = (uint64_t) rd_.result_mr->addr;
+		void* tmp  =  malloc(bytes_);
+		rd_.result.addr =  (uint64_t) tmp;
+		rd_.result_mr = ibv_reg_mr(ibv_.pd, tmp  , bytes_, IB_ACCESS_FLAGS);
+
 		rd_.result.length = bytes_;
 		rd_.result.lkey = rd_.result_mr->lkey;
+
+
 
 		/* Calculate the number of recursive-doubling rounds */
 		unsigned step_idx, step_count = 0;
@@ -463,12 +474,18 @@ public:
 			return; // TODO: indicate error!
 		}
 
+
+
 		int loopback_wqes = step_count+1 + inputs;
 		mqp->cd_recv_enable(rd_.loopback_qp_cd, loopback_wqes);
 
 		/* Establish a connection with each peer */
 
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
+
+
+	                printf("Iteration step %d\n", step_idx);
+
 			/* calculate the rank of each peer */
 			int leap = 1 << step_idx;
 			if ((contextRank_ % (leap << 1)) >= leap) {
@@ -597,6 +614,7 @@ public:
 		ibv_destroy_qp(rd_.mgmt_qp);
 		ibv_destroy_cq(rd_.mgmt_cq);
 		ibv_dereg_mr(rd_.result_mr);
+		free((void*) rd_.result.addr);
 		free(rd_.peers);
 	}
 
