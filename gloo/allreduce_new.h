@@ -211,41 +211,28 @@ public:
 
 		{
 			struct ibv_exp_qp_init_attr attr;
+			memset(&attr, 0, sizeof(attr));
 			attr.qp_context		= ctx->context;
 			attr.send_cq		= ctx->cq;
 			attr.recv_cq		= ctx->cq;
-			attr.srq		= nullptr;
-			attr.qp_type		= IBV_QPT_UD;
+			attr.qp_type		= IBV_QPT_RC;
 			attr.comp_mask		= IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS;
 			attr.exp_create_flags	= IBV_EXP_QP_CREATE_UMR;
 			attr.cap.max_send_wr	= 1;
-			attr.cap.max_recv_wr	= 0;
+			attr.cap.max_recv_wr	= 1;
 			attr.cap.max_send_sge	= 1;
 			attr.cap.max_recv_sge	= 1;
 
 			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
 			if (!ctx->umr_qp)  {
-				PRINT("Couldn't create UNR QP");
+				PRINT("Couldn't create UMR QP");
 				return; // TODO indicate failure?
 			}
 		}
 
-		{
-			struct ibv_qp_attr attr;
-			attr.qp_state        = IBV_QPS_INIT;
-			attr.pkey_index      = 0;
-			attr.port_num        = port;
-			attr.qkey            = 0x11111111;
-
-			if (ibv_modify_qp(ctx->umr_qp, &attr,
-					IBV_QP_STATE              |
-					IBV_QP_PKEY_INDEX         |
-					IBV_QP_PORT               |
-					IBV_QP_QKEY)) {
-				PRINT("Failed to modify QP to INIT");
-				return; // TODO indicate failure?
-			}
-		}
+		peer_addr_t my_addr;
+		rc_qp_get_addr(ctx->umr_qp, &my_addr);
+		rc_qp_connect(&my_addr, ctx->umr_qp);
 
 		PRINT("init_verbs DONE");
 		return; // SUCCESS!
