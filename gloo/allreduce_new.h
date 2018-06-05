@@ -22,7 +22,7 @@
 
 namespace gloo {
 
-#define XDEBUG
+#define DEBUGX
 #ifdef DEBUG
 #define PRINT(x) fprintf(stderr, "%s\n", x);
 #else
@@ -34,8 +34,8 @@ namespace gloo {
 						 IBV_ACCESS_REMOTE_READ)
 
 
-#define RX_SIZE 32
-#define CX_SIZE 1024
+#define RX_SIZE 16
+#define CX_SIZE 16
 
 
 
@@ -149,6 +149,8 @@ public:
 	}
 
 	void run() {
+
+//		printf("iteration: %d\n", mone);
 		rd_.mgmt_qp_cd->db();
 		rd_.mgmt_qp_cd->rearm();
 
@@ -161,7 +163,7 @@ public:
 //                        res = rd_.mgmt_qp_cd->poll(1);
 
 			++count;
-#if 0
+#if 1
 			if (count == 1000000000){
                                 printf("mqp:\n");
 
@@ -183,11 +185,10 @@ public:
 #endif
 		}
 
-		//rd_.peers[0].qp_cd->cq_db(1);	
+		rd_.peers[0].qp_cd->cq_db(1);
                 //rd_.mgmt_qp_cd->cq_db(1);
 
 		++mone;
-		//printf("iteration: %d\n", mone);
 		// sleep(1);
 	}
 

@@ -350,10 +350,11 @@ void Runner::printHeader() {
   std::cout << std::right;
   std::cout << std::setw(11) << "elements";
   std::cout << std::setw(11) << ("min " + suffix);
-  std::cout << std::setw(11) << ("p50 " + suffix);
-  std::cout << std::setw(11) << ("p99 " + suffix);
+  std::cout << std::setw(11) << ("p25 " + suffix);
+  std::cout << std::setw(11) << ("p40 " + suffix);
+  std::cout << std::setw(11) << ("p60 " + suffix);
   std::cout << std::setw(11) << ("max " + suffix);
-  std::cout << std::setw(13) << ("avg " + bwSuffix);
+//  std::cout << std::setw(13) << ("avg " + bwSuffix);
   std::cout << std::setw(11) << "samples";
   std::cout << std::endl;
 }
@@ -381,11 +382,12 @@ void Runner::printDistribution(
 
   std::cout << std::setw(11) << elements;
   std::cout << std::setw(11) << (latency.min() / div);
-  std::cout << std::setw(11) << (latency.percentile(0.50) / div);
-  std::cout << std::setw(11) << (latency.percentile(0.99) / div);
+  std::cout << std::setw(11) << (latency.percentile(0.25) / div);
+  std::cout << std::setw(11) << (latency.percentile(0.40) / div);
+  std::cout << std::setw(11) << (latency.percentile(0.60) / div);
   std::cout << std::setw(11) << (latency.max() / div);
   std::cout << std::fixed << std::setprecision(3);
-  std::cout << std::setw(13) << totalGigaBytesPerSec;
+//  std::cout << std::setw(13) << totalGigaBytesPerSec;
   std::cout << std::setw(11) << latency.size();
   std::cout << std::endl;
 }
