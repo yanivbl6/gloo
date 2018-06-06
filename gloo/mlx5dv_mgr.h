@@ -192,20 +192,27 @@ class qp_ctx{
 
 	int poll(int x);
 	int cq_db(int x);
-        uint32_t write_cnt;
 
-        uint32_t cmpl_cnt;
-	uint32_t poll_cnt;
-
-	uint64_t qpn;
 
 	void rearm();
 
 	void printSq();
 	void printRq();
 	void printCq();
+
+	void setPair(qp_ctx* qp){ this->pair = qp;};
+
+	qp_ctx* pair;
+
+
    private:
 
+        uint32_t write_cnt;
+
+        uint32_t cmpl_cnt;
+	uint32_t poll_cnt;
+
+	uint64_t qpn;
 
 	int offset;
 	struct mlx5dv_qp* qp;
@@ -215,6 +222,7 @@ class qp_ctx{
 	uint32_t exe_cnt;
 	RearmTasks tasks;
 	struct mlx5_db_seg dbseg;
+	size_t wqes;
 };
 
 

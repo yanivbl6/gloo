@@ -35,7 +35,7 @@
 
 
 
-qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq){
+qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes){
         int ret;
         struct mlx5dv_obj dv_obj = {};
 
@@ -57,7 +57,11 @@ qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq){
 	this->offset = (this->qp->sq.stride  * (this->qp->sq.wqe_cnt / 2)) / sizeof(uint32_t);
 	this->cmpl_cnt = 0;
 	this->poll_cnt = 0;
+	this->pair = this;  //default pair for qp will be itself.
+
 	volatile void* tar =  (volatile void*) this->cq->buf;
+
+	this->wqes = num_of_wqes;
 
 	//printf("wqe_cnt = %d, stride = %d\n",this->qp->sq.wqe_cnt,this->qp->sq.stride);
         //printf("cqn num = %d\n", this->cq->cqn);
@@ -228,7 +232,7 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp, uint32_t index){
     ctrl = (struct mlx5_wqe_ctrl_seg*) ((char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
     mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, CE  , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
-    cd_set_wait(wseg, slave_qp->qp->rq.wqe_cnt, slave_qp->qpn);
+    cd_set_wait(wseg, slave_qp->qp->rq.wqe_cnt, slave_qp->pair->qpn);
     this->tasks.add((uint32_t*)  &(wseg->index), index);
 
     write_cnt+=1;
