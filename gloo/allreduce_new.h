@@ -186,8 +186,6 @@ public:
 
 		//rd_.loopback_qp_cd->printCq();
 
-		rd_.peers[0].qp_cd->cq_db(1);
-
 		++mone;
 	}
 
@@ -449,7 +447,7 @@ public:
 
 		verb_ctx_t* ctx = &(this->ibv_);	
 
-		rd_.mgmt_cq = ibv_create_cq(ctx->context, CX_SIZE , NULL,
+		rd_.mgmt_cq = cd_create_cq(ctx->context, CX_SIZE , NULL,
 				0, 0);
 
 		if (!rd_.mgmt_cq) {
@@ -470,7 +468,7 @@ public:
 
 		/* Create a loopback QP */
 
-		rd_.loopback_cq = ibv_create_cq(ctx->context, CX_SIZE, NULL,
+		rd_.loopback_cq = cd_create_cq(ctx->context, CX_SIZE, NULL,
 				NULL, 0);
 
 		if (!rd_.loopback_cq) {
@@ -530,7 +528,7 @@ public:
 
 			/* Create a QP and a buffer for this peer */
 
-			rd_.peers[step_idx].cq = ibv_create_cq(ctx->context, CX_SIZE, NULL,
+			rd_.peers[step_idx].cq = cd_create_cq(ctx->context, CX_SIZE, NULL,
 					NULL, 0);
 
 			if (!rd_.peers[step_idx].cq) {
