@@ -151,7 +151,7 @@ public:
 	void add(uint32_t* ptr);
 	void expand();
 	
-	void exec(uint32_t inc, uint32_t offset, int phase);
+	void exec(uint32_t increment, uint32_t  src_offset, uint32_t dst_offset);
 
 	size_t size;
 	size_t buf_size;
@@ -166,7 +166,7 @@ class RearmTasks{
 	RearmTasks(){};
 	~RearmTasks(){};
 	void add(uint32_t* ptr, int inc);
-        void exec(uint32_t offset, int phase);
+        void exec(uint32_t offset, int phase, int dups);
 
    private:
 	UpdateMap map;
@@ -183,11 +183,12 @@ class qp_ctx{
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp);
         void cd_wait(qp_ctx* slave_qp);
-
-        void nop(size_t num_pad, int signal);
+        void cd_wait_signal(qp_ctx* slave_qp);
+        void nop(size_t num_pad);
 
 	void pad(int half = 0);
 	void dup();
+	void fin();
 
 	int poll();
 	int cq_db(int x);
@@ -215,6 +216,8 @@ class qp_ctx{
 	int offset;
 	struct mlx5dv_qp* qp;
         struct mlx5dv_cq* cq;
+
+	uint32_t number_of_duplicates;
 
 	int phase;
 	uint32_t exe_cnt;
