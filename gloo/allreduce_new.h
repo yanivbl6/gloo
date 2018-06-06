@@ -167,9 +167,10 @@ public:
 //                        res = rd_.mgmt_qp_cd->poll();
 
 			++count;
-#if 1
+#if 0
 			if (count == 1000000000){
 
+				fprintf(stderr,"iteration: %d\n", mone);
                                 PRINT("managment qp:");
 				rd_.mgmt_qp_cd->printCq();
 				rd_.mgmt_qp_cd->printSq();
@@ -193,8 +194,8 @@ public:
 
 
 //		double elapsed_us = double(end - begin) / CLOCKS_PER_SEC;
-//		fprintf(stderr,"iteration: %d, time = %f\n", mone, elapsed_us );
 
+//		fprintf(stderr,"iteration: %d, time = %f\n", mone, elapsed_us );
 
 		//rd_.loopback_qp_cd->printCq();
 
@@ -478,7 +479,7 @@ public:
 
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq,
 				ibv_.pd, ibv_.context, send_wq_size);
-		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes   , 1); 
+		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes   , 0); 
 
 
 		qp_ctx* mqp = rd_.mgmt_qp_cd;
@@ -647,7 +648,7 @@ public:
 		}
 		rd_.loopback_qp_cd->fin();
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
-		mqp->cd_wait_signal(rd_.loopback_qp_cd);
+		mqp->cd_wait(rd_.loopback_qp_cd);
 		mqp->fin();
 //		mqp->printSq();
 	}
