@@ -5,14 +5,30 @@ int hmca_bcol_cc_mq_destroy(struct ibv_qp *mq) {
     int rc;
     rc = ibv_destroy_qp(mq);
     if (rc) {
-        return HCOLL_ERROR;
+        return PCOLL_ERROR;
     }
     return rc;
 }
 
+
+struct ibv_cq* cd_create_cq(struct ibv_context *context, int cqe, void *cq_context, struct ibv_comp_channel *channel, int comp_vector){
+	struct ibv_cq* cq = ibv_create_cq(context,cqe,cq_context,channel,comp_vector);
+
+	struct ibv_exp_cq_attr attr;
+	attr.cq_cap_flags = IBV_EXP_CQ_IGNORE_OVERRUN;
+	attr.comp_mask = IBV_EXP_CQ_ATTR_CQ_CAP_FLAGS;
+
+	int res = ibv_exp_modify_cq(cq, &attr, IBV_EXP_CQ_CAP_FLAGS);
+	if (!res){
+
+	}
+
+	return cq;
+}
+
 struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_context *ctx, uint16_t send_wq_size) {
 			   
-    int rc = HCOLL_SUCCESS;
+    int rc = PCOLL_SUCCESS;
     struct ibv_exp_qp_init_attr init_attr;
     struct ibv_qp_attr attr;
     struct ibv_qp *_mq;
@@ -39,10 +55,10 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
    _mq = ibv_exp_create_qp(ctx, &init_attr);
 
     if (NULL == _mq) {
-        rc = HCOLL_ERROR;
+        rc = PCOLL_ERROR;
     }
 
-    if (rc == HCOLL_SUCCESS) {
+    if (rc == PCOLL_SUCCESS) {
         attr.qp_state        = IBV_QPS_INIT;
         attr.pkey_index      = 0;
         attr.port_num        = 1;
@@ -54,11 +70,11 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
                            IBV_QP_PORT               |
                            IBV_QP_ACCESS_FLAGS);
         if (rc) {
-            rc = HCOLL_ERROR;
+            rc = PCOLL_ERROR;
         }
     }
 
-    if (rc == HCOLL_SUCCESS) {
+    if (rc == PCOLL_SUCCESS) {
         union ibv_gid gid;
         memset(&attr, 0, sizeof(attr));
         attr.qp_state              = IBV_QPS_RTR;
@@ -77,7 +93,7 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
 
         if (ibv_query_gid(ctx, 1, GID_INDEX, &gid)) {
             fprintf(stderr, "can't read sgid of index %d\n", GID_INDEX);
-            rc = HCOLL_ERROR;
+            rc = PCOLL_ERROR;
         }
 
         attr.ah_attr.grh.dgid = gid;
@@ -92,11 +108,11 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
                            IBV_QP_MIN_RNR_TIMER);
 
         if (rc) {
-            rc = HCOLL_ERROR;
+            rc = PCOLL_ERROR;
         }
     }
 
-    if (rc == HCOLL_SUCCESS) {
+    if (rc == PCOLL_SUCCESS) {
         attr.qp_state      = IBV_QPS_RTS;
         attr.timeout       = 14;
         attr.retry_cnt     = 7;
@@ -111,7 +127,7 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
                            IBV_QP_SQ_PSN             |
                            IBV_QP_MAX_QP_RD_ATOMIC);
         if (rc) {
-            rc = HCOLL_ERROR;
+            rc = PCOLL_ERROR;
         }
     }
     return _mq;
