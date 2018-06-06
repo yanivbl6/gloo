@@ -20,6 +20,9 @@
 #include "gloo/mlx5dv_mgr.h"
 
 
+#include <ctime>
+
+
 namespace gloo {
 
 #define DEBUGX
@@ -29,6 +32,8 @@ namespace gloo {
 #define PRINT(x)
 #endif
 
+
+
 #define IB_ACCESS_FLAGS (IBV_ACCESS_LOCAL_WRITE  | \
 						 IBV_ACCESS_REMOTE_WRITE | \
 						 IBV_ACCESS_REMOTE_READ)
@@ -36,8 +41,6 @@ namespace gloo {
 
 #define RX_SIZE 16
 #define CX_SIZE 16
-
-
 
 typedef int rank_t;
 
@@ -156,33 +159,42 @@ public:
 
 		int res = 0;
 		uint64_t count = 0;
-		while (!res){
-			
 
+//		clock_t begin = clock()*1E6;
+
+		while (!res){
 			res = rd_.loopback_qp_cd->poll();
+//                        res = rd_.mgmt_qp_cd->poll();
 
 			++count;
-#if 0
+#if 1
 			if (count == 1000000000){
-                                printf("mqp:\n");
 
+                                PRINT("managment qp:");
 				rd_.mgmt_qp_cd->printCq();
 				rd_.mgmt_qp_cd->printSq();
 
-                                printf("lqp:\n");
 
+                                PRINT("loopback qp:");
 				rd_.loopback_qp_cd->printCq();
                                 rd_.loopback_qp_cd->printSq();
 
-				printf("rc_qp:\n");
 
+                                PRINT("rc qp:");
 				rd_.peers[0].qp_cd->printCq();
 				rd_.peers[0].qp_cd->printSq();
-				rd_.peers[0].qp_cd->printRq();
 			}
 
 #endif
 		}
+
+
+//		clock_t end = clock()*1E6;
+
+
+//		double elapsed_us = double(end - begin) / CLOCKS_PER_SEC;
+//		fprintf(stderr,"iteration: %d, time = %f\n", mone, elapsed_us );
+
 
 		//rd_.loopback_qp_cd->printCq();
 
@@ -445,6 +457,9 @@ public:
 
 		int inputs = ptrs_.size();
 
+		unsigned step_idx, step_count = 0;
+		while ((1 << ++step_count) < contextSize_);
+
 		verb_ctx_t* ctx = &(this->ibv_);	
 
 		rd_.mgmt_cq = cd_create_cq(ctx->context, CX_SIZE , NULL,
@@ -458,9 +473,12 @@ public:
 
 		PRINT("creating MGMT QP\n");
 
+                int mgmt_wqes = (1 + step_count) * 5;  //should find better way to do this
+
+
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq,
 				ibv_.pd, ibv_.context, send_wq_size);
-		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, 0, 0); 
+		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes   , 1); 
 
 
 		qp_ctx* mqp = rd_.mgmt_qp_cd;
@@ -476,8 +494,7 @@ public:
 			return; // TODO indicate failure?
 		}
 
-		unsigned step_idx, step_count = 0;
-		while ((1 << ++step_count) < contextSize_);
+
 
 		int loopback_cqes = step_count+1 + inputs;
 
@@ -613,7 +630,7 @@ public:
 
 			mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
 			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
-			rd_.peers[step_idx].qp_cd->pad();
+			rd_.peers[step_idx].qp_cd->fin();
 			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf  , &rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
@@ -628,11 +645,11 @@ public:
 			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
 			rd_.loopback_qp_cd->write(&rd_.result, &sg);
 		}
-		rd_.loopback_qp_cd->pad();
+		rd_.loopback_qp_cd->fin();
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
-		mqp->cd_wait(rd_.loopback_qp_cd);
-		mqp->pad(1);
-		mqp->dup();
+		mqp->cd_wait_signal(rd_.loopback_qp_cd);
+		mqp->fin();
+//		mqp->printSq();
 	}
 
 	void teardown()
