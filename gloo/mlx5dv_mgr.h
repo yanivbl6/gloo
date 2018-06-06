@@ -175,22 +175,21 @@ class RearmTasks{
 class qp_ctx{
    public:
 
-	qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq);
+	qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t num_of_cqes);
 	~qp_ctx();
 	void db();
-	void write(struct ibv_sge* local, struct ibv_sge* remote, int signal = 0);
+	void write(struct ibv_sge* local, struct ibv_sge* remote);
 	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
 	void cd_send_enable(qp_ctx* slave_qp);
-	void cd_recv_enable(qp_ctx* slave_qp, uint32_t index);
-	void cd_wait(uint32_t cqe_num, uint32_t index,  uint32_t inc);
-        void cd_wait(qp_ctx* slave_qp, uint32_t increment = 1, uint32_t index = 1);
+	void cd_recv_enable(qp_ctx* slave_qp);
+        void cd_wait(qp_ctx* slave_qp);
 
         void nop(size_t num_pad, int signal);
 
 	void pad(int half = 0);
 	void dup();
 
-	int poll(int x);
+	int poll();
 	int cq_db(int x);
 
 
@@ -208,7 +207,6 @@ class qp_ctx{
    private:
 
         uint32_t write_cnt;
-
         uint32_t cmpl_cnt;
 	uint32_t poll_cnt;
 
@@ -223,6 +221,8 @@ class qp_ctx{
 	RearmTasks tasks;
 	struct mlx5_db_seg dbseg;
 	size_t wqes;
+	size_t cqes;
+	volatile struct cqe64* cur_cqe;
 };
 
 

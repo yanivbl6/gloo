@@ -150,7 +150,7 @@ public:
 
 	void run() {
 
-//		printf("iteration: %d\n", mone);
+//		fprintf(stderr,"iteration: %d\n", mone);
 		rd_.mgmt_qp_cd->db();
 		rd_.mgmt_qp_cd->rearm();
 
@@ -159,11 +159,10 @@ public:
 		while (!res){
 			
 
-			res = rd_.loopback_qp_cd->poll(loopback_wqes);
-//                        res = rd_.mgmt_qp_cd->poll(1);
+			res = rd_.loopback_qp_cd->poll();
 
 			++count;
-#if 1
+#if 0
 			if (count == 1000000000){
                                 printf("mqp:\n");
 
@@ -185,11 +184,11 @@ public:
 #endif
 		}
 
+		//rd_.loopback_qp_cd->printCq();
+
 		rd_.peers[0].qp_cd->cq_db(1);
-                //rd_.mgmt_qp_cd->cq_db(1);
 
 		++mone;
-		// sleep(1);
 	}
 
 	void init_verbs(char *ib_devname=nullptr, int port=1)
@@ -460,9 +459,10 @@ public:
 
 
 		PRINT("creating MGMT QP\n");
+
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq,
 				ibv_.pd, ibv_.context, send_wq_size);
-		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq); 
+		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, 0, 0); 
 
 
 		qp_ctx* mqp = rd_.mgmt_qp_cd;
@@ -481,12 +481,17 @@ public:
 		unsigned step_idx, step_count = 0;
 		while ((1 << ++step_count) < contextSize_);
 
+		int loopback_cqes = step_count+1 + inputs;
+
+                int loopback_wqes = (step_count+1)*2 + inputs;
+
+
 		rd_.loopback_qp = rc_qp_create(rd_.loopback_cq ,
-				ibv_.pd, ibv_.context, inputs +  step_count +1  , recv_rq_size, 1, 1);
+				ibv_.pd, ibv_.context, loopback_cqes  , recv_rq_size, 1, 1);
 		peer_addr_t loopback_addr;
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
 		rc_qp_connect(&loopback_addr,rd_.loopback_qp);
-		rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp, rd_.loopback_cq);
+		rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp, rd_.loopback_cq, loopback_wqes   , loopback_cqes);
 		PRINT("loopback connected");
 
 
@@ -510,8 +515,7 @@ public:
 
 
 
-		loopback_wqes = step_count+1 + inputs;
-		mqp->cd_recv_enable(rd_.loopback_qp_cd, loopback_wqes);
+		mqp->cd_recv_enable(rd_.loopback_qp_cd);
 
 		/* Establish a connection with each peer */
 
@@ -581,10 +585,10 @@ public:
 			rd_.peers[step_idx].remote_buf.lkey = remote_info.rkey;
 			rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
 			rd_.peers[step_idx].qp_cd =
-					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq);
+					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, 1 , 1);
 
 			/* Set the logic to trigger the next step */
-			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd, 1);
+			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd);
 			PRINT("Rcv_enabled");
 		}
 
@@ -604,7 +608,7 @@ public:
 
 
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
-		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, 1);
+		mqp->cd_wait(rd_.loopback_qp_cd);
 		
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
 			rd_.peers[step_idx].qp_cd->write(&rd_.result, &rd_.peers[step_idx].remote_buf);
@@ -615,7 +619,7 @@ public:
 			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf  , &rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
-			mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes , 1);
+			mqp->cd_wait(rd_.loopback_qp_cd);
 		}
 
 
@@ -624,11 +628,11 @@ public:
 		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
 			sg.addr = (uint64_t)  ptrs_[buf_idx];
 			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
-			rd_.loopback_qp_cd->write(&rd_.result, &sg, 0);
+			rd_.loopback_qp_cd->write(&rd_.result, &sg);
 		}
 		rd_.loopback_qp_cd->pad();
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
-		mqp->cd_wait(rd_.loopback_qp_cd, loopback_wqes, inputs);
+		mqp->cd_wait(rd_.loopback_qp_cd);
 		mqp->pad(1);
 		mqp->dup();
 	}
@@ -661,7 +665,6 @@ protected:
 	verb_ctx_t ibv_;
 	mem_registration_t mem_;
 	rd_connections_t rd_;
-	int loopback_wqes;
 	const ReductionFunction<T>* fn_;
 	int mone;
 };
