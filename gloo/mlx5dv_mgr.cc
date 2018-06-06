@@ -253,8 +253,8 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp){
     ctrl = (struct mlx5_wqe_ctrl_seg*) ((char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
     mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, CE  , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
-    cd_set_wait(wseg, slave_qp->qp->rq.wqe_cnt *16  , slave_qp->qpn);
-    this->tasks.add((uint32_t*)  &(wseg->index), slave_qp->cqes*2);
+    cd_set_wait(wseg, 0x6fff , slave_qp->qpn);
+    this->tasks.add((uint32_t*)  &(wseg->index), slave_qp->cqes);
     write_cnt+=1;
 }
 
