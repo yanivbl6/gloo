@@ -10,6 +10,10 @@
 
 #pragma once
 
+#define DEBUG
+#define VALIDITY_CHECK
+#define HANG_REPORTX
+
 #include <stddef.h>
 #include <string.h>
 #include <alloca.h>
@@ -25,20 +29,6 @@
 
 
 namespace gloo {
-
-#define DEBUG
-#ifdef DEBUG
-#define PRINT(x) fprintf(stderr, "%s\n", x);
-#else
-#define PRINT(x)
-#endif
-
-#define VALIDITY_CHECK
-#define HANG_REPORTX
-
-
-#define RX_SIZE 16
-#define CX_SIZE 16
 
 typedef int rank_t;
 
