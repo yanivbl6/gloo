@@ -133,13 +133,13 @@ struct ibv_qp* hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd, stru
     return _mq;
 }
 
-struct ibv_qp* rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_context *ctx, uint16_t send_wq_size, uint16_t recv_rq_size, int slaveRecv, int slaveSend){
+struct ibv_qp* rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd, struct ibv_context *ctx, uint16_t send_wq_size, uint16_t recv_rq_size, int slaveRecv, int slaveSend, struct ibv_cq *s_cq){
 	struct ibv_exp_qp_init_attr init_attr;
 	struct ibv_qp_attr attr;
 	memset(&init_attr, 0, sizeof(init_attr));
 	init_attr.qp_context = NULL;
 	init_attr.send_cq = cq;
-	init_attr.recv_cq = cq;
+	init_attr.recv_cq = (s_cq == NULL)?cq:s_cq;
 	init_attr.cap.max_send_wr = send_wq_size;
 	init_attr.cap.max_recv_wr = recv_rq_size;
 	init_attr.cap.max_send_sge = 1;
@@ -206,7 +206,7 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp)
 	attr.dest_qp_num		= addr->qpn;
 	attr.rq_psn			= addr->psn;
 	attr.max_dest_rd_atomic		= 1;
-	attr.min_rnr_timer		= 12;
+	attr.min_rnr_timer		= 4;
 	attr.ah_attr.is_global		= 1;
 	attr.ah_attr.dlid		= addr->lid;
 	attr.ah_attr.sl			= 0;

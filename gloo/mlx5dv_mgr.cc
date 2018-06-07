@@ -34,11 +34,30 @@
 #include "assert.h"
 
 
-
-qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t num_of_cqes){
-        int ret;
+cq_ctx::cq_ctx(struct ibv_cq* cq, size_t num_of_cqes){
+	this->cmpl_cnt = 0;
+	int ret;	
         struct mlx5dv_obj dv_obj = {};
 
+        this->cq = (struct mlx5dv_cq*)  malloc(sizeof(struct mlx5dv_cq));
+        dv_obj.cq.in = cq;
+        dv_obj.cq.out = this->cq;
+
+
+        ret = mlx5dv_init_obj(&dv_obj, MLX5DV_OBJ_CQ );
+	this->cqes = num_of_cqes;
+}
+
+qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t num_of_cqes, struct ibv_cq* scq, size_t num_of_send_cqes)  : qp_ctx(qp,cq,num_of_wqes,num_of_cqes)  {
+	this->scq = new cq_ctx(scq,num_of_send_cqes);
+}
+
+
+qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t num_of_cqes){
+
+        int ret;
+
+        struct mlx5dv_obj dv_obj = {};
         this->qp = (struct mlx5dv_qp*)  malloc(sizeof(struct mlx5dv_qp));
 	this->cq = (struct mlx5dv_cq*)  malloc(sizeof(struct mlx5dv_cq));
         this->qpn = qp->qp_num;
@@ -56,18 +75,13 @@ qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t 
 	this->phase = 0;
 	this->cmpl_cnt = 0;
 	this->pair = this;  //default pair for qp will be itself.
-
-
-
-
+	this->scq = NULL;
 	int rounded_num_of_wqes = num_of_wqes;
 
 	if (num_of_wqes > this->qp->sq.wqe_cnt){
 		fprintf(stderr, "ERROR - SQ size is not big enough to hold all wqes!\n");
 		return;
 	}
-
-
 
 	while (rounded_num_of_wqes && this->qp->sq.wqe_cnt % rounded_num_of_wqes){
 		++rounded_num_of_wqes;
@@ -90,10 +104,16 @@ qp_ctx::qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t 
 }
 
 qp_ctx::~qp_ctx(){
+	if (scq){
+		delete(scq);
+	}
 	free(this->qp);
 	free(this->cq);
 }
 
+cq_ctx::~cq_ctx(){
+	free(this->cq);
+}
 
 ValRearmTasks::ValRearmTasks(){
 	size= 0;
@@ -211,6 +231,29 @@ void qp_ctx::write(struct ibv_sge* local, struct ibv_sge* remote){
     pair->cmpl_cnt+=1;   
 }
 
+void qp_ctx::writeCmpl(struct ibv_sge* local, struct ibv_sge* remote){
+    struct mlx5_wqe_ctrl_seg *ctrl;
+    struct mlx5_wqe_raddr_seg *rseg;
+    struct mlx5_wqe_data_seg *dseg;
+    const uint8_t ds = 3;
+    int wqe_count = qp->sq.wqe_cnt;
+    ctrl = (struct mlx5_wqe_ctrl_seg*)  ((char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_RDMA_WRITE_IMM, 0, qpn, 8, ds, 0, 0);
+    rseg = (struct mlx5_wqe_raddr_seg*)(ctrl + 1);
+    mlx5dv_set_remote_data_seg(rseg, remote->addr, remote->lkey);
+    dseg = (struct mlx5_wqe_data_seg*)(rseg + 1);
+    mlx5dv_set_data_seg(dseg, local->length, local->lkey, local->addr);
+    write_cnt+=1;
+
+    if (!scq){
+      this->cmpl_cnt+=1;
+    } else {
+      scq->cmpl_cnt+=1;
+    }
+
+    pair->cmpl_cnt+=1;
+}
+
 void qp_ctx::reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
     struct mlx5_wqe_raddr_seg *rseg; //1
@@ -238,7 +281,7 @@ void qp_ctx::cd_send_enable(qp_ctx* slave_qp){
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*) ( (char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, CE , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, 0 , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, slave_qp->write_cnt, slave_qp->qpn);
     this->tasks.add((uint32_t*) &(wseg->index),  slave_qp->wqes);
@@ -251,7 +294,7 @@ void qp_ctx::cd_recv_enable(qp_ctx* slave_qp){
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*) ((char*)  qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, CE  , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, 0  , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, 0x6fff , slave_qp->qpn);
     this->tasks.add((uint32_t*)  &(wseg->index), slave_qp->cqes);
@@ -264,12 +307,31 @@ void qp_ctx::cd_wait(qp_ctx* slave_qp){
     const uint8_t ds = 2;
     int wqe_count = qp->sq.wqe_cnt;
     ctrl = (struct mlx5_wqe_ctrl_seg*)  ( (char*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
-    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, CE , ds, 0, 0);
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0 , ds, 0, 0);
     wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
     cd_set_wait(wseg, (slave_qp->cmpl_cnt-1), slave_qp->cq->cqn);
     this->tasks.add((uint32_t*)  &(wseg->index), slave_qp->cqes);
     write_cnt+=1;
 }
+
+void qp_ctx::cd_wait_send(qp_ctx* slave_qp){
+    if (!slave_qp->scq){
+      this->cd_wait(slave_qp);
+      return;
+    }
+    
+    struct mlx5_wqe_ctrl_seg *ctrl; //1
+    struct mlx5_wqe_coredirect_seg *wseg; //1
+    const uint8_t ds = 2;
+    int wqe_count = qp->sq.wqe_cnt;
+    ctrl = (struct mlx5_wqe_ctrl_seg*)  ( (char*) qp->sq.buf + qp->sq.stride * ((write_cnt) % wqe_count));
+    mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0 , ds, 0, 0);
+    wseg = (struct mlx5_wqe_coredirect_seg*)(ctrl + 1);
+    cd_set_wait(wseg, (slave_qp->scq->cmpl_cnt-1), slave_qp->scq->cq->cqn);
+    this->tasks.add((uint32_t*)  &(wseg->index), slave_qp->scq->cqes);
+    write_cnt+=1;
+}
+
 
 void qp_ctx::cd_wait_signal(qp_ctx* slave_qp){
     struct mlx5_wqe_ctrl_seg *ctrl; //1
@@ -372,6 +434,17 @@ void qp_ctx::printRq(){
 void qp_ctx::printCq(){
         printf("Cq:\n");
         print_buffer(this->cq->buf, cq->cqe_size * cq->cqe_cnt);
+}
+
+void print_values(volatile float* buf, int count){
+        int i = 0;
+        for (i = 0; i< count; ++i  ){
+                if (i%8==0){
+                        fprintf(stderr,"\n");
+                }
+                fprintf(stderr,"%.1f\t", buf[i]);
+        }
+        fprintf(stderr,"\n");
 }
 
 void print_buffer(volatile void* buf, int count){

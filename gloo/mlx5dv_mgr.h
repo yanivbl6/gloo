@@ -172,17 +172,31 @@ class RearmTasks{
 	UpdateMap map;
 };
 
+class cq_ctx{
+   public:
+	cq_ctx(struct ibv_cq* cq, size_t num_of_cqes);
+	~cq_ctx();
+        uint32_t cmpl_cnt;
+	
+        struct mlx5dv_cq* cq;
+        size_t cqes;
+};
+
+
 class qp_ctx{
    public:
 
 	qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t num_of_cqes);
+	qp_ctx(struct ibv_qp* qp, struct ibv_cq* cq, size_t num_of_wqes, size_t num_of_cqes, struct ibv_cq* scq, size_t num_of_send_cqes);
 	~qp_ctx();
 	void db();
 	void write(struct ibv_sge* local, struct ibv_sge* remote);
+	void writeCmpl(struct ibv_sge* local, struct ibv_sge* remote);
 	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp);
         void cd_wait(qp_ctx* slave_qp);
+        void cd_wait_send(qp_ctx* slave_qp);
         void cd_wait_signal(qp_ctx* slave_qp);
         void nop(size_t num_pad);
 
@@ -204,6 +218,7 @@ class qp_ctx{
 
 	qp_ctx* pair;
 
+	cq_ctx* scq;
 
    private:
 
@@ -229,6 +244,7 @@ class qp_ctx{
 };
 
 
+void print_values(volatile float* buf, int count);
 
 
 void print_buffer(volatile void* buf, int count);
