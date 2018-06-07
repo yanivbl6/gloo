@@ -25,12 +25,15 @@
 
 namespace gloo {
 
-#define DEBUGX
+#define DEBUG
 #ifdef DEBUG
 #define PRINT(x) fprintf(stderr, "%s\n", x);
 #else
 #define PRINT(x)
 #endif
+
+#define VALIDITY_CHECK
+#define HANG_REPORTX
 
 
 
@@ -74,9 +77,12 @@ typedef struct rd_peer_info {
 typedef struct rd_peer {
 	rank_t rank;
 	qp_ctx *qp_cd;
+	cq_ctx *cq_cq;
 
 	struct ibv_qp *qp;
 	struct ibv_cq *cq;
+        struct ibv_cq *scq;
+
 
 	struct ibv_sge outgoing_buf;
 	struct ibv_mr* outgoing_mr;
@@ -153,6 +159,18 @@ public:
 
 	void run() {
 
+
+
+#ifdef VALIDITY_CHECK
+		for (int i =0; i < ptrs_.size(); ++i){
+			//fprintf(stderr, "Input %d:\n",i);
+			float* buf = (float*)  ptrs_[i];
+			for (int k =0; k< count_; ++k){
+				buf[k] = ((float) k + i) + contextRank_ + mone;
+			}
+			//print_values(buf, count_);
+		}
+#endif
 //		fprintf(stderr,"iteration: %d\n", mone);
 		rd_.mgmt_qp_cd->db();
 		rd_.mgmt_qp_cd->rearm();
@@ -167,7 +185,7 @@ public:
 //                        res = rd_.mgmt_qp_cd->poll();
 
 			++count;
-#if 0
+#ifdef HANG_REPORT
 			if (count == 1000000000){
 
 				fprintf(stderr,"iteration: %d\n", mone);
@@ -188,18 +206,60 @@ public:
 
 #endif
 		}
-
-
 //		clock_t end = clock()*1E6;
-
-
 //		double elapsed_us = double(end - begin) / CLOCKS_PER_SEC;
 
 //		fprintf(stderr,"iteration: %d, time = %f\n", mone, elapsed_us );
 
-		//rd_.loopback_qp_cd->printCq();
 
-		++mone;
+#ifdef VALIDITY_CHECK
+
+		unsigned step_count = 0;
+		while ((1 << ++step_count) < contextSize_);
+
+                for (int i =0; i < step_count; ++i){
+                        //fprintf(stderr, "Incoming %d:\n",i);
+                        float* buf = (float*) ((void*) rd_.peers[i].incoming_buf.addr);
+                        //print_values(buf, count_);
+                }
+
+		for (int i =0; i < ptrs_.size(); ++i){
+			//fprintf(stderr, "Output %d:\n",i);
+			int err = 0;
+			float* buf = (float*)  ptrs_[i];
+			//print_values(buf, count_);
+			for (int k =0; k< count_; ++k){
+				int expected_base = ((k+mone)*2 + ptrs_.size() -1)*ptrs_.size()/2;
+				int expected_max = ((k+mone+contextSize_-1)*2 + ptrs_.size() -1)*ptrs_.size()/2;
+				float expected_result = (float) (expected_base + expected_max)*contextSize_/2;
+				float result = buf[k];
+				if (result != expected_result){
+					fprintf(stderr,"ERROR: In Iteration %d\n expected: %.2f, got: %.2f\n", mone  ,expected_result, result);
+					for (int i =0; i < ptrs_.size(); ++i){
+						fprintf(stderr, "Input %d:\n",i);
+						float buf[count_];
+						for (int k =0; k< count_; ++k){
+							buf[k] = ((float) k + i) + contextRank_ + mone;
+						}
+						print_values(buf, count_);
+					}
+					for (int i =0; i < step_count; ++i){
+                                        	fprintf(stderr, "Incoming %d:\n",i);
+                        			float* buf = (float*) ((void*) rd_.peers[i].incoming_buf.addr);
+                        			print_values(buf, count_);
+                			}
+					fprintf(stderr, "Output %d:\n",i);
+					print_values(buf, count_);
+					//err = 1;
+					break;
+				}
+			}
+			if (err){
+				break;
+			}
+		}
+#endif
+		mone = 1- mone;
 	}
 
 	void init_verbs(char *ib_devname=nullptr, int port=1)
@@ -474,7 +534,7 @@ public:
 
 		PRINT("creating MGMT QP\n");
 
-                int mgmt_wqes = (1 + step_count) * 5;  //should find better way to do this
+                int mgmt_wqes = step_count * 6 + 5 ;  //should find better way to do this
 
 
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq,
@@ -503,7 +563,7 @@ public:
 
 
 		rd_.loopback_qp = rc_qp_create(rd_.loopback_cq ,
-				ibv_.pd, ibv_.context, loopback_cqes  , recv_rq_size, 1, 1);
+				ibv_.pd, ibv_.context, loopback_cqes  , recv_rq_size, 1, 1 );
 		peer_addr_t loopback_addr;
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
 		rc_qp_connect(&loopback_addr,rd_.loopback_qp);
@@ -519,10 +579,7 @@ public:
 		rd_.result.length = bytes_;
 		rd_.result.lkey = rd_.result_mr->lkey;
 
-
-
 		/* Calculate the number of recursive-doubling rounds */
-
 		rd_.peers_cnt = step_count;
 		rd_.peers = (rd_peer_t*)  malloc(step_count * sizeof(*rd_.peers));
 		if (!rd_.peers) {
@@ -554,9 +611,17 @@ public:
 				return; // TODO indicate failure?
 			}
 
+			rd_.peers[step_idx].scq = cd_create_cq(ctx->context, CX_SIZE, NULL,
+					NULL, 0);
+
+			if (!rd_.peers[step_idx].scq) {
+				PRINT("Couldn't create SCQ\n");
+				return; // TODO indicate failure?
+			}
+
 
 			rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq,
-					ibv_.pd, ibv_.context, 4, RX_SIZE, 1, 1);
+					ibv_.pd, ibv_.context, 4, RX_SIZE, 1, 1, rd_.peers[step_idx].scq );
 			void *incoming_buf = malloc(bytes_);
 			rd_.peers[step_idx].incoming_buf.addr   = (uint64_t) incoming_buf;
 			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, incoming_buf, bytes_, IB_ACCESS_FLAGS);
@@ -601,7 +666,7 @@ public:
 			rd_.peers[step_idx].remote_buf.lkey = remote_info.rkey;
 			rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
 			rd_.peers[step_idx].qp_cd =
-					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, 1 , 1);
+					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, 1 , 1 , rd_.peers[step_idx].scq, 1);
 
 			/* Set the logic to trigger the next step */
 			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd);
@@ -621,28 +686,24 @@ public:
 		rd_.loopback_qp_cd->reduce_write(&sg, &rd_.result, inputs,
 				MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 
-
-
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
 		mqp->cd_wait(rd_.loopback_qp_cd);
 		
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
-			rd_.peers[step_idx].qp_cd->write(&rd_.result, &rd_.peers[step_idx].remote_buf);
-
+			rd_.peers[step_idx].qp_cd->writeCmpl(&rd_.result, &rd_.peers[step_idx].remote_buf);
 			mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
 			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+                        mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
 			rd_.peers[step_idx].qp_cd->fin();
-			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf  , &rd_.result, 2,
+			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf, &rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
 			mqp->cd_wait(rd_.loopback_qp_cd);
 		}
 
-
-
 		sg.length =  bytes_;
 		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
-			sg.addr = (uint64_t)  ptrs_[buf_idx];
+			sg.addr = (uint64_t) ptrs_[buf_idx];
 			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
 			rd_.loopback_qp_cd->write(&rd_.result, &sg);
 		}
@@ -659,6 +720,7 @@ public:
 			delete rd_.peers[step_idx].qp_cd;
 			ibv_destroy_qp(rd_.peers[step_idx].qp);
 			ibv_destroy_cq(rd_.peers[step_idx].cq);
+			ibv_destroy_cq(rd_.peers[step_idx].scq);
 			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
 			ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
 			free((void*) rd_.peers[step_idx].incoming_buf.addr);
