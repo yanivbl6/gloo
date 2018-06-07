@@ -18,6 +18,7 @@
 #include "gloo/context.h"
 #include "gloo/mlx5dv_mqp.h"
 #include "gloo/mlx5dv_mgr.h"
+#include "gloo/mlx5dv_mem.h"
 
 
 #include <ctime>
@@ -36,28 +37,11 @@ namespace gloo {
 #define HANG_REPORTX
 
 
-
-#define IB_ACCESS_FLAGS (IBV_ACCESS_LOCAL_WRITE  | \
-						 IBV_ACCESS_REMOTE_WRITE | \
-						 IBV_ACCESS_REMOTE_READ)
-
-
 #define RX_SIZE 16
 #define CX_SIZE 16
 
 typedef int rank_t;
 
-
-
-
-typedef struct verb_ctx {
-	struct ibv_context	*context;
-	struct ibv_pd		*pd;
-	struct ibv_cq		*cq;
-	struct ibv_qp		*umr_qp;
-	struct ibv_comp_channel *channel;
-	struct ibv_exp_device_attr attrs;
-} verb_ctx_t;
 
 typedef struct mem_registration {
 	unsigned mem_reg_cnt;
@@ -90,6 +74,8 @@ typedef struct rd_peer {
 	struct ibv_mr* incoming_mr;
 	struct ibv_sge remote_buf;
 } rd_peer_t;
+
+
 
 typedef struct rd_connections {
 	struct ibv_sge result;
@@ -125,6 +111,8 @@ public:
 		if (this->contextSize_ == 1) {
 			return;
 		}
+
+		pipeline = 1;
 
 		/* Step #1: Initialize verbs for all to use */
 		PRINT("starting AllreduceNew");
@@ -303,8 +291,8 @@ public:
 			goto clean_comp_channel;
 		}
 
-		ctx->cq = ibv_create_cq(ctx->context, CX_SIZE , NULL, NULL, 0);
-		if (!ctx->cq) {
+		ctx->umr_cq = ibv_create_cq(ctx->context, CX_SIZE , NULL, NULL, 0);
+		if (!ctx->umr_cq) {
 			PRINT("Couldn't create CQ");
 			return; // TODO indicate failure?
 		}
@@ -320,8 +308,8 @@ public:
 			struct ibv_exp_qp_init_attr attr;
 			memset(&attr, 0, sizeof(attr));
 			attr.pd                 = ctx->pd;
-			attr.send_cq		= ctx->cq;
-			attr.recv_cq		= ctx->cq;
+			attr.send_cq		= ctx->umr_cq;
+			attr.recv_cq		= ctx->umr_cq;
 			attr.qp_type		= IBV_QPT_RC;
 			attr.comp_mask		= IBV_EXP_QP_INIT_ATTR_PD |
 						  IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS |
@@ -369,7 +357,7 @@ public:
 		ibv_destroy_qp(ctx->umr_qp);
 
 		clean_cq:
-		ibv_destroy_cq(ctx->cq);
+		ibv_destroy_cq(ctx->umr_cq);
 
 		clean_mr:
 		ibv_dealloc_pd(ctx->pd);
@@ -388,7 +376,7 @@ public:
 			return 0; // TODO indicate failure?
 		}
 
-		if (ibv_destroy_cq(ctx->cq)) {
+		if (ibv_destroy_cq(ctx->umr_cq)) {
 			PRINT("Couldn't destroy CQ");
 			return 0; // TODO indicate failure?
 		}
@@ -403,57 +391,6 @@ public:
 			return 0; // TODO indicate failure?
 		}
 		return 1;
-	}
-
-	struct ibv_mr *register_umr(unsigned mem_reg_cnt,
-			struct ibv_exp_mem_region *mem_reg,
-			struct ibv_exp_mkey_list_container *umr_mkey)
-	{
-		struct ibv_exp_create_mr_in mrin;
-	    memset(&mrin, 0, sizeof(mrin));
-	    mrin.pd                     = ibv_.pd;
-	    mrin.attr.create_flags      = IBV_EXP_MR_INDIRECT_KLMS;
-	    mrin.attr.exp_access_flags  = IB_ACCESS_FLAGS;
-	    mrin.attr.max_klm_list_size = mem_reg_cnt;
-		struct ibv_mr *res_mr = ibv_exp_create_mr(&mrin);
-		if (!res_mr) {
-			return nullptr;
-		}
-
-		/* Create the UMR work request */
-		struct ibv_exp_send_wr wr, *bad_wr;
-		memset(&wr, 0, sizeof(wr));
-		wr.exp_opcode						= IBV_EXP_WR_UMR_FILL;
-		wr.exp_send_flags					= IBV_EXP_SEND_SIGNALED;
-		wr.ext_op.umr.umr_type				= IBV_EXP_UMR_MR_LIST;
-		wr.ext_op.umr.memory_objects		= umr_mkey;
-		wr.ext_op.umr.modified_mr			= res_mr;
-		wr.ext_op.umr.base_addr				= mem_reg[0].base_addr;
-		wr.ext_op.umr.num_mrs				= mem_reg_cnt;
-		wr.ext_op.umr.mem_list.mem_reg_list	= mem_reg;
-		if (!umr_mkey) {
-			wr.exp_send_flags 			   |= IBV_EXP_SEND_INLINE;
-		}
-
-		/* Post WR and wait for it to complete */
-		if (ibv_exp_post_send(ibv_.umr_qp, &wr, &bad_wr)) {
-			return nullptr;
-		}
-		struct ibv_wc wc;
-		for (;;) {
-			int ret = ibv_poll_cq(ibv_.cq, 1, &wc);
-			if (ret < 0) {
-				return nullptr;
-			}
-			if (ret == 1) {
-				if (wc.status != IBV_WC_SUCCESS) {
-					return nullptr;
-				}
-				break;
-			}
-		}
-
-		return res_mr;
 	}
 
 	void register_memory()
@@ -489,7 +426,7 @@ public:
 			umr_mkey = nullptr;
 		}
 
-		mem_.umr_mr = register_umr(inputs, mem_.mem_reg, umr_mkey);
+		mem_.umr_mr = register_umr(inputs, mem_.mem_reg, umr_mkey, ibv_);
 		if (!mem_.umr_mr) {
 			return; // TODO: indicate error!
 		}
@@ -640,7 +577,7 @@ public:
 			mem_reg[1].mr	= mr;
 
 			PRINT("before UMR"); 
-			mr = register_umr(2, mem_reg, nullptr);
+			mr = register_umr(2, mem_reg, nullptr, ibv_);
 			if (!mr) {
 				return; // TODO: indicate error!
 			}
@@ -745,6 +682,7 @@ protected:
 	rd_connections_t rd_;
 	const ReductionFunction<T>* fn_;
 	int mone;
+	int pipeline;
 };
 
 } // namespace gloo
