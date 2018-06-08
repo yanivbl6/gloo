@@ -26,7 +26,7 @@
 
 
 #include <ctime>
-
+#include <vector>
 
 namespace gloo {
 
@@ -34,9 +34,8 @@ typedef int rank_t;
 
 
 typedef struct mem_registration {
-	unsigned mem_reg_cnt;
-	struct ibv_exp_mem_region *mem_reg;
-	struct ibv_mr *umr_mr;
+	Iov usr_vec;	
+	UmrMem* umr_mem;		
 } mem_registration_t;
 
 typedef struct rd_peer_info {
@@ -48,29 +47,38 @@ typedef struct rd_peer_info {
 	peer_addr_t addr;
 } rd_peer_info_t;
 
-typedef struct rd_peer {
-	rank_t rank;
-	qp_ctx *qp_cd;
-	cq_ctx *cq_cq;
 
-	struct ibv_qp *qp;
-	struct ibv_cq *cq;
+class rd_peer_t{
+   public:
+
+	rd_peer_t(){};
+	~rd_peer_t(){
+		delete(this->qp_cd);
+                ibv_destroy_qp(this->qp);
+                ibv_destroy_cq(this->cq);
+                ibv_destroy_cq(this->scq);
+		delete(this->incoming_buf);
+                delete(this->outgoing_buf);
+                delete(this->remote_buf);
+	};
+
+        rank_t rank;
+        qp_ctx *qp_cd;
+        cq_ctx *cq_cq;
+
+        struct ibv_qp *qp;
+        struct ibv_cq *cq;
         struct ibv_cq *scq;
 
-
-	struct ibv_sge outgoing_buf;
-	struct ibv_mr* outgoing_mr;
-	struct ibv_sge incoming_buf;
-	struct ibv_mr* incoming_mr;
-	struct ibv_sge remote_buf;
-} rd_peer_t;
+        NetMem* outgoing_buf;
+        NetMem* incoming_buf;
+        RemoteMem* remote_buf;
+};
 
 
 
 typedef struct rd_connections {
-	struct ibv_sge result;
-	struct ibv_mr* result_mr;
-
+	NetMem*        result;
 
 	struct ibv_qp *mgmt_qp;
 	struct ibv_cq *mgmt_cq;
@@ -106,7 +114,11 @@ public:
 
 		/* Step #1: Initialize verbs for all to use */
 		PRINT("starting AllreduceNew");
-		init_verbs();
+
+		ibv_ = new verb_ctx_t(); 
+
+                PRINT("Verbs initiated");
+
 	
 		/* Step #2: Register existing memory buffers with UMR */
 		register_memory();
@@ -121,7 +133,7 @@ public:
 	virtual ~AllreduceNew() {
 		teardown();
 		deregister_memory();
-		fini_verbs();
+		delete(ibv_);
 	}
 
 	int p2p_exchange(void* send_buf, void* recv_buf, size_t size, int peer){
@@ -195,12 +207,6 @@ public:
 		unsigned step_count = 0;
 		while ((1 << ++step_count) < contextSize_);
 
-                for (int i =0; i < step_count; ++i){
-                        //fprintf(stderr, "Incoming %d:\n",i);
-                        float* buf = (float*) ((void*) rd_.peers[i].incoming_buf.addr);
-                        //print_values(buf, count_);
-                }
-
 		for (int i =0; i < ptrs_.size(); ++i){
 			//fprintf(stderr, "Output %d:\n",i);
 			int err = 0;
@@ -223,7 +229,7 @@ public:
 					}
 					for (int i =0; i < step_count; ++i){
                                         	fprintf(stderr, "Incoming %d:\n",i);
-                        			float* buf = (float*) ((void*) rd_.peers[i].incoming_buf.addr);
+                        			float* buf = (float*) ((void*) rd_.peers[i].incoming_buf->sg()->addr);
                         			print_values(buf, count_);
                 			}
 					fprintf(stderr, "Output %d:\n",i);
@@ -237,218 +243,41 @@ public:
 			}
 		}
 #endif
-		mone = 1- mone;
+		++mone;
 	}
 
-	void init_verbs(char *ib_devname=nullptr, int port=1)
+	void register_memory( )
 	{
-		verb_ctx_t *ctx = &ibv_;
-		struct ibv_device **dev_list = ibv_get_device_list(nullptr);
-		struct ibv_device* ib_dev;
-		if (!dev_list) {
-			perror("Failed to get IB devices list");
-			return; // TODO indicate failure?
-		}
-
-		if (!ib_devname) {
-			ib_dev = dev_list[0];
-			if (!ib_dev) {
-				PRINT("No IB devices found");
-				return; // TODO indicate failure?
-			}
-		} else {
-			int i;
-			for (i = 0; dev_list[i]; ++i)
-				if (!strcmp(ibv_get_device_name(dev_list[i]), ib_devname))
-					break;
-			ib_dev = dev_list[i];
-			if (!ib_dev) {
-				PRINT("IB device not found");
-				return; // TODO indicate failure?
-			}
-		}
-
-		PRINT(ibv_get_device_name(ib_dev));
-		ctx->context = ibv_open_device(ib_dev);
-		ibv_free_device_list(dev_list);
-		if (!ctx->context) {
-			PRINT("Couldn't get context");
-		}
-
-		ctx->pd = ibv_alloc_pd(ctx->context);
-		if (!ctx->pd) {
-			PRINT("Couldn't allocate PD");
-			goto clean_comp_channel;
-		}
-
-		ctx->umr_cq = ibv_create_cq(ctx->context, CX_SIZE , NULL, NULL, 0);
-		if (!ctx->umr_cq) {
-			PRINT("Couldn't create CQ");
-			return; // TODO indicate failure?
-		}
-
-		memset(&ctx->attrs, 0, sizeof(ctx->attrs));
-		ctx->attrs.comp_mask = IBV_EXP_DEVICE_ATTR_UMR;
-		if (ibv_exp_query_device(ctx->context ,&ctx->attrs)) {
-			PRINT("Couldn't query device attributes");
-			return; // TODO indicate failure?
-		}
-
-		{
-			struct ibv_exp_qp_init_attr attr;
-			memset(&attr, 0, sizeof(attr));
-			attr.pd                 = ctx->pd;
-			attr.send_cq		= ctx->umr_cq;
-			attr.recv_cq		= ctx->umr_cq;
-			attr.qp_type		= IBV_QPT_RC;
-			attr.comp_mask		= IBV_EXP_QP_INIT_ATTR_PD |
-						  IBV_EXP_QP_INIT_ATTR_CREATE_FLAGS |
-						  IBV_EXP_QP_INIT_ATTR_MAX_INL_KLMS;
-			attr.exp_create_flags	= IBV_EXP_QP_CREATE_UMR;
-			attr.cap.max_send_wr	= 1;
-			attr.cap.max_recv_wr	= 0;
-			attr.cap.max_send_sge	= 1;
-			attr.cap.max_recv_sge	= 0;
-			attr.max_inl_send_klms  = 4;
-
-			ctx->umr_qp = ibv_exp_create_qp(ctx->context, &attr);
-			if (!ctx->umr_qp)  {
-				PRINT("Couldn't create UMR QP");
-				return; // TODO indicate failure?
-			}
-		}
-
-		{
-			struct ibv_qp_attr qp_attr;
-			memset(&qp_attr, 0, sizeof(qp_attr));
-			qp_attr.qp_state	= IBV_QPS_INIT;
-			qp_attr.pkey_index	= 0;
-			qp_attr.port_num	= 1;
-			qp_attr.qp_access_flags = 0;
-			
-			if (ibv_modify_qp(ctx->umr_qp, &qp_attr,
-				IBV_QP_STATE |
-				IBV_QP_PKEY_INDEX | 
-				IBV_QP_PORT |
-				IBV_QP_ACCESS_FLAGS)) {
-				PRINT("Failed to INIT the UMR QP");
-				return; // TODO: indicate failure?
-			}
-		}
-
-		peer_addr_t my_addr;
-		rc_qp_get_addr(ctx->umr_qp, &my_addr);
-		rc_qp_connect(&my_addr, ctx->umr_qp);
-
-		PRINT("init_verbs DONE");
-		return; // SUCCESS!
-
-		clean_qp:
-		ibv_destroy_qp(ctx->umr_qp);
-
-		clean_cq:
-		ibv_destroy_cq(ctx->umr_cq);
-
-		clean_mr:
-		ibv_dealloc_pd(ctx->pd);
-
-		clean_comp_channel:
-		ibv_close_device(ctx->context);
-
-		return; // TODO indicate failure?
-	}
-
-	int fini_verbs()
-	{
-		verb_ctx_t *ctx = &ibv_;
-		if (ibv_destroy_qp(ctx->umr_qp)) {
-			PRINT("Couldn't destroy QP");
-			return 0; // TODO indicate failure?
-		}
-
-		if (ibv_destroy_cq(ctx->umr_cq)) {
-			PRINT("Couldn't destroy CQ");
-			return 0; // TODO indicate failure?
-		}
-
-		if (ibv_dealloc_pd(ctx->pd)) {
-			PRINT("Couldn't deallocate PD");
-			return 0; // TODO indicate failure?
-		}
-
-		if (ibv_close_device(ctx->context)) {
-			PRINT("Couldn't release context");
-			return 0; // TODO indicate failure?
-		}
-		return 1;
-	}
-
-	void register_memory()
-	{
-		int inputs = ptrs_.size();
-		if (inputs > ibv_.attrs.umr_caps.max_klm_list_size) {
-			return; // TODO: indicate error!
-		}
-
 		/* Register the user's buffers */
-		int buf_idx;
-		mem_.mem_reg = (struct ibv_exp_mem_region*) malloc(inputs * sizeof(struct ibv_exp_mem_region));
-		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
-			mem_.mem_reg[buf_idx].base_addr = (uint64_t)  ptrs_[buf_idx];
-			mem_.mem_reg[buf_idx].length	= bytes_;
-			mem_.mem_reg[buf_idx].mr	= ibv_reg_mr(ibv_.pd,
-					ptrs_[buf_idx], bytes_, IB_ACCESS_FLAGS);
+		for (int buf_idx = 0; buf_idx < ptrs_.size(); buf_idx++) {
+			mem_.usr_vec.push_back(new UsrMem(ptrs_[buf_idx], bytes_, ibv_) );
 		}
-
-		/* Step #2: Create a UMR memory region */
-		struct ibv_exp_mkey_list_container *umr_mkey = nullptr;
-		if (inputs > ibv_.attrs.umr_caps.max_send_wqe_inline_klms) {
-			struct ibv_exp_mkey_list_container_attr list_container_attr;
-			list_container_attr.pd				= ibv_.pd;
-			list_container_attr.mkey_list_type		= IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR;
-			list_container_attr.max_klm_list_size		= inputs;
-			list_container_attr.comp_mask 			= 0;
-			umr_mkey = ibv_exp_alloc_mkey_list_memory(&list_container_attr);
-			if (!umr_mkey) {
-				return; // TODO: indicate error!
-			}
-		} else {
-			umr_mkey = nullptr;
-		}
-
-		mem_.umr_mr = register_umr(inputs, mem_.mem_reg, umr_mkey, ibv_);
-		if (!mem_.umr_mr) {
-			return; // TODO: indicate error!
-		}
-
-		/* Cleanup */
-		if (umr_mkey) {
-			ibv_exp_dealloc_mkey_list_memory(umr_mkey);
+		PRINT("User memory registered");
+		mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
+		if (!mem_.umr_mem) {
+			throw "UMR failed";
 		}
 	}
 
 	void deregister_memory()
 	{
 		int buf_idx;
-		ibv_dereg_mr(mem_.umr_mr);
-		for (buf_idx = 0; buf_idx < ptrs_.size(); buf_idx++) {
-			ibv_dereg_mr(mem_.mem_reg[buf_idx].mr);
-		}
-		free(mem_.mem_reg);
+		delete(mem_.umr_mem);
+		freeIov(mem_.usr_vec);
 	}
 
 	void connect_and_prepare()
 	{
 		/* Create a single management QP */
-		unsigned send_wq_size = 16; // FIXME: calc
-		unsigned recv_rq_size = RX_SIZE; // FIXME: calc
+		unsigned send_wq_size = 16;
+		unsigned recv_rq_size = RX_SIZE; // 
 
 		int inputs = ptrs_.size();
 
 		unsigned step_idx, step_count = 0;
 		while ((1 << ++step_count) < contextSize_);
 
-		verb_ctx_t* ctx = &(this->ibv_);	
+		verb_ctx_t* ctx = (this->ibv_);	
 
 		rd_.mgmt_cq = cd_create_cq(ctx->context, CX_SIZE , NULL,
 				0, 0);
@@ -465,7 +294,7 @@ public:
 
 
 		rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq,
-				ibv_.pd, ibv_.context, send_wq_size);
+				ibv_->pd, ibv_->context, send_wq_size);
 		rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes   , 0); 
 
 
@@ -478,8 +307,7 @@ public:
 				NULL, 0);
 
 		if (!rd_.loopback_cq) {
-			PRINT("Couldn't create CQ\n");
-			return; // TODO indicate failure?
+			throw ("Couldn't create CQ\n");
 		}
 
 
@@ -490,7 +318,7 @@ public:
 
 
 		rd_.loopback_qp = rc_qp_create(rd_.loopback_cq ,
-				ibv_.pd, ibv_.context, loopback_cqes  , recv_rq_size, 1, 1 );
+				ibv_->pd, ibv_->context, loopback_cqes  , recv_rq_size, 1, 1 );
 		peer_addr_t loopback_addr;
 		rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
 		rc_qp_connect(&loopback_addr,rd_.loopback_qp);
@@ -498,21 +326,13 @@ public:
 		PRINT("loopback connected");
 
 
-		/* Prepare the first (intra-node) VectorCalc WQE - loobpack */
-		void* tmp  =  malloc(bytes_);
-		rd_.result.addr =  (uint64_t) tmp;
-		rd_.result_mr = ibv_reg_mr(ibv_.pd, tmp  , bytes_, IB_ACCESS_FLAGS);
+		rd_.result =  new HostMem(bytes_, ibv_);
 
-		rd_.result.length = bytes_;
-		rd_.result.lkey = rd_.result_mr->lkey;
-
-		/* Calculate the number of recursive-doubling rounds */
 		rd_.peers_cnt = step_count;
-		rd_.peers = (rd_peer_t*)  malloc(step_count * sizeof(*rd_.peers));
+		rd_.peers =  new rd_peer_t[step_count];
 		if (!rd_.peers) {
-			return; // TODO: indicate error!
+			throw "malloc failed";
 		}
-
 
 
 		mqp->cd_recv_enable(rd_.loopback_qp_cd);
@@ -534,140 +354,108 @@ public:
 					NULL, 0);
 
 			if (!rd_.peers[step_idx].cq) {
-				PRINT("Couldn't create CQ\n");
-				return; // TODO indicate failure?
+				throw("Couldn't create CQ\n");
 			}
 
 			rd_.peers[step_idx].scq = cd_create_cq(ctx->context, CX_SIZE, NULL,
 					NULL, 0);
 
 			if (!rd_.peers[step_idx].scq) {
-				PRINT("Couldn't create SCQ\n");
-				return; // TODO indicate failure?
+				throw("Couldn't create SCQ\n");
 			}
 
 
 			rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq,
-					ibv_.pd, ibv_.context, 4, RX_SIZE, 1, 1, rd_.peers[step_idx].scq );
-			void *incoming_buf = malloc(bytes_);
-			rd_.peers[step_idx].incoming_buf.addr   = (uint64_t) incoming_buf;
-			struct ibv_mr *mr = ibv_reg_mr(ibv_.pd, incoming_buf, bytes_, IB_ACCESS_FLAGS);
-			rd_.peers[step_idx].incoming_mr	      = mr;
-			rd_.peers[step_idx].incoming_buf.length  = bytes_;
+					ibv_->pd, ibv_->context, 4, RX_SIZE, 1, 1, rd_.peers[step_idx].scq );
+
+			rd_.peers[step_idx].incoming_buf = new HostMem( bytes_, ibv_);
+
 			PRINT("RC created for peer\n");
-			uint32_t rkey = mr->rkey;
 
 			/* Create a UMR for VectorCalc-ing each buffer with the result */
-			struct ibv_exp_mem_region mem_reg[2];
-			mem_reg[0].base_addr	= (uint64_t) rd_.result.addr;
-			mem_reg[0].length	= bytes_;
-			mem_reg[0].mr	= rd_.result_mr;
-			mem_reg[1].base_addr	= (uint64_t) mr->addr;
-			mem_reg[1].length	= bytes_;
-			mem_reg[1].mr	= mr;
-
 			PRINT("before UMR"); 
-			mr = register_umr(2, mem_reg, nullptr, ibv_);
-			if (!mr) {
-				return; // TODO: indicate error!
-			}
+			Iov umr_iov{ rd_.result, rd_.peers[step_idx].incoming_buf };
+
+			rd_.peers[step_idx].outgoing_buf = new UmrMem(umr_iov, ibv_);
+
                         PRINT("after UMR");
 
-			rd_.peers[step_idx].outgoing_mr = mr;
-			rd_.peers[step_idx].outgoing_buf.addr = (uint64_t) rd_.result.addr;
-			rd_.peers[step_idx].outgoing_buf.length = bytes_;
-                        rd_.peers[step_idx].outgoing_buf.lkey = mr->lkey;
 
 
 			/* Exchange the QP+buffer address with this peer */
 			rd_peer_info_t local_info, remote_info;
-			local_info.buf  = (uintptr_t) incoming_buf;
-			local_info.rkey = rkey;
+			local_info.buf  = (uintptr_t) rd_.peers[step_idx].incoming_buf->sg()->addr;
+			local_info.rkey = rd_.peers[step_idx].incoming_buf->sg()->lkey; //TODO: fix rkey, lkey mixure
 			rc_qp_get_addr(rd_.peers[step_idx].qp, &local_info.addr);
 			p2p_exchange((void*)&local_info, (void*)&remote_info,
 					sizeof(local_info), (int) rd_.peers[step_idx].rank);
 
 			PRINT("Exchanged");
 			/* Connect to the remote peer */
-			rd_.peers[step_idx].remote_buf.addr = remote_info.buf;
-			rd_.peers[step_idx].remote_buf.lkey = remote_info.rkey;
+			rd_.peers[step_idx].remote_buf = new RemoteMem(remote_info.buf, remote_info.rkey);  
+
 			rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
+
 			rd_.peers[step_idx].qp_cd =
 					new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, 1 , 1 , rd_.peers[step_idx].scq, 1);
 
 			/* Set the logic to trigger the next step */
 			mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd);
+
 			PRINT("Rcv_enabled");
 		}
 
 
 
 
-		/* Trigger the intra-node broadcast - loopback */
-		struct ibv_sge sg;
-		sg.addr = (uint64_t)  ptrs_[0];
-		sg.length =  bytes_ ;// *  inputs; //  bytes_; // * inputs;
-		sg.lkey = mem_.umr_mr->lkey;
 
 		unsigned buf_idx;	
-		rd_.loopback_qp_cd->reduce_write(&sg, &rd_.result, inputs,
+		rd_.loopback_qp_cd->reduce_write(mem_.umr_mem , rd_.result, inputs,
 				MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
 		mqp->cd_wait(rd_.loopback_qp_cd);
 		
 		for (step_idx = 0; step_idx < step_count; step_idx++) {
-			rd_.peers[step_idx].qp_cd->writeCmpl(&rd_.result, &rd_.peers[step_idx].remote_buf);
+			rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result, rd_.peers[step_idx].remote_buf);
 			mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
 			mqp->cd_wait(rd_.peers[step_idx].qp_cd);
                         mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
 			rd_.peers[step_idx].qp_cd->fin();
-			rd_.loopback_qp_cd->reduce_write(&rd_.peers[step_idx].outgoing_buf, &rd_.result, 2,
+			rd_.loopback_qp_cd->reduce_write(rd_.peers[step_idx].outgoing_buf, rd_.result, 2,
 					MLX5DV_VECTOR_CALC_OP_ADD, MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 			mqp->cd_send_enable(rd_.loopback_qp_cd);
 			mqp->cd_wait(rd_.loopback_qp_cd);
 		}
 
-		sg.length =  bytes_;
 		for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
-			sg.addr = (uint64_t) ptrs_[buf_idx];
-			sg.lkey = mem_.mem_reg[buf_idx].mr->lkey;
-			rd_.loopback_qp_cd->write(&rd_.result, &sg);
+			rd_.loopback_qp_cd->write(rd_.result, mem_.usr_vec[buf_idx]);
 		}
 		rd_.loopback_qp_cd->fin();
 		mqp->cd_send_enable(rd_.loopback_qp_cd);
 		mqp->cd_wait(rd_.loopback_qp_cd);
 		mqp->fin();
-//		mqp->printSq();
 	}
 
 	void teardown()
 	{
-		for (int step_idx = 0; step_idx < rd_.peers_cnt; step_idx++) {
-			delete rd_.peers[step_idx].qp_cd;
-			ibv_destroy_qp(rd_.peers[step_idx].qp);
-			ibv_destroy_cq(rd_.peers[step_idx].cq);
-			ibv_destroy_cq(rd_.peers[step_idx].scq);
-			ibv_dereg_mr(rd_.peers[step_idx].incoming_mr);
-			ibv_dereg_mr(rd_.peers[step_idx].outgoing_mr);
-			free((void*) rd_.peers[step_idx].incoming_buf.addr);
-		}
+
 		delete rd_.loopback_qp_cd;
 		ibv_destroy_qp(rd_.loopback_qp);
 		ibv_destroy_cq(rd_.loopback_cq);
 		delete rd_.mgmt_qp_cd;
 		ibv_destroy_qp(rd_.mgmt_qp);
 		ibv_destroy_cq(rd_.mgmt_cq);
-		ibv_dereg_mr(rd_.result_mr);
-		free((void*) rd_.result.addr);
-		free(rd_.peers);
+
+		delete(rd_.result);
+		delete(rd_.peers);
 	}
 
 protected:
 	std::vector<T*> ptrs_;
 	const int count_;
 	const int bytes_;
-	verb_ctx_t ibv_;
+	verb_ctx_t* ibv_;
 	mem_registration_t mem_;
 	rd_connections_t rd_;
 	const ReductionFunction<T>* fn_;

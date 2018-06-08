@@ -44,6 +44,7 @@ extern "C"{
 }
 
 #include "mlx5dv_mqp.h"
+#include "mlx5dv_mem.h"
 
 #include <map>
 
@@ -191,8 +192,13 @@ class qp_ctx{
 	~qp_ctx();
 	void db();
 	void write(struct ibv_sge* local, struct ibv_sge* remote);
+        void write(NetMem* local, NetMem* remote) { write(local->sg(), remote->sg());};
 	void writeCmpl(struct ibv_sge* local, struct ibv_sge* remote);
+        void writeCmpl(NetMem* local, NetMem* remote) { writeCmpl(local->sg(), remote->sg());};
 	void reduce_write(struct ibv_sge* local, struct ibv_sge* remote, uint16_t num_vectors, uint8_t op, uint8_t type);
+        void reduce_write(NetMem* local, NetMem* remote , uint16_t num_vectors, uint8_t op, uint8_t type){
+		reduce_write(local->sg(), remote->sg(), num_vectors, op, type);
+	};
 	void cd_send_enable(qp_ctx* slave_qp);
 	void cd_recv_enable(qp_ctx* slave_qp);
         void cd_wait(qp_ctx* slave_qp);
