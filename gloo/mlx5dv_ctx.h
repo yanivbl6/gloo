@@ -33,72 +33,63 @@
 
 //#include <config.h>
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <inttypes.h>
-extern "C"{
+#include <unistd.h>
+extern "C" {
 #include <infiniband/mlx5dv.h>
 }
 
 #include <infiniband/verbs_exp.h>
 
+#define IB_ACCESS_FLAGS                                                        \
+  (IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ)
 
-#define IB_ACCESS_FLAGS (IBV_ACCESS_LOCAL_WRITE  | \
-                                                 IBV_ACCESS_REMOTE_WRITE | \
-                                                 IBV_ACCESS_REMOTE_READ)
+#define PCX_ERROR(exp)                                                         \
+  class PCX_ERR_##exp : public std::exception {                                \
+    const char *what() const throw() { return #exp; };                         \
+  };
 
-
-#define PCX_ERROR(exp) 							\
-class PCX_ERR_##exp: public std::exception{				\
-    const char* what() const throw() { return  #exp ; };		\
-};
-
-#define PCX_ERROR_RES(exp) 						\
-class PCX_ERR_##exp: public std::exception{				\
-public:									\
-    PCX_ERR_##exp(int val): std::exception(), x(val){};			\
-    const char* what() const throw() { 					\
-	/*sprintf( str, \"%s %d\n\", #exp , x );*/			\
-	return #exp ; 							\
-    };									\
-private:								\
-	int x;								\
-	char str[50];							\
-};
+#define PCX_ERROR_RES(exp)                                                     \
+  class PCX_ERR_##exp : public std::exception {                                \
+  public:                                                                      \
+    PCX_ERR_##exp(int val) : std::exception(), x(val){};                       \
+    const char *what() const throw() {                                         \
+      /*sprintf( str, \"%s %d\n\", #exp , x );*/                               \
+      return #exp;                                                             \
+    };                                                                         \
+                                                                               \
+  private:                                                                     \
+    int x;                                                                     \
+    char str[50];                                                              \
+  };
 
 #define PERR(exp) throw PCX_ERR_##exp();
-#define RES_ERR(exp,val) throw PCX_ERR_##exp (  val  );
-
-
-
-
+#define RES_ERR(exp, val) throw PCX_ERR_##exp(val);
 
 #ifdef DEBUG
 #define PRINT(x) fprintf(stderr, "%s\n", x);
-#define PRINTF(f_, ...) fprintf(stderr ,(f_), ##__VA_ARGS__)
+#define PRINTF(f_, ...) fprintf(stderr, (f_), ##__VA_ARGS__)
 #else
 #define PRINT(x)
-#define PRINTF(f_, ...) 
+#define PRINTF(f_, ...)
 #endif
 
 #define RX_SIZE 16
 #define CX_SIZE 16
 
-class verb_ctx_t{
+class verb_ctx_t {
 public:
+  verb_ctx_t();
+  //	verb_ctx_t(char *ib_devname=nullptr);
+  ~verb_ctx_t();
 
-	verb_ctx_t();
-//	verb_ctx_t(char *ib_devname=nullptr);
-	~verb_ctx_t();
-
-
-        struct ibv_context      *context;
-        struct ibv_pd           *pd;
-        struct ibv_cq           *umr_cq;
-        struct ibv_qp           *umr_qp;
-        struct ibv_comp_channel *channel;
-        struct ibv_exp_device_attr attrs;
+  struct ibv_context *context;
+  struct ibv_pd *pd;
+  struct ibv_cq *umr_cq;
+  struct ibv_qp *umr_qp;
+  struct ibv_comp_channel *channel;
+  struct ibv_exp_device_attr attrs;
 };
-
