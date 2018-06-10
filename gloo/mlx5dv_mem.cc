@@ -78,6 +78,7 @@ UsrMem::~UsrMem(){
 }
 
 UmrMem::UmrMem(Iov &iov,  verb_ctx_t* ctx){
+	//return;
 	this->mr = register_umr(iov,ctx);
 	this->sge.lkey = mr->lkey;
 	this->sge.length = iov[0]->sg()->length;
@@ -112,7 +113,7 @@ PCX_ERROR(EmptyUMR)
 
 struct ibv_mr *register_umr(Iov &iov, verb_ctx_t* ctx){
 
-	size_t mem_reg_cnt = iov.size();
+	unsigned mem_reg_cnt = iov.size();
 
         if (mem_reg_cnt > ctx->attrs.umr_caps.max_klm_list_size) {
 		PERR(NotEnoughKLMs);
@@ -134,6 +135,8 @@ struct ibv_mr *register_umr(Iov &iov, verb_ctx_t* ctx){
 		if (!umr_mkey) {
 			PERR(NoUMRKey);
 		}
+	} else {
+        	umr_mkey = NULL;
 	} 
 
 	struct ibv_exp_create_mr_in mrin;
@@ -153,6 +156,8 @@ struct ibv_mr *register_umr(Iov &iov, verb_ctx_t* ctx){
 		mem_reg[buf_idx].base_addr = iov[buf_idx]->sg()->addr;
 		mem_reg[buf_idx].length    = iov[buf_idx]->sg()->length;
 		mem_reg[buf_idx].mr        = iov[buf_idx]->getMr();
+		printf("addr = %ld, len = %d, mr = %d\n", mem_reg[buf_idx].base_addr,
+							 mem_reg[buf_idx].length, mem_reg[buf_idx].mr->lkey);
 	}
 
 	/* Create the UMR work request */

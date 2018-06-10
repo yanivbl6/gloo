@@ -50,10 +50,10 @@ verb_ctx_t::~verb_ctx_t(){
 }
 
 
+//verb_ctx_t::verb_ctx_t(char *ib_devname){
+verb_ctx_t::verb_ctx_t(){
+	char* ib_devname = NULL;
 
-
-
-verb_ctx_t::verb_ctx_t(char *ib_devname, int port){
 	struct ibv_device **dev_list = ibv_get_device_list(nullptr);
 	struct ibv_device* ib_dev;
 	if (!dev_list) {
