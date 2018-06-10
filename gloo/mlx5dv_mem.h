@@ -33,12 +33,12 @@
 
 //#include <config.h>
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <inttypes.h>
-extern "C"{
+#include <unistd.h>
+extern "C" {
 #include <infiniband/mlx5dv.h>
 }
 
@@ -48,80 +48,70 @@ extern "C"{
 
 #include <vector>
 
-class NetMem{
+class NetMem {
 public:
-	NetMem(){};
-	virtual ~NetMem()=0;
-	struct ibv_sge* sg(){return &sge;};
-        struct ibv_mr* getMr(){return mr;};
+  NetMem(){};
+  virtual ~NetMem() = 0;
+  struct ibv_sge *sg() {
+    return &sge;
+  };
+  struct ibv_mr *getMr() {
+    return mr;
+  };
 
 protected:
-	struct ibv_sge sge;
-        struct ibv_mr*  mr;
+  struct ibv_sge sge;
+  struct ibv_mr *mr;
 };
 
-
-typedef std::vector<NetMem*> Iov;
+typedef std::vector<NetMem *> Iov;
 typedef Iov::iterator Iovit;
 
 void freeIov(Iov &iov);
 
-class HostMem: public NetMem{
+class HostMem : public NetMem {
 public:
-	HostMem(size_t length,  verb_ctx_t* ctx);
-	~HostMem();
-private:
-	void* buf;
-};
-
-
-class UsrMem: public NetMem{
-public:
-	UsrMem(void* buf ,size_t length,  verb_ctx_t* ctx);
-	~UsrMem();
-};
-
-
-
-struct ibv_mr *register_umr(Iov &iov,
-                verb_ctx_t* ctx); 
-
-
-
-class UmrMem: public NetMem{
-public:
-	UmrMem(Iov& mem_reg, verb_ctx_t* ctx);
-	~UmrMem();
-};
-
-class RemoteMem: public NetMem{
-public:
-        RemoteMem(uint64_t addr, uint32_t rkey);
-	~RemoteMem(){};
-};
-
-
-class pipelined_memory{
-public:
-	pipelined_memory(size_t length, size_t depth);
-	~pipelined_memory();	
-
-
-public:
-
-
-        struct ibv_sge outgoing_buf;
-        struct ibv_mr* outgoing_mr;
-        struct ibv_sge incoming_buf;
-        struct ibv_mr* incoming_mr;
-
-
+  HostMem(size_t length, verb_ctx_t *ctx);
+  ~HostMem();
 
 private:
-	size_t length;
-	size_t depth;
-	struct ibv_qp* umr_qp;
-	struct ibv_cq* umr_cq;
-
+  void *buf;
 };
 
+class UsrMem : public NetMem {
+public:
+  UsrMem(void *buf, size_t length, verb_ctx_t *ctx);
+  ~UsrMem();
+};
+
+struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx);
+
+class UmrMem : public NetMem {
+public:
+  UmrMem(Iov &mem_reg, verb_ctx_t *ctx);
+  ~UmrMem();
+};
+
+class RemoteMem : public NetMem {
+public:
+  RemoteMem(uint64_t addr, uint32_t rkey);
+  ~RemoteMem(){};
+};
+
+class pipelined_memory {
+public:
+  pipelined_memory(size_t length, size_t depth);
+  ~pipelined_memory();
+
+public:
+  struct ibv_sge outgoing_buf;
+  struct ibv_mr *outgoing_mr;
+  struct ibv_sge incoming_buf;
+  struct ibv_mr *incoming_mr;
+
+private:
+  size_t length;
+  size_t depth;
+  struct ibv_qp *umr_qp;
+  struct ibv_cq *umr_cq;
+};
