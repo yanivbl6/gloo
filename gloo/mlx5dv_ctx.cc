@@ -136,6 +136,10 @@ verb_ctx_t::verb_ctx_t() {
                                                   IBV_QP_ACCESS_FLAGS)) {
       throw("Failed to INIT the UMR QP");
     }
+
+    peer_addr_t my_addr;
+    rc_qp_get_addr(this->umr_qp, &my_addr);
+    rc_qp_connect(&my_addr, this->umr_qp);
   }
 
   return; // SUCCESS!
