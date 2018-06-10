@@ -50,7 +50,7 @@ extern "C"{
                                                  IBV_ACCESS_REMOTE_READ)
 
 
-#define PCX_ERROR(exp) \
+#define PCX_ERROR(exp) 							\
 class PCX_ERR_##exp: public std::exception{				\
     const char* what() const throw() { return  #exp ; };		\
 };
@@ -89,8 +89,8 @@ private:								\
 class verb_ctx_t{
 public:
 
-
-	verb_ctx_t(char *ib_devname=nullptr, int port=1);
+	verb_ctx_t();
+//	verb_ctx_t(char *ib_devname=nullptr);
 	~verb_ctx_t();
 
 

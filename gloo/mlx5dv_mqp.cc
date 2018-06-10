@@ -225,7 +225,7 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp)
 			IBV_QP_MAX_DEST_RD_ATOMIC |
 			IBV_QP_MIN_RNR_TIMER)) {
 		fprintf(stderr, "Failed to modify QP to RTR\n");
-		return 1;
+		//PERR(QpFailedRTR);
 	}
 
 	attr.qp_state	    = IBV_QPS_RTS;

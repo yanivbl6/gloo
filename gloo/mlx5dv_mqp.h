@@ -3,12 +3,18 @@
 
 #include <infiniband/verbs_exp.h>
 
+#include "mlx5dv_ctx.h"
+
+
 #define GID_INDEX 3
 
 enum cd_statuses{
 	PCOLL_SUCCESS = 0,
 	PCOLL_ERROR = 1
 };
+
+
+//PCX_ERROR(QpFailedRTR);
 
 typedef struct peer_addr {
 	int lid;

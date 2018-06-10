@@ -172,7 +172,6 @@ public:
 
 		while (!res){
 			res = rd_.loopback_qp_cd->poll();
-//                        res = rd_.mgmt_qp_cd->poll();
 
 			++count;
 #ifdef HANG_REPORT
@@ -255,7 +254,7 @@ public:
 		PRINT("User memory registered");
 		mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
 		if (!mem_.umr_mem) {
-			throw "UMR failed";
+		//	throw "UMR failed";
 		}
 	}
 
