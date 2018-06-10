@@ -86,6 +86,14 @@ UmrMem::UmrMem(Iov &iov, verb_ctx_t *ctx) {
 
 UmrMem::~UmrMem() { ibv_dereg_mr(this->mr); }
 
+RefMem::RefMem(NetMem *mem, uint64_t offset) {
+  this->sge = *(mem->sg());
+  this->sge.addr += offset;
+  this->mr = mem->getMr();
+}
+
+RefMem::~RefMem() {}
+
 void freeIov(Iov &iov) {
   for (Iovit it = iov.begin(); it != iov.end(); ++it) {
     delete (*it);
@@ -98,9 +106,7 @@ PCX_ERROR(NoUMRKey)
 PCX_ERROR(CreateMRFailed)
 PCX_ERROR(UMR_PollFailed)
 PCX_ERROR(UMR_CompletionInError)
-
 PCX_ERROR_RES(UMR_PostFailed)
-
 PCX_ERROR(EmptyUMR)
 
 struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx) {
@@ -192,3 +198,24 @@ struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx) {
 
   return res_mr;
 }
+
+PCX_ERROR(MemoryNotSupported)
+
+PipelinedMemory::PipelinedMemory(size_t length_, size_t depth_, verb_ctx_t *ctx,
+                                 int mem_type_)
+    : length(length_), depth(depth_), mem_type(mem_type_) {
+
+  switch (mem_type) {
+  case (PCX_MEMORY_TYPE_HOST):
+    mem = new HostMem(length * depth, ctx);
+    break;
+  default:
+    PERR(MemoryNotSupported);
+  }
+}
+
+RefMem PipelinedMemory::operator[](size_t idx) {
+  return RefMem(this->mem, length * (idx % depth));
+}
+
+PipelinedMemory::~PipelinedMemory() { delete (mem); }
