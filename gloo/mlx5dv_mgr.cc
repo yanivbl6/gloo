@@ -215,6 +215,21 @@ static inline void cd_set_wait(struct mlx5_wqe_coredirect_seg *seg,
   seg->number = htonl(number);
 }
 
+void qp_ctx::sendCredit() {
+  struct mlx5_wqe_ctrl_seg *ctrl;
+  struct mlx5_wqe_data_seg *dseg;
+  const uint8_t ds = 2;
+  int wqe_count = qp->sq.wqe_cnt;
+  ctrl =
+      (struct mlx5_wqe_ctrl_seg *)((char *)qp->sq.buf +
+                                   qp->sq.stride * ((write_cnt) % wqe_count));
+  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_SEND, 0, qpn, 0, ds, 0, 0);
+  dseg = (struct mlx5_wqe_data_seg *)(ctrl + 1);
+  mlx5dv_set_data_seg(dseg, 0, 0, 0);
+  write_cnt += 1;
+  pair->cmpl_cnt += 1;
+}
+
 void qp_ctx::write(struct ibv_sge *local, struct ibv_sge *remote) {
   struct mlx5_wqe_ctrl_seg *ctrl;
   struct mlx5_wqe_raddr_seg *rseg;
