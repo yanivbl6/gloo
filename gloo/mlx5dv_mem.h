@@ -48,6 +48,12 @@ extern "C" {
 
 #include <vector>
 
+enum PCX_MEMORY_TYPE {
+  PCX_MEMORY_TYPE_HOST,
+  PCX_MEMORY_TYPE_MEMIC,
+  PCX_MEMORY_TYPE_NIM
+};
+
 class NetMem {
 public:
   NetMem(){};
@@ -84,6 +90,16 @@ public:
   ~UsrMem();
 };
 
+class RefMem : public NetMem {
+public:
+  RefMem(NetMem *mem, uint64_t byte_offset);
+  RefMem(const RefMem &srcRef) {
+    this->sge = srcRef.sge;
+    this->mr = NULL;
+  }
+  ~RefMem();
+};
+
 struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx);
 
 class UmrMem : public NetMem {
@@ -98,20 +114,17 @@ public:
   ~RemoteMem();
 };
 
-class pipelined_memory {
+class PipelinedMemory {
 public:
-  pipelined_memory(size_t length, size_t depth);
-  ~pipelined_memory();
+  PipelinedMemory(size_t length_, size_t depth_, verb_ctx_t *ctx,
+                  int mem_type_ = PCX_MEMORY_TYPE_HOST);
+  ~PipelinedMemory();
 
-public:
-  struct ibv_sge outgoing_buf;
-  struct ibv_mr *outgoing_mr;
-  struct ibv_sge incoming_buf;
-  struct ibv_mr *incoming_mr;
+  RefMem operator[](size_t idx);
 
 private:
+  NetMem *mem;
   size_t length;
   size_t depth;
-  struct ibv_qp *umr_qp;
-  struct ibv_cq *umr_cq;
+  int mem_type;
 };

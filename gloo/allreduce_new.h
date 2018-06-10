@@ -10,7 +10,7 @@
 #pragma once
 
 #define DEBUGX
-#define VALIDITY_CHECKX
+#define VALIDITY_CHECK
 #define HANG_REPORTX
 
 #include <alloca.h>
