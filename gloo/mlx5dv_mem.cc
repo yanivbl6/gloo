@@ -35,7 +35,10 @@
 RemoteMem::RemoteMem(uint64_t addr, uint32_t rkey) {
   sge.addr = addr;
   sge.lkey = rkey;
+  this->mr = NULL;
 }
+
+RemoteMem::~RemoteMem() { PRINT("RemoteMem::~RemoteMem()"); }
 
 HostMem::HostMem(size_t length, verb_ctx_t *ctx) {
   this->buf = malloc(length);
@@ -145,8 +148,6 @@ struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx) {
     mem_reg[buf_idx].base_addr = iov[buf_idx]->sg()->addr;
     mem_reg[buf_idx].length = iov[buf_idx]->sg()->length;
     mem_reg[buf_idx].mr = iov[buf_idx]->getMr();
-    printf("addr = %ld, len = %d, mr = %d\n", mem_reg[buf_idx].base_addr,
-           mem_reg[buf_idx].length, mem_reg[buf_idx].mr->lkey);
   }
 
   /* Create the UMR work request */

@@ -42,6 +42,7 @@ extern "C" {
 #include <infiniband/mlx5dv.h>
 }
 
+#include "mlx5dv_mqp.h"
 #include <infiniband/verbs_exp.h>
 
 #define IB_ACCESS_FLAGS                                                        \

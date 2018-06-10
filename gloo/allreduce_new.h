@@ -9,8 +9,8 @@
 
 #pragma once
 
-#define DEBUG
-#define VALIDITY_CHECK
+#define DEBUGX
+#define VALIDITY_CHECKX
 #define HANG_REPORTX
 
 #include <alloca.h>
@@ -46,7 +46,11 @@ typedef struct rd_peer_info {
 
 class rd_peer_t {
 public:
-  rd_peer_t(){};
+  rd_peer_t()
+      : qp_cd(NULL), cq_cq(NULL), qp(NULL), cq(NULL), scq(NULL),
+        outgoing_buf(NULL), incoming_buf(NULL), remote_buf(NULL){
+
+                                                };
   ~rd_peer_t() {
     delete (this->qp_cd);
     ibv_destroy_qp(this->qp);
@@ -248,8 +252,10 @@ public:
   }
 
   void deregister_memory() {
+    PRINT("Freeing UMR");
     int buf_idx;
     delete (mem_.umr_mem);
+    PRINT("Freeing user memory");
     freeIov(mem_.usr_vec);
   }
 
@@ -417,16 +423,15 @@ public:
   }
 
   void teardown() {
-
     delete rd_.loopback_qp_cd;
     ibv_destroy_qp(rd_.loopback_qp);
     ibv_destroy_cq(rd_.loopback_cq);
     delete rd_.mgmt_qp_cd;
     ibv_destroy_qp(rd_.mgmt_qp);
     ibv_destroy_cq(rd_.mgmt_cq);
-
     delete (rd_.result);
-    delete (rd_.peers);
+    delete[](rd_.peers);
+    PRINT("Teardown completed");
   }
 
 protected:

@@ -95,7 +95,7 @@ public:
 class RemoteMem : public NetMem {
 public:
   RemoteMem(uint64_t addr, uint32_t rkey);
-  ~RemoteMem(){};
+  ~RemoteMem();
 };
 
 class pipelined_memory {
