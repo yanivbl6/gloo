@@ -218,14 +218,13 @@ static inline void cd_set_wait(struct mlx5_wqe_coredirect_seg *seg,
 void qp_ctx::sendCredit() {
   struct mlx5_wqe_ctrl_seg *ctrl;
   struct mlx5_wqe_data_seg *dseg;
-  const uint8_t ds = 2;
+  const uint8_t ds = 1;
   int wqe_count = qp->sq.wqe_cnt;
   ctrl =
       (struct mlx5_wqe_ctrl_seg *)((char *)qp->sq.buf +
                                    qp->sq.stride * ((write_cnt) % wqe_count));
-  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_SEND, 0, qpn, 0, ds, 0, 0);
-  dseg = (struct mlx5_wqe_data_seg *)(ctrl + 1);
-  mlx5dv_set_data_seg(dseg, 0, 0, 0);
+  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), MLX5_OPCODE_SEND_IMM, 0, qpn, 0, ds, 0,
+                      0);
   write_cnt += 1;
   pair->cmpl_cnt += 1;
 }
@@ -298,7 +297,7 @@ void qp_ctx::reduce_write(struct ibv_sge *local, struct ibv_sge *remote,
   pair->cmpl_cnt += 1;
 }
 
-#define CE 0
+#define CE 8
 
 void qp_ctx::cd_send_enable(qp_ctx *slave_qp) {
   struct mlx5_wqe_ctrl_seg *ctrl;       // 1
@@ -308,7 +307,7 @@ void qp_ctx::cd_send_enable(qp_ctx *slave_qp) {
   ctrl =
       (struct mlx5_wqe_ctrl_seg *)((char *)qp->sq.buf +
                                    qp->sq.stride * ((write_cnt) % wqe_count));
-  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, 0, ds, 0, 0);
+  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x17, 0x00, qpn, CE, ds, 0, 0);
   wseg = (struct mlx5_wqe_coredirect_seg *)(ctrl + 1);
   cd_set_wait(wseg, slave_qp->write_cnt, slave_qp->qpn);
   this->tasks.add((uint32_t *)&(wseg->index), slave_qp->wqes);
@@ -323,7 +322,7 @@ void qp_ctx::cd_recv_enable(qp_ctx *slave_qp) {
   ctrl =
       (struct mlx5_wqe_ctrl_seg *)((char *)qp->sq.buf +
                                    qp->sq.stride * ((write_cnt) % wqe_count));
-  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, 0, ds, 0, 0);
+  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x16, 0x00, qpn, CE, ds, 0, 0);
   wseg = (struct mlx5_wqe_coredirect_seg *)(ctrl + 1);
   cd_set_wait(wseg, 0x6fff, slave_qp->qpn);
   this->tasks.add((uint32_t *)&(wseg->index), slave_qp->cqes);
@@ -338,7 +337,7 @@ void qp_ctx::cd_wait(qp_ctx *slave_qp) {
   ctrl =
       (struct mlx5_wqe_ctrl_seg *)((char *)qp->sq.buf +
                                    qp->sq.stride * ((write_cnt) % wqe_count));
-  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0, ds, 0, 0);
+  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, CE, ds, 0, 0);
   wseg = (struct mlx5_wqe_coredirect_seg *)(ctrl + 1);
   cd_set_wait(wseg, (slave_qp->cmpl_cnt - 1), slave_qp->cq->cqn);
   this->tasks.add((uint32_t *)&(wseg->index), slave_qp->cqes);
@@ -358,7 +357,7 @@ void qp_ctx::cd_wait_send(qp_ctx *slave_qp) {
   ctrl =
       (struct mlx5_wqe_ctrl_seg *)((char *)qp->sq.buf +
                                    qp->sq.stride * ((write_cnt) % wqe_count));
-  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, 0, ds, 0, 0);
+  mlx5dv_set_ctrl_seg(ctrl, (write_cnt), 0x0f, 0x00, qpn, CE, ds, 0, 0);
   wseg = (struct mlx5_wqe_coredirect_seg *)(ctrl + 1);
   cd_set_wait(wseg, (slave_qp->scq->cmpl_cnt - 1), slave_qp->scq->cq->cqn);
   this->tasks.add((uint32_t *)&(wseg->index), slave_qp->scq->cqes);
@@ -425,7 +424,7 @@ void qp_ctx::fin() {
     memcpy(duplicate_dst, original, dup_size);
   }
 
-  for (int dups = 1; dups < number_of_duplicates - 1; ++dups) {
+  for (int dups = 1; dups < number_of_duplicates - 2; ++dups) {
     this->rearm();
   }
 }
@@ -459,18 +458,22 @@ void ValRearmTasks::exec(uint32_t increment, uint32_t src_offset,
 }
 
 void qp_ctx::printSq() {
-  printf("Sq: %dX%d\n", qp->sq.stride, qp->sq.wqe_cnt);
+  fprintf(stderr, "Sq: %dX%d\n", qp->sq.stride, qp->sq.wqe_cnt);
   print_buffer(this->qp->sq.buf, qp->sq.stride * qp->sq.wqe_cnt);
 }
 
 void qp_ctx::printRq() {
-  printf("Rq:\n");
+  fprintf(stderr, "Rq:\n");
   print_buffer(this->qp->rq.buf, qp->rq.stride * qp->rq.wqe_cnt);
 }
 
 void qp_ctx::printCq() {
-  printf("Cq:\n");
+  fprintf(stderr, "Cq:\n");
   print_buffer(this->cq->buf, cq->cqe_size * cq->cqe_cnt);
+  if (this->scq) {
+    fprintf(stderr, "Send Cq:\n");
+    print_buffer(this->scq->cq->buf, cq->cqe_size * cq->cqe_cnt);
+  }
 }
 
 void print_values(volatile float *buf, int count) {

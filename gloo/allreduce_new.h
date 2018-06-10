@@ -13,6 +13,8 @@
 #define VALIDITY_CHECK
 #define HANG_REPORTX
 
+#define PIPELINE_DEPTH 1
+
 #include <alloca.h>
 #include <stddef.h>
 #include <string.h>
@@ -33,6 +35,7 @@ typedef int rank_t;
 typedef struct mem_registration {
   Iov usr_vec;
   UmrMem *umr_mem;
+  TempMem *tmpMem;
 } mem_registration_t;
 
 typedef struct rd_peer_info {
@@ -100,8 +103,6 @@ public:
     if (this->contextSize_ == 1) {
       return;
     }
-
-    pipeline = 1;
 
     /* Step #1: Initialize verbs for all to use */
     PRINT("starting AllreduceNew");
@@ -240,18 +241,29 @@ public:
   }
 
   void register_memory() {
+
+    unsigned step_idx, step_count = 0;
+    while ((1 << ++step_count) < contextSize_)
+      ;
+
+    pipeline = PIPELINE_DEPTH;
+    while (step_count % pipeline) {
+      --pipeline;
+    }
+
     /* Register the user's buffers */
     for (int buf_idx = 0; buf_idx < ptrs_.size(); buf_idx++) {
       mem_.usr_vec.push_back(new UsrMem(ptrs_[buf_idx], bytes_, ibv_));
     }
-    PRINT("User memory registered");
     mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
-    if (!mem_.umr_mem) {
-      //	throw "UMR failed";
-    }
+
+    mem_.tmpMem = new TempMem(bytes_, pipeline, ibv_);
   }
 
   void deregister_memory() {
+
+    delete mem_.tmpMem;
+
     PRINT("Freeing UMR");
     int buf_idx;
     delete (mem_.umr_mem);
@@ -281,7 +293,7 @@ public:
 
     PRINT("creating MGMT QP\n");
 
-    int mgmt_wqes = step_count * 6 + 5; // should find better way to do this
+    int mgmt_wqes = step_count * 8 + 5; // should find better way to do this
 
     rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq, ibv_->pd, ibv_->context,
                                          send_wq_size);
@@ -352,7 +364,8 @@ public:
           rc_qp_create(rd_.peers[step_idx].cq, ibv_->pd, ibv_->context, 4,
                        RX_SIZE, 1, 1, rd_.peers[step_idx].scq);
 
-      rd_.peers[step_idx].incoming_buf = new HostMem(bytes_, ibv_);
+      // rd_.peers[step_idx].incoming_buf = new HostMem(bytes_, ibv_);
+      rd_.peers[step_idx].incoming_buf = new RefMem(mem_.tmpMem->next());
 
       PRINT("RC created for peer\n");
 
@@ -381,9 +394,13 @@ public:
 
       rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
 
-      rd_.peers[step_idx].qp_cd =
-          new qp_ctx(rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, 1, 1,
-                     rd_.peers[step_idx].scq, 1);
+      int peer_qp_send_wqes = 2;
+      int peer_qp_recv_cqes = 2;
+      int peer_qp_send_cqes = 1;
+
+      rd_.peers[step_idx].qp_cd = new qp_ctx(
+          rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, peer_qp_send_wqes,
+          peer_qp_recv_cqes, rd_.peers[step_idx].scq, peer_qp_send_cqes);
 
       /* Set the logic to trigger the next step */
       mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd);
@@ -391,7 +408,6 @@ public:
       PRINT("Rcv_enabled");
     }
 
-    unsigned buf_idx;
     rd_.loopback_qp_cd->reduce_write(mem_.umr_mem, rd_.result, inputs,
                                      MLX5DV_VECTOR_CALC_OP_ADD,
                                      MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
@@ -399,13 +415,20 @@ public:
     mqp->cd_send_enable(rd_.loopback_qp_cd);
     mqp->cd_wait(rd_.loopback_qp_cd);
 
-    for (step_idx = 0; step_idx < step_count; step_idx++) {
+    for (step_idx = 0; step_idx < pipeline; step_idx++) {
       rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result,
                                            rd_.peers[step_idx].remote_buf);
+
       mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
+
+      if (step_idx > 0) {
+        rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd->sendCredit();
+        mqp->cd_send_enable(
+            rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd);
+      }
+
       mqp->cd_wait(rd_.peers[step_idx].qp_cd);
       mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
-      rd_.peers[step_idx].qp_cd->fin();
       rd_.loopback_qp_cd->reduce_write(rd_.peers[step_idx].outgoing_buf,
                                        rd_.result, 2, MLX5DV_VECTOR_CALC_OP_ADD,
                                        MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
@@ -413,12 +436,47 @@ public:
       mqp->cd_wait(rd_.loopback_qp_cd);
     }
 
-    for (buf_idx = 0; buf_idx < inputs; buf_idx++) {
+    for (step_idx = pipeline; step_idx < step_count; step_idx++) {
+
+      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+
+      rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result,
+                                           rd_.peers[step_idx].remote_buf);
+      mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
+
+      rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd->sendCredit();
+      mqp->cd_send_enable(
+          rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd);
+
+      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+      mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
+      rd_.loopback_qp_cd->reduce_write(rd_.peers[step_idx].outgoing_buf,
+                                       rd_.result, 2, MLX5DV_VECTOR_CALC_OP_ADD,
+                                       MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
+      mqp->cd_send_enable(rd_.loopback_qp_cd);
+      mqp->cd_wait(rd_.loopback_qp_cd);
+    }
+
+    rd_.peers[(step_count - 1 + pipeline) % step_count].qp_cd->sendCredit();
+    mqp->cd_send_enable(
+        rd_.peers[(step_count - 1 + pipeline) % step_count].qp_cd);
+
+    for (step_idx = 0; step_idx < step_count; step_idx++) {
+      rd_.peers[step_idx].qp_cd->fin();
+    }
+
+    for (uint32_t buf_idx = 0; buf_idx < inputs; buf_idx++) {
       rd_.loopback_qp_cd->write(rd_.result, mem_.usr_vec[buf_idx]);
     }
+
     rd_.loopback_qp_cd->fin();
     mqp->cd_send_enable(rd_.loopback_qp_cd);
     mqp->cd_wait(rd_.loopback_qp_cd);
+
+    for (step_idx = 0; step_idx < pipeline; step_idx++) {
+      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+    }
+
     mqp->fin();
   }
 
