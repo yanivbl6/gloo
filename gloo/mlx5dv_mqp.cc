@@ -132,8 +132,8 @@ struct ibv_qp *rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd,
   struct ibv_qp_attr attr;
   memset(&init_attr, 0, sizeof(init_attr));
   init_attr.qp_context = NULL;
-  init_attr.send_cq = cq;
-  init_attr.recv_cq = (s_cq == NULL) ? cq : s_cq;
+  init_attr.send_cq = (s_cq == NULL) ? cq : s_cq;
+  init_attr.recv_cq = cq;
   init_attr.cap.max_send_wr = send_wq_size;
   init_attr.cap.max_recv_wr = recv_rq_size;
   init_attr.cap.max_send_sge = 1;

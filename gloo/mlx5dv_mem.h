@@ -95,7 +95,7 @@ public:
   RefMem(NetMem *mem, uint64_t byte_offset);
   RefMem(const RefMem &srcRef) {
     this->sge = srcRef.sge;
-    this->mr = NULL;
+    this->mr = srcRef.mr;
   }
   ~RefMem();
 };
@@ -114,17 +114,19 @@ public:
   ~RemoteMem();
 };
 
-class PipelinedMemory {
+class TempMem {
 public:
-  PipelinedMemory(size_t length_, size_t depth_, verb_ctx_t *ctx,
-                  int mem_type_ = PCX_MEMORY_TYPE_HOST);
-  ~PipelinedMemory();
-
+  TempMem(size_t length_, size_t depth_, verb_ctx_t *ctx,
+          int mem_type_ = PCX_MEMORY_TYPE_HOST);
+  ~TempMem();
   RefMem operator[](size_t idx);
+
+  RefMem next();
 
 private:
   NetMem *mem;
   size_t length;
   size_t depth;
   int mem_type;
+  size_t cur;
 };

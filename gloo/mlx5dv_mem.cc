@@ -201,9 +201,8 @@ struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx) {
 
 PCX_ERROR(MemoryNotSupported)
 
-PipelinedMemory::PipelinedMemory(size_t length_, size_t depth_, verb_ctx_t *ctx,
-                                 int mem_type_)
-    : length(length_), depth(depth_), mem_type(mem_type_) {
+TempMem::TempMem(size_t length_, size_t depth_, verb_ctx_t *ctx, int mem_type_)
+    : length(length_), depth(depth_), mem_type(mem_type_), cur(0) {
 
   switch (mem_type) {
   case (PCX_MEMORY_TYPE_HOST):
@@ -214,8 +213,13 @@ PipelinedMemory::PipelinedMemory(size_t length_, size_t depth_, verb_ctx_t *ctx,
   }
 }
 
-RefMem PipelinedMemory::operator[](size_t idx) {
+RefMem TempMem::operator[](size_t idx) {
   return RefMem(this->mem, length * (idx % depth));
 }
 
-PipelinedMemory::~PipelinedMemory() { delete (mem); }
+RefMem TempMem::next() {
+  ++cur;
+  return RefMem(this->mem, length * ((cur - 1) & depth));
+}
+
+TempMem::~TempMem() { delete (mem); }
