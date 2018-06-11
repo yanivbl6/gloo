@@ -206,7 +206,7 @@ void Runner::run(BenchmarkFn<T>& fn) {
   }
 
   // Run sweep over number of elements
-  for (int i = 64; i <= 1 << 14 ; i *= 2) {
+  for (int i = 1; i <= 1 << 14 ; i *= 2) {
     //std::vector<int> js = {i * 1, i * 2, i * 5};
     run(fn, i);
   }
@@ -352,8 +352,8 @@ void Runner::printHeader() {
   std::cout << std::setw(11) << ("min " + suffix);
   std::cout << std::setw(11) << ("p25 " + suffix);
   std::cout << std::setw(11) << ("p50 " + suffix);
-  std::cout << std::setw(11) << ("p75 " + suffix);
-  std::cout << std::setw(11) << ("p85 " + suffix);
+//  std::cout << std::setw(11) << ("p75 " + suffix);
+//  std::cout << std::setw(11) << ("p85 " + suffix);
   std::cout << std::setw(11) << ("p99 " + suffix);
   std::cout << std::setw(11) << ("max " + suffix);
   std::cout << std::setw(13) << ("avg " + bwSuffix);
@@ -386,8 +386,8 @@ void Runner::printDistribution(
   std::cout << std::setw(11) << (latency.min() / div);
   std::cout << std::setw(11) << (latency.percentile(0.25) / div);
   std::cout << std::setw(11) << (latency.percentile(0.50) / div);
-  std::cout << std::setw(11) << (latency.percentile(0.75) / div);
-  std::cout << std::setw(11) << (latency.percentile(0.85) / div);
+//  std::cout << std::setw(11) << (latency.percentile(0.75) / div);
+//  std::cout << std::setw(11) << (latency.percentile(0.85) / div);
   std::cout << std::setw(11) << (latency.percentile(0.99) / div);
   std::cout << std::setw(11) << (latency.max() / div);
   std::cout << std::fixed << std::setprecision(3);

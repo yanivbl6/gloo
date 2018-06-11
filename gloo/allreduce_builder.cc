@@ -15,6 +15,7 @@
 #include "gloo/allreduce_local.h"
 #include "gloo/allreduce_ring.h"
 #include "gloo/allreduce_ring_chunked.h"
+#include "gloo/allreduce_new.h"
 #include "gloo/common/logging.h"
 
 #if GLOO_USE_CUDA
@@ -146,6 +147,9 @@ std::unique_ptr<Algorithm> AllreduceBuilder<T>::getAlgorithm(
         return getAlgorithmCuda<CudaAllreduceRingChunked, T>(
           gpuDirect_, context, inputs_, count_, streams_);
         break;
+      case OffloadDoubling:
+        break;
+
       default:
         GLOO_ENFORCE(false, "Unhandled implementation: ", implementation_);
         break;
@@ -198,6 +202,9 @@ std::unique_ptr<Algorithm> AllreduceBuilder<T>::getAlgorithm(
       return std::unique_ptr<::gloo::Algorithm>(
         new AllreduceRingChunked<T>(context, inputs_, count_, fn));
       break;
+    case OffloadDoubling:
+      return std::unique_ptr<::gloo::Algorithm>(
+        new AllreduceNew<T>(context, inputs_, count_, fn));
     default:
       GLOO_ENFORCE(false, "Unhandled implementation: ", implementation_);
       break;
