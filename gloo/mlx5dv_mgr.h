@@ -44,7 +44,6 @@ extern "C" {
 }
 
 #include "mlx5dv_mem.h"
-#include "mlx5dv_mqp.h"
 
 #include <map>
 

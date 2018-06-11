@@ -42,8 +42,10 @@ extern "C" {
 #include <infiniband/mlx5dv.h>
 }
 
-#include "mlx5dv_mqp.h"
 #include <infiniband/verbs_exp.h>
+
+
+#define GID_INDEX 3
 
 #define IB_ACCESS_FLAGS                                                        \
   (IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ)
@@ -94,3 +96,14 @@ public:
   struct ibv_comp_channel *channel;
   struct ibv_exp_device_attr attrs;
 };
+
+typedef struct peer_addr {
+  int lid;
+  int qpn;
+  int psn;
+  union ibv_gid gid;
+} peer_addr_t;
+
+int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr);
+int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp);
+
