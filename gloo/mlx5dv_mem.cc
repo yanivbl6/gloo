@@ -219,7 +219,7 @@ RefMem TempMem::operator[](size_t idx) {
 
 RefMem TempMem::next() {
   ++cur;
-  return RefMem(this->mem, length * ((cur - 1) & depth));
+  return RefMem(this->mem, length * ((cur - 1) % depth));
 }
 
 TempMem::~TempMem() { delete (mem); }

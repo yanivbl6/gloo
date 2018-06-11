@@ -10,7 +10,7 @@
 #pragma once
 
 #define DEBUGX
-#define VALIDITY_CHECK
+#define VALIDITY_CHECKX
 #define HANG_REPORTX
 
 #define PIPELINE_DEPTH 1
@@ -165,6 +165,11 @@ public:
 
       ++count;
 #ifdef HANG_REPORT
+
+      unsigned step_count = 0;
+      while ((1 << ++step_count) < contextSize_)
+        ;
+
       if (count == 1000000000) {
 
         fprintf(stderr, "iteration: %d\n", mone);
@@ -175,10 +180,11 @@ public:
         PRINT("loopback qp:");
         rd_.loopback_qp_cd->printCq();
         rd_.loopback_qp_cd->printSq();
-
-        PRINT("rc qp:");
-        rd_.peers[0].qp_cd->printCq();
-        rd_.peers[0].qp_cd->printSq();
+	for (int k = 0; k < step_count; ++k){
+          fprintf(stderr,"rc qp %d:", k );
+          rd_.peers[k].qp_cd->printCq();
+          rd_.peers[k].qp_cd->printSq();
+        }
       }
 
 #endif
@@ -296,7 +302,7 @@ public:
     int mgmt_wqes = step_count * 8 + 5; // should find better way to do this
 
     rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq, ibv_->pd, ibv_->context,
-                                         send_wq_size);
+                                         mgmt_wqes);
     rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes, 0);
 
     qp_ctx *mqp = rd_.mgmt_qp_cd;
@@ -415,51 +421,29 @@ public:
     mqp->cd_send_enable(rd_.loopback_qp_cd);
     mqp->cd_wait(rd_.loopback_qp_cd);
 
-    for (step_idx = 0; step_idx < pipeline; step_idx++) {
-      rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result,
-                                           rd_.peers[step_idx].remote_buf);
-
-      mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
-
-      if (step_idx > 0) {
-        rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd->sendCredit();
-        mqp->cd_send_enable(
-            rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd);
+    for (step_idx = 0; step_idx < step_count; step_idx++) {
+      if (step_idx >= pipeline){
+        mqp->cd_wait(rd_.peers[step_idx].qp_cd); 
       }
 
-      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
-      mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
-      rd_.loopback_qp_cd->reduce_write(rd_.peers[step_idx].outgoing_buf,
-                                       rd_.result, 2, MLX5DV_VECTOR_CALC_OP_ADD,
-                                       MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
-      mqp->cd_send_enable(rd_.loopback_qp_cd);
-      mqp->cd_wait(rd_.loopback_qp_cd);
-    }
-
-    for (step_idx = pipeline; step_idx < step_count; step_idx++) {
-
-      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
-
       rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result,
                                            rd_.peers[step_idx].remote_buf);
+
       mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
-
-      rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd->sendCredit();
-      mqp->cd_send_enable(
-          rd_.peers[(step_idx - 1 + pipeline) % step_count].qp_cd);
-
       mqp->cd_wait(rd_.peers[step_idx].qp_cd);
       mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
+
       rd_.loopback_qp_cd->reduce_write(rd_.peers[step_idx].outgoing_buf,
                                        rd_.result, 2, MLX5DV_VECTOR_CALC_OP_ADD,
                                        MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
+
       mqp->cd_send_enable(rd_.loopback_qp_cd);
       mqp->cd_wait(rd_.loopback_qp_cd);
-    }
 
-    rd_.peers[(step_count - 1 + pipeline) % step_count].qp_cd->sendCredit();
-    mqp->cd_send_enable(
-        rd_.peers[(step_count - 1 + pipeline) % step_count].qp_cd);
+      rd_.peers[(step_idx + pipeline) % step_count].qp_cd->sendCredit();
+      mqp->cd_send_enable(
+            rd_.peers[(step_idx + pipeline) % step_count].qp_cd);
+    }
 
     for (step_idx = 0; step_idx < step_count; step_idx++) {
       rd_.peers[step_idx].qp_cd->fin();
