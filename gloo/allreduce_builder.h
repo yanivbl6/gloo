@@ -29,6 +29,7 @@ class AllreduceBuilder {
     HalvingDoubling = 3,
     HalvingDoublingPipelined = 4,
     Bcube = 5,
+    OffloadDoubling =6,
   };
 
   // Construct AllreduceBuilder with following defaults:
