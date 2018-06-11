@@ -301,7 +301,7 @@ public:
 
     int mgmt_wqes = step_count * 8 + 5; // should find better way to do this
 
-    rd_.mgmt_qp = hmca_bcol_cc_mq_create(rd_.mgmt_cq, ibv_->pd, ibv_->context,
+    rd_.mgmt_qp = create_management_qp(rd_.mgmt_cq, ibv_->pd, ibv_->context,
                                          mgmt_wqes);
     rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes, 0);
 

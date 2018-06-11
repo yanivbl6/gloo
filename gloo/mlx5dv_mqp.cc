@@ -1,6 +1,114 @@
 
 #include "mlx5dv_mqp.h"
 
+
+
+CommGraph::CommGraph(verb_ctx_t *vctx): ctx(vctx), mqp(NULL), iq(){
+  mqp = new ManagementQp(this);
+}
+
+void CommGraph::wait(PcxQp* slave_qp){
+  mqp->cd_wait(slave_qp);
+}
+
+void CommGraph::wait_send(PcxQp* slave_qp){
+  mqp->cd_wait_send(slave_qp);
+}
+
+
+CommGraph::~CommGraph(){
+  delete(mqp);
+}
+
+void PcxQp::sendCredit(){
+  ++wqe_count;
+  ++pair->cqe_count;
+  LambdaInstruction lambda = [this](){qp->sendCredit();};
+  graph->enqueue(lambda);
+  graph->mqp->cd_send_enable(this);
+}
+
+void PcxQp::write(NetMem *local, NetMem *remote){
+  ++wqe_count;
+  ++this->pair->cqe_count;
+  LambdaInstruction lambda = [this, local, remote](){this->qp->write(local,remote);};
+  this->graph->enqueue(lambda);
+  graph->mqp->cd_send_enable(this);
+}
+
+void PcxQp::writeCmpl(NetMem *local, NetMem *remote){
+  ++wqe_count;
+  ++this->pair->cqe_count;
+  if (has_scq){
+    ++scqe_count;
+  }else{
+    ++cqe_count;
+  }  
+  LambdaInstruction lambda = [this, local, remote](){this->qp->writeCmpl(local,remote);};
+  this->graph->enqueue(lambda);
+  graph->mqp->cd_send_enable(this);
+}
+
+void PcxQp::reduce_write(NetMem *local, NetMem *remote, uint16_t num_vectors,
+                    uint8_t op, uint8_t type){
+  wqe_count+=2;
+  ++this->pair->cqe_count;
+  LambdaInstruction lambda = [this, local, remote, num_vectors, op, type ](){this->qp->reduce_write(local,remote,num_vectors, op, type);};
+  this->graph->enqueue(lambda);
+  graph->mqp->cd_send_enable(this);
+}
+
+void PcxQp::cd_send_enable(PcxQp *slave_qp){
+  ++wqe_count;
+  LambdaInstruction lambda = [this, slave_qp](){this->qp->cd_send_enable(slave_qp->qp);};
+  this->graph->enqueue(lambda);
+}
+
+void PcxQp::cd_recv_enable(PcxQp *slave_qp) { // call from PcxQp constructor
+  ++wqe_count;
+  LambdaInstruction lambda = [this, slave_qp](){this->qp->cd_recv_enable(slave_qp->qp);};
+  this->graph->enqueue(lambda);
+}
+
+void PcxQp::cd_wait(PcxQp *slave_qp) { 
+  ++wqe_count;
+  LambdaInstruction lambda = [this, slave_qp](){this->qp->cd_wait(slave_qp->qp);};
+  this->graph->enqueue(lambda);
+}
+
+void PcxQp::cd_wait_send(PcxQp *slave_qp) { 
+  ++wqe_count;
+  LambdaInstruction lambda = [this, slave_qp](){this->qp->cd_wait_send(slave_qp->qp);};
+  this->graph->enqueue(lambda);
+}
+
+PcxQp::~PcxQp(){}
+
+
+PCX_ERROR(CreateCQFailed);
+
+ManagementQp::ManagementQp(CommGraph *cgraph): PcxQp(cgraph) {
+  this->pair = this;
+  this->has_scq= false;
+  this->ibscq = NULL; 
+}
+
+
+void ManagementQp::fin(){
+  this->ibcq = cd_create_cq(ctx->context, cqe_count , NULL);
+  if (!this->ibcq) {
+    PERR(CreateCQFailed);
+  }
+  this->ibqp = create_management_qp(this->ibcq, this->ctx->pd, this->ctx->context, wqe_count);
+  this->qp = new qp_ctx(this->ibqp, this->ibcq, wqe_count, cqe_count);
+}
+
+ManagementQp::~ManagementQp(){
+  delete(qp);
+  ibv_destroy_qp(ibqp);
+  ibv_destroy_cq(ibcq);
+}
+
 int hmca_bcol_cc_mq_destroy(struct ibv_qp *mq) {
   int rc;
   rc = ibv_destroy_qp(mq);
@@ -27,7 +135,7 @@ struct ibv_cq *cd_create_cq(struct ibv_context *context, int cqe,
   return cq;
 }
 
-struct ibv_qp *hmca_bcol_cc_mq_create(struct ibv_cq *cq, struct ibv_pd *pd,
+struct ibv_qp *create_management_qp(struct ibv_cq *cq, struct ibv_pd *pd,
                                       struct ibv_context *ctx,
                                       uint16_t send_wq_size) {
 
@@ -171,60 +279,4 @@ struct ibv_qp *rc_qp_create(struct ibv_cq *cq, struct ibv_pd *pd,
   return qp;
 }
 
-int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr) {
-  struct ibv_port_attr attr;
-  if (ibv_query_port(qp->context, 1, &attr)) {
-    fprintf(stderr, "Couldn't get port info\n");
-    return 1; // TODO: indicate error?
-  }
 
-  addr->lid = attr.lid;
-  addr->qpn = qp->qp_num;
-  addr->psn = 0x1234;
-
-  if (ibv_query_gid(qp->context, 1, GID_INDEX, &addr->gid)) {
-    fprintf(stderr, "can't read sgid of index %d\n", GID_INDEX);
-    return 1;
-  }
-}
-
-int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp) {
-  struct ibv_qp_attr attr;
-  attr.qp_state = IBV_QPS_RTR;
-  attr.path_mtu = IBV_MTU_1024;
-  attr.dest_qp_num = addr->qpn;
-  attr.rq_psn = addr->psn;
-  attr.max_dest_rd_atomic = 1;
-  attr.min_rnr_timer = 4;
-  attr.ah_attr.is_global = 1;
-  attr.ah_attr.dlid = addr->lid;
-  attr.ah_attr.sl = 0;
-  attr.ah_attr.src_path_bits = 0;
-  attr.ah_attr.port_num = 1;
-  attr.ah_attr.grh.hop_limit = 1;
-  attr.ah_attr.grh.dgid = addr->gid;
-  attr.ah_attr.grh.sgid_index = GID_INDEX;
-
-  if (ibv_modify_qp(qp, &attr, IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU |
-                                   IBV_QP_DEST_QPN | IBV_QP_RQ_PSN |
-                                   IBV_QP_MAX_DEST_RD_ATOMIC |
-                                   IBV_QP_MIN_RNR_TIMER)) {
-    fprintf(stderr, "Failed to modify QP to RTR\n");
-    // PERR(QpFailedRTR);
-  }
-
-  attr.qp_state = IBV_QPS_RTS;
-  attr.timeout = 14;
-  attr.retry_cnt = 7;
-  attr.rnr_retry = 7;
-  attr.sq_psn = addr->psn;
-  attr.max_rd_atomic = 1;
-  if (ibv_modify_qp(qp, &attr, IBV_QP_STATE | IBV_QP_TIMEOUT |
-                                   IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
-                                   IBV_QP_SQ_PSN | IBV_QP_MAX_QP_RD_ATOMIC)) {
-    fprintf(stderr, "Failed to modify QP to RTS\n");
-    return 1;
-  }
-
-  return 0;
-}

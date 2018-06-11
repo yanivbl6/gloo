@@ -158,3 +158,62 @@ clean_comp_channel:
 
   throw "Failed to create QP";
 }
+
+int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr) {
+  struct ibv_port_attr attr;
+  if (ibv_query_port(qp->context, 1, &attr)) {
+    fprintf(stderr, "Couldn't get port info\n");
+    return 1; // TODO: indicate error?
+  }
+
+  addr->lid = attr.lid;
+  addr->qpn = qp->qp_num;
+  addr->psn = 0x1234;
+
+  if (ibv_query_gid(qp->context, 1, GID_INDEX, &addr->gid)) {
+    fprintf(stderr, "can't read sgid of index %d\n", GID_INDEX);
+    return 1;
+  }
+}
+
+int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp) {
+  struct ibv_qp_attr attr;
+  attr.qp_state = IBV_QPS_RTR;
+  attr.path_mtu = IBV_MTU_1024;
+  attr.dest_qp_num = addr->qpn;
+  attr.rq_psn = addr->psn;
+  attr.max_dest_rd_atomic = 1;
+  attr.min_rnr_timer = 4;
+  attr.ah_attr.is_global = 1;
+  attr.ah_attr.dlid = addr->lid;
+  attr.ah_attr.sl = 0;
+  attr.ah_attr.src_path_bits = 0;
+  attr.ah_attr.port_num = 1;
+  attr.ah_attr.grh.hop_limit = 1;
+  attr.ah_attr.grh.dgid = addr->gid;
+  attr.ah_attr.grh.sgid_index = GID_INDEX;
+
+  if (ibv_modify_qp(qp, &attr, IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU |
+                                   IBV_QP_DEST_QPN | IBV_QP_RQ_PSN |
+                                   IBV_QP_MAX_DEST_RD_ATOMIC |
+                                   IBV_QP_MIN_RNR_TIMER)) {
+    fprintf(stderr, "Failed to modify QP to RTR\n");
+    // PERR(QpFailedRTR);
+  }
+
+  attr.qp_state = IBV_QPS_RTS;
+  attr.timeout = 14;
+  attr.retry_cnt = 7;
+  attr.rnr_retry = 7;
+  attr.sq_psn = addr->psn;
+  attr.max_rd_atomic = 1;
+  if (ibv_modify_qp(qp, &attr, IBV_QP_STATE | IBV_QP_TIMEOUT |
+                                   IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
+                                   IBV_QP_SQ_PSN | IBV_QP_MAX_QP_RD_ATOMIC)) {
+    fprintf(stderr, "Failed to modify QP to RTS\n");
+    return 1;
+  }
+
+  return 0;
+}
+
