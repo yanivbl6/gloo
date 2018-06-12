@@ -31,6 +31,10 @@
  */
 
 #include "mlx5dv_ctx.h"
+
+
+
+
 verb_ctx_t::~verb_ctx_t() {
   if (ibv_destroy_qp(this->umr_qp)) {
     throw("Couldn't destroy QP");
@@ -172,7 +176,7 @@ int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr) {
 
   if (ibv_query_gid(qp->context, 1, GID_INDEX, &addr->gid)) {
     fprintf(stderr, "can't read sgid of index %d\n", GID_INDEX);
-    return 1;
+    //PERR(CantReadsGid);
   }
 }
 
@@ -182,8 +186,8 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp) {
   attr.path_mtu = IBV_MTU_1024;
   attr.dest_qp_num = addr->qpn;
   attr.rq_psn = addr->psn;
-  attr.max_dest_rd_atomic = 1;
   attr.min_rnr_timer = 4;
+  attr.max_dest_rd_atomic = 1;
   attr.ah_attr.is_global = 1;
   attr.ah_attr.dlid = addr->lid;
   attr.ah_attr.sl = 0;
@@ -192,13 +196,14 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp) {
   attr.ah_attr.grh.hop_limit = 1;
   attr.ah_attr.grh.dgid = addr->gid;
   attr.ah_attr.grh.sgid_index = GID_INDEX;
-
+  int res;
   if (ibv_modify_qp(qp, &attr, IBV_QP_STATE | IBV_QP_AV | IBV_QP_PATH_MTU |
-                                   IBV_QP_DEST_QPN | IBV_QP_RQ_PSN |
+                                   IBV_QP_DEST_QPN | IBV_QP_RQ_PSN |                                 
                                    IBV_QP_MAX_DEST_RD_ATOMIC |
                                    IBV_QP_MIN_RNR_TIMER)) {
-    fprintf(stderr, "Failed to modify QP to RTR\n");
-    // PERR(QpFailedRTR);
+    fprintf(stderr, "Failed to modify QP to RTR. reason: %d\n",res);
+    throw "a";
+    //PERR(QpFailedRTR);
   }
 
   attr.qp_state = IBV_QPS_RTS;
@@ -210,8 +215,8 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp) {
   if (ibv_modify_qp(qp, &attr, IBV_QP_STATE | IBV_QP_TIMEOUT |
                                    IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
                                    IBV_QP_SQ_PSN | IBV_QP_MAX_QP_RD_ATOMIC)) {
-    fprintf(stderr, "Failed to modify QP to RTS\n");
-    return 1;
+    //PERR(QpFailedRTS);
+    throw 3;
   }
 
   return 0;

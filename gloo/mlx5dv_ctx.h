@@ -31,6 +31,11 @@
  */
 #pragma once
 
+
+#define DEBUGX
+#define VALIDITY_CHECKX
+#define HANG_REPORTX
+
 //#include <config.h>
 
 #include <inttypes.h>
@@ -82,6 +87,7 @@ extern "C" {
 #define RX_SIZE 16
 #define CX_SIZE 16
 
+
 class verb_ctx_t {
 public:
   verb_ctx_t();
@@ -105,3 +111,5 @@ typedef struct peer_addr {
 
 int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr);
 int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp);
+
+

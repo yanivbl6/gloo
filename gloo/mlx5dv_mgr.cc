@@ -188,6 +188,16 @@ void qp_ctx::db() {
   pci_store_fence();
 }
 
+void qp_ctx::db(uint32_t k) {
+  struct mlx5_db_seg db;
+  dbseg.opmod_idx_opcode = htobe32(k << 8);
+  udma_to_device_barrier();
+  qp->dbrec[1] = htobe32(k);
+  pci_store_fence();
+  *(uint64_t *)qp->bf.reg = *(uint64_t *)&(dbseg);
+  pci_store_fence();
+}
+
 static inline void mlx5dv_set_remote_data_seg(struct mlx5_wqe_raddr_seg *seg,
                                               uint64_t addr, uint32_t rkey) {
   seg->raddr = htobe64(addr);
@@ -458,7 +468,7 @@ void ValRearmTasks::exec(uint32_t increment, uint32_t src_offset,
 }
 
 void qp_ctx::printSq() {
-  fprintf(stderr, "Sq: %dX%d\n", qp->sq.stride, qp->sq.wqe_cnt);
+  fprintf(stderr, "Sq %lu: %dX%d\n", qpn,  qp->sq.stride, qp->sq.wqe_cnt);
   print_buffer(this->qp->sq.buf, qp->sq.stride * qp->sq.wqe_cnt);
 }
 
@@ -468,10 +478,10 @@ void qp_ctx::printRq() {
 }
 
 void qp_ctx::printCq() {
-  fprintf(stderr, "Cq:\n");
+  fprintf(stderr, "Cq %u:\n",cq->cqn);
   print_buffer(this->cq->buf, cq->cqe_size * cq->cqe_cnt);
   if (this->scq) {
-    fprintf(stderr, "Send Cq:\n");
+    fprintf(stderr, "Send Cq %u:\n",scq->cq->cqn);
     print_buffer(this->scq->cq->buf, cq->cqe_size * cq->cqe_cnt);
   }
 }

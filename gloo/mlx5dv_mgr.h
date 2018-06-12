@@ -184,6 +184,7 @@ public:
          size_t num_of_cqes, struct ibv_cq *scq, size_t num_of_send_cqes);
   ~qp_ctx();
   void db();
+  void db(uint32_t k);
   void sendCredit();
   void write(struct ibv_sge *local, struct ibv_sge *remote);
 

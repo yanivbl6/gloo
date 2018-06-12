@@ -92,7 +92,7 @@ public:
 
 class RefMem : public NetMem {
 public:
-  RefMem(NetMem *mem, uint64_t byte_offset);
+  RefMem(NetMem *mem, uint64_t byte_offset = 0);
   RefMem(const RefMem &srcRef) {
     this->sge = srcRef.sge;
     this->mr = srcRef.mr;
