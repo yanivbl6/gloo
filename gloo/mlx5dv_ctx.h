@@ -44,7 +44,6 @@ extern "C" {
 
 #include <infiniband/verbs_exp.h>
 
-
 #define GID_INDEX 3
 
 #define IB_ACCESS_FLAGS                                                        \
@@ -106,4 +105,3 @@ typedef struct peer_addr {
 
 int rc_qp_get_addr(struct ibv_qp *qp, peer_addr_t *addr);
 int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp);
-
