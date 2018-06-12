@@ -9,10 +9,6 @@
 
 #pragma once
 
-#define DEBUGX
-#define VALIDITY_CHECKX
-#define HANG_REPORTX
-
 #define PIPELINE_DEPTH 1
 
 #include <alloca.h>
@@ -30,7 +26,6 @@
 
 namespace gloo {
 
-typedef int rank_t;
 
 typedef struct mem_registration {
   Iov usr_vec;
@@ -38,48 +33,37 @@ typedef struct mem_registration {
   TempMem *tmpMem;
 } mem_registration_t;
 
+int p2p_exchange(void* comm, volatile void* send_buf , volatile void* recv_buf , size_t size , uint32_t peer, uint32_t tag){
+   std::shared_ptr<Context>* ctx = static_cast<std::shared_ptr<Context>*>(comm);
+  auto &pair = (*ctx)->getPair(peer);
+  auto sendBuf = pair->createSendBuffer(tag, (void*) send_buf, size);
+  auto recvBuf = pair->createRecvBuffer(tag, (void*) recv_buf, size);
+  sendBuf->send();
+  sendBuf->waitSend();
+  recvBuf->waitRecv();
+}
+
 class rd_peer_t {
 public:
   rd_peer_t()
-      : qp_cd(NULL), cq_cq(NULL), qp(NULL), cq(NULL), scq(NULL),
-        outgoing_buf(NULL), incoming_buf(NULL), remote_buf(NULL){
-
-                                                };
+      : outgoing_buf(NULL), incoming_buf(NULL){};
   ~rd_peer_t() {
-    delete (this->qp_cd);
-    ibv_destroy_qp(this->qp);
-    ibv_destroy_cq(this->cq);
-    ibv_destroy_cq(this->scq);
+    delete (qp);
     delete (this->incoming_buf);
     delete (this->outgoing_buf);
-    delete (this->remote_buf);
   };
 
-  rank_t rank;
-  qp_ctx *qp_cd;
-  cq_ctx *cq_cq;
-
-  struct ibv_qp *qp;
-  struct ibv_cq *cq;
-  struct ibv_cq *scq;
-
+  DoublingQp* qp;
   NetMem *outgoing_buf;
   NetMem *incoming_buf;
-  RemoteMem *remote_buf;
 };
 
 typedef struct rd_connections {
   NetMem *result;
 
-  struct ibv_qp *mgmt_qp;
-  struct ibv_cq *mgmt_cq;
+  CommGraph* graph;
+  LoopbackQp* lqp;
 
-  qp_ctx *mgmt_qp_cd;
-
-  struct ibv_qp *loopback_qp;
-  struct ibv_cq *loopback_cq;
-
-  qp_ctx *loopback_qp_cd;
   unsigned peers_cnt;
   rd_peer_t *peers;
 } rd_connections_t;
@@ -119,19 +103,7 @@ public:
     delete (ibv_);
   }
 
-  int p2p_exchange(void *send_buf, void *recv_buf, size_t size, int peer) {
-    auto &pair = this->getPair(peer);
-    auto slot = this->context_->nextSlot();
-
-    auto sendBuf = pair->createSendBuffer(slot, send_buf, size);
-    auto recvBuf = pair->createRecvBuffer(slot, recv_buf, size);
-    sendBuf->send();
-    sendBuf->waitSend();
-    recvBuf->waitRecv();
-  }
-
   void run() {
-
 #ifdef VALIDITY_CHECK
     for (int i = 0; i < ptrs_.size(); ++i) {
       // fprintf(stderr, "Input %d:\n",i);
@@ -143,8 +115,8 @@ public:
     }
 #endif
     //		fprintf(stderr,"iteration: %d\n", mone);
-    rd_.mgmt_qp_cd->db();
-    rd_.mgmt_qp_cd->rearm();
+    rd_.graph->mqp->qp->db();
+    rd_.graph->mqp->qp->rearm();
 
     int res = 0;
     uint64_t count = 0;
@@ -152,7 +124,7 @@ public:
     //		clock_t begin = clock()*1E6;
 
     while (!res) {
-      res = rd_.loopback_qp_cd->poll();
+      res = rd_.lqp->qp->poll();
 
       ++count;
 #ifdef HANG_REPORT
@@ -164,17 +136,14 @@ public:
       if (count == 1000000000) {
 
         fprintf(stderr, "iteration: %d\n", mone);
-        PRINT("managment qp:");
-        rd_.mgmt_qp_cd->printCq();
-        rd_.mgmt_qp_cd->printSq();
+        fprintf(stderr, "managment qp:");
+        rd_.graph->mqp->print();
 
-        PRINT("loopback qp:");
-        rd_.loopback_qp_cd->printCq();
-        rd_.loopback_qp_cd->printSq();
+        fprintf(stderr, "loopback qp:");
+        rd_.lqp->print();
         for (int k = 0; k < step_count; ++k) {
           fprintf(stderr, "rc qp %d:", k);
-          rd_.peers[k].qp_cd->printCq();
-          rd_.peers[k].qp_cd->printSq();
+          rd_.peers[k].qp->print();
         }
       }
 
@@ -269,54 +238,21 @@ public:
   }
 
   void connect_and_prepare() {
-    /* Create a single management QP */
-    unsigned send_wq_size = 16;
-    unsigned recv_rq_size = RX_SIZE; //
-
     int inputs = ptrs_.size();
-
     unsigned step_idx, step_count = 0;
     while ((1 << ++step_count) < contextSize_)
       ;
 
     verb_ctx_t *ctx = (this->ibv_);
 
-    rd_.mgmt_cq = cd_create_cq(ctx, CX_SIZE);
-
-    if (!rd_.mgmt_cq) {
-      PRINT("Couldn't create CQ\n");
-      return; // TODO indicate failure?
-    }
-
-    PRINT("creating MGMT QP\n");
-
-    int mgmt_wqes = step_count * 8 + 5; // should find better way to do this
-
-    rd_.mgmt_qp = create_management_qp(rd_.mgmt_cq, ibv_, mgmt_wqes);
-    rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes, 0);
-
-    qp_ctx *mqp = rd_.mgmt_qp_cd;
-    PRINT("created MGMT QP\n");
+    /* Create a single management QP */
+    rd_.graph = new CommGraph(ctx);
+    CommGraph* sess = rd_.graph;
+    PRINT("created MGMT QP");
 
     /* Create a loopback QP */
-
-    rd_.loopback_cq = cd_create_cq(ctx, CX_SIZE);
-
-    if (!rd_.loopback_cq) {
-      throw("Couldn't create CQ\n");
-    }
-
-    int loopback_cqes = step_count + 1 + inputs;
-
-    int loopback_wqes = (step_count + 1) * 2 + inputs;
-
-    rd_.loopback_qp =
-        rc_qp_create(rd_.loopback_cq, ibv_, loopback_cqes, recv_rq_size);
-    peer_addr_t loopback_addr;
-    rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
-    rc_qp_connect(&loopback_addr, rd_.loopback_qp);
-    rd_.loopback_qp_cd = new qp_ctx(rd_.loopback_qp, rd_.loopback_cq,
-                                    loopback_wqes, loopback_cqes);
+    rd_.lqp = new LoopbackQp(sess);
+    LoopbackQp* lqp = rd_.lqp;
     PRINT("loopback connected");
 
     rd_.result = new HostMem(bytes_, ibv_);
@@ -326,137 +262,87 @@ public:
     if (!rd_.peers) {
       throw "malloc failed";
     }
-
-    mqp->cd_recv_enable(rd_.loopback_qp_cd);
-
     /* Establish a connection with each peer */
 
     for (step_idx = 0; step_idx < step_count; step_idx++) {
+
+
 
       /* calculate the rank of each peer */
       int leap = 1 << step_idx;
       if ((contextRank_ % (leap << 1)) >= leap) {
         leap *= -1;
       }
-      rd_.peers[step_idx].rank = contextRank_ + leap;
+      uint32_t mypeer = contextRank_ + leap;
 
-      /* Create a QP and a buffer for this peer */
-
-      rd_.peers[step_idx].cq = cd_create_cq(ctx, CX_SIZE);
-
-      if (!rd_.peers[step_idx].cq) {
-        throw("Couldn't create CQ\n");
-      }
-
-      rd_.peers[step_idx].scq = cd_create_cq(ctx, CX_SIZE);
-
-      if (!rd_.peers[step_idx].scq) {
-        throw("Couldn't create SCQ\n");
-      }
-
-      rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq, ibv_, 4,
-                                            RX_SIZE, rd_.peers[step_idx].scq);
-
-      // rd_.peers[step_idx].incoming_buf = new HostMem(bytes_, ibv_);
+      uint32_t slot = this->context_->nextSlot();
+      
       rd_.peers[step_idx].incoming_buf = new RefMem(mem_.tmpMem->next());
 
-      PRINT("RC created for peer\n");
+      rd_.peers[step_idx].qp = new DoublingQp(sess, &p2p_exchange , (void*) &(this->context_),
+                       mypeer, slot, rd_.peers[step_idx].incoming_buf);
+      PRINT("Creating RC QP - Done");
 
-      /* Create a UMR for VectorCalc-ing each buffer with the result */
-      PRINT("before UMR");
-      Iov umr_iov{rd_.result, rd_.peers[step_idx].incoming_buf};
 
-      rd_.peers[step_idx].outgoing_buf = new UmrMem(umr_iov, ibv_);
-
-      PRINT("after UMR");
-
-      /* Exchange the QP+buffer address with this peer */
-      rd_peer_info_t local_info, remote_info;
-      local_info.buf = (uintptr_t)rd_.peers[step_idx].incoming_buf->sg()->addr;
-      local_info.rkey = rd_.peers[step_idx]
-                            .incoming_buf->sg()
-                            ->lkey; // TODO: fix rkey, lkey mixure
-      rc_qp_get_addr(rd_.peers[step_idx].qp, &local_info.addr);
-      p2p_exchange((void *)&local_info, (void *)&remote_info,
-                   sizeof(local_info), (int)rd_.peers[step_idx].rank);
-
-      PRINT("Exchanged");
-      /* Connect to the remote peer */
-      rd_.peers[step_idx].remote_buf =
-          new RemoteMem(remote_info.buf, remote_info.rkey);
-
-      rc_qp_connect(&remote_info.addr, rd_.peers[step_idx].qp);
-
-      int peer_qp_send_wqes = 2;
-      int peer_qp_recv_cqes = 2;
-      int peer_qp_send_cqes = 1;
-
-      rd_.peers[step_idx].qp_cd = new qp_ctx(
-          rd_.peers[step_idx].qp, rd_.peers[step_idx].cq, peer_qp_send_wqes,
-          peer_qp_recv_cqes, rd_.peers[step_idx].scq, peer_qp_send_cqes);
-
-      /* Set the logic to trigger the next step */
-      mqp->cd_recv_enable(rd_.peers[step_idx].qp_cd);
-
-      PRINT("Rcv_enabled");
+      Iov umr_iov{rd_.result, rd_.peers[step_idx].incoming_buf}; 
+      rd_.peers[step_idx].outgoing_buf = new UmrMem(umr_iov, ibv_); 
     }
 
-    rd_.loopback_qp_cd->reduce_write(mem_.umr_mem, rd_.result, inputs,
+    PRINT("Creating all RC QPs - Done");
+
+
+    lqp->reduce_write(mem_.umr_mem, rd_.result, inputs,
                                      MLX5DV_VECTOR_CALC_OP_ADD,
                                      MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 
-    mqp->cd_send_enable(rd_.loopback_qp_cd);
-    mqp->cd_wait(rd_.loopback_qp_cd);
-
+    sess->wait(lqp);
     for (step_idx = 0; step_idx < step_count; step_idx++) {
       if (step_idx >= pipeline) {
-        mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+        sess->wait(rd_.peers[step_idx].qp);
       }
-
-      rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result,
-                                           rd_.peers[step_idx].remote_buf);
-
-      mqp->cd_send_enable(rd_.peers[step_idx].qp_cd);
-      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
-      mqp->cd_wait_send(rd_.peers[step_idx].qp_cd);
-
-      rd_.loopback_qp_cd->reduce_write(rd_.peers[step_idx].outgoing_buf,
+      rd_.peers[step_idx].qp->writeCmpl(rd_.result);
+      sess->wait(rd_.peers[step_idx].qp);
+      sess->wait_send(rd_.peers[step_idx].qp);
+      lqp->reduce_write(rd_.peers[step_idx].outgoing_buf,
                                        rd_.result, 2, MLX5DV_VECTOR_CALC_OP_ADD,
                                        MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
 
-      mqp->cd_send_enable(rd_.loopback_qp_cd);
-      mqp->cd_wait(rd_.loopback_qp_cd);
-
-      rd_.peers[(step_idx + pipeline) % step_count].qp_cd->sendCredit();
-      mqp->cd_send_enable(rd_.peers[(step_idx + pipeline) % step_count].qp_cd);
-    }
-
-    for (step_idx = 0; step_idx < step_count; step_idx++) {
-      rd_.peers[step_idx].qp_cd->fin();
+      sess->wait(lqp);
+      rd_.peers[(step_idx + pipeline) % step_count].qp->sendCredit();
     }
 
     for (uint32_t buf_idx = 0; buf_idx < inputs; buf_idx++) {
-      rd_.loopback_qp_cd->write(rd_.result, mem_.usr_vec[buf_idx]);
+      lqp->write(rd_.result, mem_.usr_vec[buf_idx]);
     }
 
-    rd_.loopback_qp_cd->fin();
-    mqp->cd_send_enable(rd_.loopback_qp_cd);
-    mqp->cd_wait(rd_.loopback_qp_cd);
+    sess->wait(lqp);
 
     for (step_idx = 0; step_idx < pipeline; step_idx++) {
-      mqp->cd_wait(rd_.peers[step_idx].qp_cd);
+      sess->wait(rd_.peers[step_idx].qp);
     }
 
-    mqp->fin();
+    PRINT("Graph building - Done");
+    rd_.graph->finish();
+    if (0){
+      unsigned step_count = 0;
+      while ((1 << ++step_count) < contextSize_)
+        ;
+
+      fprintf(stderr, "managment qp:\n");
+      rd_.graph->mqp->print();
+      fprintf(stderr, "loopback qp:\n");
+      rd_.lqp->print();
+      for (int k = 0; k < step_count; ++k) {
+        fprintf(stderr, "rc qp %d:\n", k);
+        rd_.peers[k].qp->print();
+      }
+      
+    }
   }
 
   void teardown() {
-    delete rd_.loopback_qp_cd;
-    ibv_destroy_qp(rd_.loopback_qp);
-    ibv_destroy_cq(rd_.loopback_cq);
-    delete rd_.mgmt_qp_cd;
-    ibv_destroy_qp(rd_.mgmt_qp);
-    ibv_destroy_cq(rd_.mgmt_cq);
+    delete (rd_.lqp);
+    delete (rd_.graph);
     delete (rd_.result);
     delete[](rd_.peers);
     PRINT("Teardown completed");
@@ -473,5 +359,8 @@ protected:
   int mone;
   int pipeline;
 };
+
+
+
 
 } // namespace gloo

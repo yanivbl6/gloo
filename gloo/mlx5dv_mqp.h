@@ -23,23 +23,26 @@ public:
   CommGraph(verb_ctx_t *vctx);
   ~CommGraph();
 
-  void enqueue(LambdaInstruction &ins) { iq.push(std::move(ins)); }
+  void enqueue(LambdaInstruction &ins);
 
-  void regQp(PcxQp *qp) { qps.push_back(qp); }
-
+  void regQp(PcxQp *qp);
   void wait(PcxQp *slave_qp);
   void wait_send(PcxQp *slave_qp);
 
-  void fin();
+  void db();
+
+  void finish();
 
   ManagementQp *mqp;
 
-  friend PcxQp;
+//  friend PcxQp;
 
-protected:
+//protected:
   verb_ctx_t *ctx;
   InsQueue iq;
   GraphQps qps;
+  uint16_t qp_cnt;
+
 };
 
 class PcxQp {
@@ -54,22 +57,25 @@ public:
   void reduce_write(NetMem *local, NetMem *remote, uint16_t num_vectors,
                     uint8_t op, uint8_t type);
 
-  void cd_send_enable(PcxQp *slave_qp);
-  void cd_recv_enable(PcxQp *slave_qp);
-  void cd_wait(PcxQp *slave_qp);
-  void cd_wait_send(PcxQp *slave_qp);
+
+  void poll();
+  void db(uint32_t k);
+  void print();
+  void db();
+
 
   int wqe_count;
   int cqe_count;
   int scqe_count;
   int recv_enables;
 
+  uint16_t id;
+  qp_ctx *qp;
 protected:
   CommGraph *graph;
   struct ibv_qp *ibqp;
   struct ibv_cq *ibcq;
   struct ibv_cq *ibscq;
-  qp_ctx *qp;
   PcxQp *pair;
   bool initiated;
   bool has_scq;
@@ -78,9 +84,19 @@ protected:
 
 class ManagementQp : public PcxQp {
 public:
+  void cd_send_enable(PcxQp *slave_qp);
+  void cd_recv_enable(PcxQp *slave_qp);
+  void cd_wait(PcxQp *slave_qp);
+  void cd_wait_send(PcxQp *slave_qp);
+
   ManagementQp(CommGraph *cgraph);
   ~ManagementQp();
   void init();
+
+
+  LambdaInstruction stack;
+  uint16_t last_qp;
+  bool     has_stack;
 };
 
 class LoopbackQp : public PcxQp {
@@ -105,20 +121,22 @@ typedef struct rd_peer_info {
   peer_addr_t addr;
 } rd_peer_info_t;
 
-typedef int (*p2p_exchange_func)(void *, void *, void *, size_t, uint32_t,
+typedef int (*p2p_exchange_func)(void *, volatile void *, volatile void *, size_t, uint32_t,
                                  uint32_t);
-typedef std::function<void(void *, void *, size_t)> LambEx;
+typedef std::function<void(volatile void *,volatile void *, size_t)> LambdaExchange;
 
 class DoublingQp : public PcxQp {
 public:
   DoublingQp(CommGraph *cgraph, p2p_exchange_func func, void *comm,
-             uint32_t peer, uint32_t tag, NetMem *incomingBuffer);
+             uint32_t peer, uint32_t tag, NetMem* incomingBuffer);
   ~DoublingQp();
   void init();
+  void write(NetMem *local);
+  void writeCmpl(NetMem *local);
 
   RemoteMem *remote;
   NetMem *incoming;
-  LambEx exchange;
+  LambdaExchange exchange;
 };
 
 struct ibv_qp *create_management_qp(struct ibv_cq *cq, verb_ctx_t *verb_ctx,
