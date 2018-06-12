@@ -38,15 +38,6 @@ typedef struct mem_registration {
   TempMem *tmpMem;
 } mem_registration_t;
 
-typedef struct rd_peer_info {
-  uintptr_t buf;
-  union {
-    uint32_t rkey;
-    uint32_t lkey;
-  };
-  peer_addr_t addr;
-} rd_peer_info_t;
-
 class rd_peer_t {
 public:
   rd_peer_t()
@@ -180,8 +171,8 @@ public:
         PRINT("loopback qp:");
         rd_.loopback_qp_cd->printCq();
         rd_.loopback_qp_cd->printSq();
-	for (int k = 0; k < step_count; ++k){
-          fprintf(stderr,"rc qp %d:", k );
+        for (int k = 0; k < step_count; ++k) {
+          fprintf(stderr, "rc qp %d:", k);
           rd_.peers[k].qp_cd->printCq();
           rd_.peers[k].qp_cd->printSq();
         }
@@ -290,7 +281,7 @@ public:
 
     verb_ctx_t *ctx = (this->ibv_);
 
-    rd_.mgmt_cq = cd_create_cq(ctx->context, CX_SIZE, NULL, 0, 0);
+    rd_.mgmt_cq = cd_create_cq(ctx, CX_SIZE);
 
     if (!rd_.mgmt_cq) {
       PRINT("Couldn't create CQ\n");
@@ -301,8 +292,7 @@ public:
 
     int mgmt_wqes = step_count * 8 + 5; // should find better way to do this
 
-    rd_.mgmt_qp = create_management_qp(rd_.mgmt_cq, ibv_->pd, ibv_->context,
-                                         mgmt_wqes);
+    rd_.mgmt_qp = create_management_qp(rd_.mgmt_cq, ibv_, mgmt_wqes);
     rd_.mgmt_qp_cd = new qp_ctx(rd_.mgmt_qp, rd_.mgmt_cq, mgmt_wqes, 0);
 
     qp_ctx *mqp = rd_.mgmt_qp_cd;
@@ -310,7 +300,7 @@ public:
 
     /* Create a loopback QP */
 
-    rd_.loopback_cq = cd_create_cq(ctx->context, CX_SIZE, NULL, NULL, 0);
+    rd_.loopback_cq = cd_create_cq(ctx, CX_SIZE);
 
     if (!rd_.loopback_cq) {
       throw("Couldn't create CQ\n");
@@ -320,8 +310,8 @@ public:
 
     int loopback_wqes = (step_count + 1) * 2 + inputs;
 
-    rd_.loopback_qp = rc_qp_create(rd_.loopback_cq, ibv_->pd, ibv_->context,
-                                   loopback_cqes, recv_rq_size, 1, 1);
+    rd_.loopback_qp =
+        rc_qp_create(rd_.loopback_cq, ibv_, loopback_cqes, recv_rq_size);
     peer_addr_t loopback_addr;
     rc_qp_get_addr(rd_.loopback_qp, &loopback_addr);
     rc_qp_connect(&loopback_addr, rd_.loopback_qp);
@@ -352,23 +342,20 @@ public:
 
       /* Create a QP and a buffer for this peer */
 
-      rd_.peers[step_idx].cq =
-          cd_create_cq(ctx->context, CX_SIZE, NULL, NULL, 0);
+      rd_.peers[step_idx].cq = cd_create_cq(ctx, CX_SIZE);
 
       if (!rd_.peers[step_idx].cq) {
         throw("Couldn't create CQ\n");
       }
 
-      rd_.peers[step_idx].scq =
-          cd_create_cq(ctx->context, CX_SIZE, NULL, NULL, 0);
+      rd_.peers[step_idx].scq = cd_create_cq(ctx, CX_SIZE);
 
       if (!rd_.peers[step_idx].scq) {
         throw("Couldn't create SCQ\n");
       }
 
-      rd_.peers[step_idx].qp =
-          rc_qp_create(rd_.peers[step_idx].cq, ibv_->pd, ibv_->context, 4,
-                       RX_SIZE, 1, 1, rd_.peers[step_idx].scq);
+      rd_.peers[step_idx].qp = rc_qp_create(rd_.peers[step_idx].cq, ibv_, 4,
+                                            RX_SIZE, rd_.peers[step_idx].scq);
 
       // rd_.peers[step_idx].incoming_buf = new HostMem(bytes_, ibv_);
       rd_.peers[step_idx].incoming_buf = new RefMem(mem_.tmpMem->next());
@@ -422,8 +409,8 @@ public:
     mqp->cd_wait(rd_.loopback_qp_cd);
 
     for (step_idx = 0; step_idx < step_count; step_idx++) {
-      if (step_idx >= pipeline){
-        mqp->cd_wait(rd_.peers[step_idx].qp_cd); 
+      if (step_idx >= pipeline) {
+        mqp->cd_wait(rd_.peers[step_idx].qp_cd);
       }
 
       rd_.peers[step_idx].qp_cd->writeCmpl(rd_.result,
@@ -441,8 +428,7 @@ public:
       mqp->cd_wait(rd_.loopback_qp_cd);
 
       rd_.peers[(step_idx + pipeline) % step_count].qp_cd->sendCredit();
-      mqp->cd_send_enable(
-            rd_.peers[(step_idx + pipeline) % step_count].qp_cd);
+      mqp->cd_send_enable(rd_.peers[(step_idx + pipeline) % step_count].qp_cd);
     }
 
     for (step_idx = 0; step_idx < step_count; step_idx++) {

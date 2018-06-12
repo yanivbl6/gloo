@@ -216,4 +216,3 @@ int rc_qp_connect(peer_addr_t *addr, struct ibv_qp *qp) {
 
   return 0;
 }
-
