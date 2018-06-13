@@ -29,8 +29,6 @@
 
 #if GLOO_USE_MPI
 #include "gloo/mpi/context.h"
-#else
-#warning "NO MPI"
 #endif
 
 #if BENCHMARK_TCP

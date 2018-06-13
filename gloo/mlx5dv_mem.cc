@@ -40,7 +40,7 @@ RemoteMem::RemoteMem(uint64_t addr, uint32_t rkey) {
 
 RemoteMem::~RemoteMem() { PRINT("RemoteMem::~RemoteMem()"); }
 
-HostMem::HostMem(size_t length, verb_ctx_t *ctx) {
+HostMem::HostMem(size_t length, VerbCtx *ctx) {
   this->buf = malloc(length);
 
   if (!this->buf) {
@@ -63,7 +63,7 @@ HostMem::~HostMem() {
   free(this->buf);
 }
 
-UsrMem::UsrMem(void *buf, size_t length, verb_ctx_t *ctx) {
+UsrMem::UsrMem(void *buf, size_t length, VerbCtx *ctx) {
   this->sge.addr = (uint64_t)buf;
   this->mr = ibv_reg_mr(ctx->pd, buf, length, IB_ACCESS_FLAGS);
 
@@ -76,7 +76,7 @@ UsrMem::UsrMem(void *buf, size_t length, verb_ctx_t *ctx) {
 
 UsrMem::~UsrMem() { ibv_dereg_mr(this->mr); }
 
-UmrMem::UmrMem(Iov &iov, verb_ctx_t *ctx) {
+UmrMem::UmrMem(Iov &iov, VerbCtx *ctx) {
   // return;
   this->mr = register_umr(iov, ctx);
   this->sge.lkey = mr->lkey;
@@ -109,7 +109,7 @@ PCX_ERROR(UMR_CompletionInError)
 PCX_ERROR_RES(UMR_PostFailed)
 PCX_ERROR(EmptyUMR)
 
-struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx) {
+struct ibv_mr *register_umr(Iov &iov, VerbCtx *ctx) {
 
   unsigned mem_reg_cnt = iov.size();
 
@@ -201,7 +201,7 @@ struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx) {
 
 PCX_ERROR(MemoryNotSupported)
 
-TempMem::TempMem(size_t length_, size_t depth_, verb_ctx_t *ctx, int mem_type_)
+TempMem::TempMem(size_t length_, size_t depth_, VerbCtx *ctx, int mem_type_)
     : length(length_), depth(depth_), mem_type(mem_type_), cur(0) {
 
   switch (mem_type) {

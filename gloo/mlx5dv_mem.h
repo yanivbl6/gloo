@@ -77,7 +77,7 @@ void freeIov(Iov &iov);
 
 class HostMem : public NetMem {
 public:
-  HostMem(size_t length, verb_ctx_t *ctx);
+  HostMem(size_t length, VerbCtx *ctx);
   ~HostMem();
 
 private:
@@ -86,7 +86,7 @@ private:
 
 class UsrMem : public NetMem {
 public:
-  UsrMem(void *buf, size_t length, verb_ctx_t *ctx);
+  UsrMem(void *buf, size_t length, VerbCtx *ctx);
   ~UsrMem();
 };
 
@@ -100,11 +100,11 @@ public:
   ~RefMem();
 };
 
-struct ibv_mr *register_umr(Iov &iov, verb_ctx_t *ctx);
+struct ibv_mr *register_umr(Iov &iov, VerbCtx *ctx);
 
 class UmrMem : public NetMem {
 public:
-  UmrMem(Iov &mem_reg, verb_ctx_t *ctx);
+  UmrMem(Iov &mem_reg, VerbCtx *ctx);
   ~UmrMem();
 };
 
@@ -116,7 +116,7 @@ public:
 
 class TempMem {
 public:
-  TempMem(size_t length_, size_t depth_, verb_ctx_t *ctx,
+  TempMem(size_t length_, size_t depth_, VerbCtx *ctx,
           int mem_type_ = PCX_MEMORY_TYPE_HOST);
   ~TempMem();
   RefMem operator[](size_t idx);
