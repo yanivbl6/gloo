@@ -1,7 +1,7 @@
 
 #include "mlx5dv_mqp.h"
 
-CommGraph::CommGraph(verb_ctx_t *vctx) : ctx(vctx), mqp(NULL), iq(), qp_cnt(0){
+CommGraph::CommGraph(VerbCtx *vctx) : ctx(vctx), mqp(NULL), iq(), qp_cnt(0){
   mqp = new ManagementQp(this);
 }
 
@@ -312,7 +312,7 @@ PCX_ERROR(ModifyCQFailed);
 
 PCX_ERROR(QpFailedRTS);
 
-struct ibv_cq *cd_create_cq(verb_ctx_t *verb_ctx, int cqe, void *cq_context,
+struct ibv_cq *cd_create_cq(VerbCtx *verb_ctx, int cqe, void *cq_context,
                             struct ibv_comp_channel *channel, int comp_vector) {
   if (cqe==0){
     ++cqe;
@@ -339,7 +339,7 @@ struct ibv_cq *cd_create_cq(verb_ctx_t *verb_ctx, int cqe, void *cq_context,
 
 PCX_ERROR(QpFailedRTR);
 
-struct ibv_qp *create_management_qp(struct ibv_cq *cq, verb_ctx_t *verb_ctx,
+struct ibv_qp *create_management_qp(struct ibv_cq *cq, VerbCtx *verb_ctx,
                                     uint16_t send_wq_size) {
 
   int rc = PCOLL_SUCCESS;
@@ -437,7 +437,7 @@ struct ibv_qp *create_management_qp(struct ibv_cq *cq, verb_ctx_t *verb_ctx,
 
 PCX_ERROR(InitQPFailed);
 
-struct ibv_qp *rc_qp_create(struct ibv_cq *cq, verb_ctx_t *verb_ctx,
+struct ibv_qp *rc_qp_create(struct ibv_cq *cq, VerbCtx *verb_ctx,
                             uint16_t send_wq_size, uint16_t recv_rq_size,
                             struct ibv_cq *s_cq, int slaveRecv, int slaveSend) {
   struct ibv_exp_qp_init_attr init_attr;

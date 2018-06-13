@@ -32,7 +32,7 @@
 #pragma once
 
 
-#define DEBUGX
+#define DEBUG
 #define VALIDITY_CHECKX
 #define HANG_REPORTX
 
@@ -88,11 +88,17 @@ extern "C" {
 #define CX_SIZE 16
 
 
-class verb_ctx_t {
+class VerbCtx {
+private: 
+  VerbCtx();
+  static VerbCtx* instance;
+  static int ref;
 public:
-  verb_ctx_t();
-  //	verb_ctx_t(char *ib_devname=nullptr);
-  ~verb_ctx_t();
+  static VerbCtx* getInstance();
+  static void remInstance();
+ 
+  //	VerbCtx(char *ib_devname=nullptr);
+  ~VerbCtx();
 
   struct ibv_context *context;
   struct ibv_pd *pd;

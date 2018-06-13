@@ -20,7 +20,7 @@ typedef GraphQps::iterator GraphQpsIt;
 
 class CommGraph {
 public:
-  CommGraph(verb_ctx_t *vctx);
+  CommGraph(VerbCtx *vctx);
   ~CommGraph();
 
   void enqueue(LambdaInstruction &ins);
@@ -38,7 +38,7 @@ public:
 //  friend PcxQp;
 
 //protected:
-  verb_ctx_t *ctx;
+  VerbCtx *ctx;
   InsQueue iq;
   GraphQps qps;
   uint16_t qp_cnt;
@@ -79,7 +79,7 @@ protected:
   PcxQp *pair;
   bool initiated;
   bool has_scq;
-  verb_ctx_t *ctx;
+  VerbCtx *ctx;
 };
 
 class ManagementQp : public PcxQp {
@@ -139,15 +139,15 @@ public:
   LambdaExchange exchange;
 };
 
-struct ibv_qp *create_management_qp(struct ibv_cq *cq, verb_ctx_t *verb_ctx,
+struct ibv_qp *create_management_qp(struct ibv_cq *cq, VerbCtx *verb_ctx,
                                     uint16_t send_wq_size);
 
-struct ibv_qp *rc_qp_create(struct ibv_cq *cq, verb_ctx_t *verb_ctx,
+struct ibv_qp *rc_qp_create(struct ibv_cq *cq, VerbCtx *verb_ctx,
                             uint16_t send_wq_size, uint16_t recv_rq_size,
                             struct ibv_cq *s_cq = NULL, int slaveRecv = 1,
                             int slaveSend = 1);
 
-struct ibv_cq *cd_create_cq(verb_ctx_t *verb_ctx, int cqe,
+struct ibv_cq *cd_create_cq(VerbCtx *verb_ctx, int cqe,
                             void *cq_context = NULL,
                             struct ibv_comp_channel *channel = NULL,
                             int comp_vector = 0);

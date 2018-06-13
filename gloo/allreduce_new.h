@@ -82,7 +82,7 @@ public:
     /* Step #1: Initialize verbs for all to use */
     PRINT("starting AllreduceNew");
 
-    ibv_ = new verb_ctx_t();
+    ibv_ = VerbCtx::getInstance();
 
     PRINT("Verbs initiated");
 
@@ -100,7 +100,7 @@ public:
   virtual ~AllreduceNew() {
     teardown();
     deregister_memory();
-    delete (ibv_);
+    VerbCtx::remInstance();
   }
 
   void run() {
@@ -243,7 +243,7 @@ public:
     while ((1 << ++step_count) < contextSize_)
       ;
 
-    verb_ctx_t *ctx = (this->ibv_);
+    VerbCtx *ctx = (this->ibv_);
 
     /* Create a single management QP */
     rd_.graph = new CommGraph(ctx);
@@ -352,7 +352,7 @@ protected:
   std::vector<T *> ptrs_;
   const int count_;
   const int bytes_;
-  verb_ctx_t *ibv_;
+  VerbCtx *ibv_;
   mem_registration_t mem_;
   rd_connections_t rd_;
   const ReductionFunction<T> *fn_;
