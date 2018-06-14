@@ -17,9 +17,8 @@
 
 #include "gloo/algorithm.h"
 #include "gloo/context.h"
-#include "gloo/mlx5dv_mem.h"
-#include "gloo/mlx5dv_mgr.h"
-#include "gloo/mlx5dv_mqp.h"
+#include "third-party/pcx/pcx_mem.h"
+#include "third-party/pcx/qps.h"
 
 #include <ctime>
 #include <vector>
