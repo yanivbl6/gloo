@@ -9,10 +9,10 @@ list(APPEND GLOO_SRCS
   "${CMAKE_CURRENT_SOURCE_DIR}/algorithm.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_local.cc"
   "${CMAKE_CURRENT_SOURCE_DIR}/context.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mgr.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mqp.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mem.cc"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_ctx.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/dv_mgr.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/qps.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/pcx_mem.cc"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/verbs_ctx.cc"
   )
 
 list(APPEND GLOO_HDRS
@@ -37,13 +37,13 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_new.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mgr.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mqp.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_mem.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/mlx5dv_ctx.h"
 
 
-  "${CMAKE_CURRENT_SOURCE_DIR}/udma_barrier.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/dv_mgr.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/qps.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/pcx_mem.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/verbs_ctx.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../third-party/pcx/udma_barrier.h"
 
   )
 
