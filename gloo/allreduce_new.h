@@ -103,105 +103,21 @@ public:
   }
 
   void run() {
-#ifdef VALIDITY_CHECK
-    for (int i = 0; i < ptrs_.size(); ++i) {
-      // fprintf(stderr, "Input %d:\n",i);
-      float *buf = (float *)ptrs_[i];
-      for (int k = 0; k < count_; ++k) {
-        buf[k] = ((float)k + i) + contextRank_ + mone;
-      }
-      // print_values(buf, count_);
-    }
-#endif
-    //		fprintf(stderr,"iteration: %d\n", mone);
+    debug_write_input();
     rd_.graph->mqp->qp->db();
     rd_.graph->mqp->qp->rearm();
 
     int res = 0;
     uint64_t count = 0;
 
-    //		clock_t begin = clock()*1E6;
 
     while (!res) {
       res = rd_.lqp->qp->poll();
 
       ++count;
-#ifdef HANG_REPORT
-
-      unsigned step_count = 0;
-      while ((1 << ++step_count) < contextSize_)
-        ;
-
-      if (count == 1000000000) {
-
-        fprintf(stderr, "iteration: %d\n", mone);
-        fprintf(stderr, "managment qp:");
-        rd_.graph->mqp->print();
-
-        fprintf(stderr, "loopback qp:");
-        rd_.lqp->print();
-        for (int k = 0; k < step_count; ++k) {
-          fprintf(stderr, "rc qp %d:", k);
-          rd_.peers[k].qp->print();
-        }
-      }
-
-#endif
+      debug_hang_report(count);
     }
-//		clock_t end = clock()*1E6;
-//		double elapsed_us = double(end - begin) / CLOCKS_PER_SEC;
-
-//		fprintf(stderr,"iteration: %d, time = %f\n", mone, elapsed_us );
-
-#ifdef VALIDITY_CHECK
-
-    unsigned step_count = 0;
-    while ((1 << ++step_count) < contextSize_)
-      ;
-
-    for (int i = 0; i < ptrs_.size(); ++i) {
-      // fprintf(stderr, "Output %d:\n",i);
-      int err = 0;
-      float *buf = (float *)ptrs_[i];
-      // print_values(buf, count_);
-      for (int k = 0; k < count_; ++k) {
-        int expected_base =
-            ((k + mone) * 2 + ptrs_.size() - 1) * ptrs_.size() / 2;
-        int expected_max =
-            ((k + mone + contextSize_ - 1) * 2 + ptrs_.size() - 1) *
-            ptrs_.size() / 2;
-        float expected_result =
-            (float)(expected_base + expected_max) * contextSize_ / 2;
-        float result = buf[k];
-        if (result != expected_result) {
-          fprintf(stderr,
-                  "ERROR: In Iteration %d\n expected: %.2f, got: %.2f\n", mone,
-                  expected_result, result);
-          for (int i = 0; i < ptrs_.size(); ++i) {
-            fprintf(stderr, "Input %d:\n", i);
-            float buf[count_];
-            for (int k = 0; k < count_; ++k) {
-              buf[k] = ((float)k + i) + contextRank_ + mone;
-            }
-            print_values(buf, count_);
-          }
-          for (int i = 0; i < step_count; ++i) {
-            fprintf(stderr, "Incoming %d:\n", i);
-            float *buf =
-                (float *)((void *)rd_.peers[i].incoming_buf->sg()->addr);
-            print_values(buf, count_);
-          }
-          fprintf(stderr, "Output %d:\n", i);
-          print_values(buf, count_);
-          // err = 1;
-          break;
-        }
-      }
-      if (err) {
-        break;
-      }
-    }
-#endif
+    debug_check_output();
     ++mone;
   }
 
@@ -353,6 +269,95 @@ public:
     delete (rd_.result);
     delete[](rd_.peers);
     PRINT("Teardown completed");
+  }
+
+  void debug_write_input(){
+#ifdef VALIDITY_CHECK
+    for (int i = 0; i < ptrs_.size(); ++i) {
+      // fprintf(stderr, "Input %d:\n",i);
+      float *buf = (float *)ptrs_[i];
+      for (int k = 0; k < count_; ++k) {
+        buf[k] = ((float)k + i) + contextRank_ + mone;
+      }
+      // print_values(buf, count_);
+    }
+#endif
+  }
+
+  void debug_hang_report(uint64_t& count){
+#ifdef HANG_REPORT
+
+      unsigned step_count = 0;
+      while ((1 << ++step_count) < contextSize_)
+        ;
+
+      if (count == 1000000000) {
+
+        fprintf(stderr, "iteration: %d\n", mone);
+        fprintf(stderr, "managment qp:");
+        rd_.graph->mqp->print();
+
+        fprintf(stderr, "loopback qp:");
+        rd_.lqp->print();
+        for (int k = 0; k < step_count; ++k) {
+          fprintf(stderr, "rc qp %d:", k);
+          rd_.peers[k].qp->print();
+        }
+      }
+
+#endif
+  }
+
+  void debug_check_output(){
+#ifdef VALIDITY_CHECK
+
+    unsigned step_count = 0;
+    while ((1 << ++step_count) < contextSize_)
+      ;
+
+    for (int i = 0; i < ptrs_.size(); ++i) {
+      // fprintf(stderr, "Output %d:\n",i);
+      int err = 0;
+      float *buf = (float *)ptrs_[i];
+      // print_values(buf, count_);
+      for (int k = 0; k < count_; ++k) {
+        int expected_base =
+            ((k + mone) * 2 + ptrs_.size() - 1) * ptrs_.size() / 2;
+        int expected_max =
+            ((k + mone + contextSize_ - 1) * 2 + ptrs_.size() - 1) *
+            ptrs_.size() / 2;
+        float expected_result =
+            (float)(expected_base + expected_max) * contextSize_ / 2;
+        float result = buf[k];
+        if (result != expected_result) {
+          fprintf(stderr,
+                  "ERROR: In Iteration %d\n expected: %.2f, got: %.2f\n", mone,
+                  expected_result, result);
+          for (int i = 0; i < ptrs_.size(); ++i) {
+            fprintf(stderr, "Input %d:\n", i);
+            float buf[count_];
+            for (int k = 0; k < count_; ++k) {
+              buf[k] = ((float)k + i) + contextRank_ + mone;
+            }
+            print_values(buf, count_);
+          }
+          for (int i = 0; i < step_count; ++i) {
+            fprintf(stderr, "Incoming %d:\n", i);
+            float *buf =
+                (float *)((void *)rd_.peers[i].incoming_buf->sg()->addr);
+            print_values(buf, count_);
+          }
+          fprintf(stderr, "Output %d:\n", i);
+          print_values(buf, count_);
+          // err = 1;
+          break;
+        }
+      }
+      if (err) {
+        break;
+      }
+    }
+#endif
   }
 
 protected:
