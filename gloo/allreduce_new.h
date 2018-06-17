@@ -206,21 +206,28 @@ public:
   }
 
   void register_memory() {
-
+    PRINT("locking... ");
+    std::lock_guard<std::mutex> lock(ibv_->m_);
     unsigned step_idx, step_count = 0;
     while ((1 << ++step_count) < contextSize_)
       ;
+
 
     pipeline = PIPELINE_DEPTH;
     while (step_count % pipeline) {
       --pipeline;
     }
 
+
+    PRINT("Registering usr- memory... ");
     /* Register the user's buffers */
     for (int buf_idx = 0; buf_idx < ptrs_.size(); buf_idx++) {
       mem_.usr_vec.push_back(new UsrMem(ptrs_[buf_idx], bytes_, ibv_));
     }
+    PRINT("UMR start... ");
     mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
+    PRINT("UMR success");
+
 
     mem_.tmpMem = new TempMem(bytes_, pipeline, ibv_);
   }
@@ -243,6 +250,7 @@ public:
       ;
 
     VerbCtx *ctx = (this->ibv_);
+    std::lock_guard<std::mutex> lock(ctx->m_);
 
     /* Create a single management QP */
     rd_.graph = new CommGraph(ctx);

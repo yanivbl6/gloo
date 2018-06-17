@@ -204,7 +204,7 @@ void Runner::run(BenchmarkFn<T>& fn) {
   }
 
   // Run sweep over number of elements
-  for (int i = 1; i <= 1 << 14 ; i *= 2) {
+  for (int i = 1; i <= 1 << 14 ; i *= 4) {
     //std::vector<int> js = {i * 1, i * 2, i * 5};
     run(fn, i);
   }
