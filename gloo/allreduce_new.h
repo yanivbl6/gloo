@@ -25,18 +25,18 @@
 
 namespace gloo {
 
-
 typedef struct mem_registration {
   Iov usr_vec;
   UmrMem *umr_mem;
   TempMem *tmpMem;
 } mem_registration_t;
 
-int p2p_exchange(void* comm, volatile void* send_buf , volatile void* recv_buf , size_t size , uint32_t peer, uint32_t tag){
-   std::shared_ptr<Context>* ctx = static_cast<std::shared_ptr<Context>*>(comm);
+int p2p_exchange(void *comm, volatile void *send_buf, volatile void *recv_buf,
+                 size_t size, uint32_t peer, uint32_t tag) {
+  std::shared_ptr<Context> *ctx = static_cast<std::shared_ptr<Context> *>(comm);
   auto &pair = (*ctx)->getPair(peer);
-  auto sendBuf = pair->createSendBuffer(tag, (void*) send_buf, size);
-  auto recvBuf = pair->createRecvBuffer(tag, (void*) recv_buf, size);
+  auto sendBuf = pair->createSendBuffer(tag, (void *)send_buf, size);
+  auto recvBuf = pair->createRecvBuffer(tag, (void *)recv_buf, size);
   sendBuf->send();
   sendBuf->waitSend();
   recvBuf->waitRecv();
@@ -44,15 +44,14 @@ int p2p_exchange(void* comm, volatile void* send_buf , volatile void* recv_buf ,
 
 class rd_peer_t {
 public:
-  rd_peer_t()
-      : outgoing_buf(NULL), incoming_buf(NULL){};
+  rd_peer_t() : outgoing_buf(NULL), incoming_buf(NULL){};
   ~rd_peer_t() {
     delete (qp);
     delete (this->incoming_buf);
     delete (this->outgoing_buf);
   };
 
-  DoublingQp* qp;
+  DoublingQp *qp;
   NetMem *outgoing_buf;
   NetMem *incoming_buf;
 };
@@ -60,8 +59,8 @@ public:
 typedef struct rd_connections {
   NetMem *result;
 
-  CommGraph* graph;
-  LoopbackQp* lqp;
+  CommGraph *graph;
+  LoopbackQp *lqp;
 
   unsigned peers_cnt;
   rd_peer_t *peers;
@@ -80,16 +79,9 @@ public:
 
     /* Step #1: Initialize verbs for all to use */
     PRINT("starting AllreduceNew");
-
     ibv_ = VerbCtx::getInstance();
-
     PRINT("Verbs initiated");
-
-    /* Step #2: Register existing memory buffers with UMR */
-    register_memory();
-    PRINT("register_memory DONE");
-
-    /* Step #3: Connect to the (recursive-doubling) peers and pre-post
+    /* Step #2&3: Connect to the (recursive-doubling) peers and pre-post
      * operations */
     connect_and_prepare();
     PRINT("connect_and_prepare DONE");
@@ -110,7 +102,6 @@ public:
     int res = 0;
     uint64_t count = 0;
 
-
     while (!res) {
       res = rd_.lqp->qp->poll();
 
@@ -123,17 +114,15 @@ public:
 
   void register_memory() {
     PRINT("locking... ");
-    std::lock_guard<std::mutex> lock(ibv_->m_);
+    // std::lock_guard<std::mutex> lock(ibv_->m_);
     unsigned step_idx, step_count = 0;
     while ((1 << ++step_count) < contextSize_)
       ;
-
 
     pipeline = PIPELINE_DEPTH;
     while (step_count % pipeline) {
       --pipeline;
     }
-
 
     PRINT("Registering usr- memory... ");
     /* Register the user's buffers */
@@ -143,7 +132,6 @@ public:
     PRINT("UMR start... ");
     mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
     PRINT("UMR success");
-
 
     mem_.tmpMem = new TempMem(bytes_, pipeline, ibv_);
   }
@@ -166,16 +154,19 @@ public:
       ;
 
     VerbCtx *ctx = (this->ibv_);
-    std::lock_guard<std::mutex> lock(ctx->m_);
+    // std::lock_guard<std::mutex> lock(ctx->m_);
 
     /* Create a single management QP */
-    rd_.graph = new CommGraph(ctx);
-    CommGraph* sess = rd_.graph;
+    rd_.graph = new CommGraph(ctx); // does lock
+    CommGraph *sess = rd_.graph;
     PRINT("created MGMT QP");
+
+    /* Step #2: Register existing memory buffers with UMR */
+    register_memory();
 
     /* Create a loopback QP */
     rd_.lqp = new LoopbackQp(sess);
-    LoopbackQp* lqp = rd_.lqp;
+    LoopbackQp *lqp = rd_.lqp;
     PRINT("loopback connected");
 
     rd_.result = new HostMem(bytes_, ibv_);
@@ -188,9 +179,6 @@ public:
     /* Establish a connection with each peer */
 
     for (step_idx = 0; step_idx < step_count; step_idx++) {
-
-
-
       /* calculate the rank of each peer */
       int leap = 1 << step_idx;
       if ((contextRank_ % (leap << 1)) >= leap) {
@@ -199,25 +187,19 @@ public:
       uint32_t mypeer = contextRank_ + leap;
 
       uint32_t slot = this->context_->nextSlot();
-      
+
       rd_.peers[step_idx].incoming_buf = new RefMem(mem_.tmpMem->next());
 
-      rd_.peers[step_idx].qp = new DoublingQp(sess, &p2p_exchange , (void*) &(this->context_),
-                       mypeer, slot, rd_.peers[step_idx].incoming_buf);
+      rd_.peers[step_idx].qp =
+          new DoublingQp(sess, &p2p_exchange, (void *)&(this->context_), mypeer,
+                         slot, rd_.peers[step_idx].incoming_buf);
       PRINT("Creating RC QP - Done");
-
-
-      Iov umr_iov{rd_.result, rd_.peers[step_idx].incoming_buf}; 
-      rd_.peers[step_idx].outgoing_buf = new UmrMem(umr_iov, ibv_); 
+      Iov umr_iov{rd_.result, rd_.peers[step_idx].incoming_buf};
+      rd_.peers[step_idx].outgoing_buf = new UmrMem(umr_iov, ibv_);
     }
-
-    PRINT("Creating all RC QPs - Done");
-
-
     lqp->reduce_write(mem_.umr_mem, rd_.result, inputs,
-                                     MLX5DV_VECTOR_CALC_OP_ADD,
-                                     MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
-
+                      MLX5DV_VECTOR_CALC_OP_ADD,
+                      MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
     sess->wait(lqp);
     for (step_idx = 0; step_idx < step_count; step_idx++) {
       if (step_idx >= pipeline) {
@@ -226,41 +208,21 @@ public:
       rd_.peers[step_idx].qp->writeCmpl(rd_.result);
       sess->wait(rd_.peers[step_idx].qp);
       sess->wait_send(rd_.peers[step_idx].qp);
-      lqp->reduce_write(rd_.peers[step_idx].outgoing_buf,
-                                       rd_.result, 2, MLX5DV_VECTOR_CALC_OP_ADD,
-                                       MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
-
+      lqp->reduce_write(rd_.peers[step_idx].outgoing_buf, rd_.result, 2,
+                        MLX5DV_VECTOR_CALC_OP_ADD,
+                        MLX5DV_VECTOR_CALC_DATA_TYPE_FLOAT32);
       sess->wait(lqp);
       rd_.peers[(step_idx + pipeline) % step_count].qp->sendCredit();
     }
-
     for (uint32_t buf_idx = 0; buf_idx < inputs; buf_idx++) {
       lqp->write(rd_.result, mem_.usr_vec[buf_idx]);
     }
-
     sess->wait(lqp);
-
     for (step_idx = 0; step_idx < pipeline; step_idx++) {
       sess->wait(rd_.peers[step_idx].qp);
     }
-
     PRINT("Graph building - Done");
-    rd_.graph->finish();
-    if (0){
-      unsigned step_count = 0;
-      while ((1 << ++step_count) < contextSize_)
-        ;
-
-      fprintf(stderr, "managment qp:\n");
-      rd_.graph->mqp->print();
-      fprintf(stderr, "loopback qp:\n");
-      rd_.lqp->print();
-      for (int k = 0; k < step_count; ++k) {
-        fprintf(stderr, "rc qp %d:\n", k);
-        rd_.peers[k].qp->print();
-      }
-      
-    }
+    rd_.graph->finish(); // unlocks
   }
 
   void teardown() {
@@ -271,7 +233,7 @@ public:
     PRINT("Teardown completed");
   }
 
-  void debug_write_input(){
+  void debug_write_input() {
 #ifdef VALIDITY_CHECK
     for (int i = 0; i < ptrs_.size(); ++i) {
       // fprintf(stderr, "Input %d:\n",i);
@@ -284,31 +246,31 @@ public:
 #endif
   }
 
-  void debug_hang_report(uint64_t& count){
+  void debug_hang_report(uint64_t &count) {
 #ifdef HANG_REPORT
 
-      unsigned step_count = 0;
-      while ((1 << ++step_count) < contextSize_)
-        ;
+    unsigned step_count = 0;
+    while ((1 << ++step_count) < contextSize_)
+      ;
 
-      if (count == 1000000000) {
+    if (count == 1000000000) {
 
-        fprintf(stderr, "iteration: %d\n", mone);
-        fprintf(stderr, "managment qp:");
-        rd_.graph->mqp->print();
+      fprintf(stderr, "iteration: %d\n", mone);
+      fprintf(stderr, "managment qp:");
+      rd_.graph->mqp->print();
 
-        fprintf(stderr, "loopback qp:");
-        rd_.lqp->print();
-        for (int k = 0; k < step_count; ++k) {
-          fprintf(stderr, "rc qp %d:", k);
-          rd_.peers[k].qp->print();
-        }
+      fprintf(stderr, "loopback qp:");
+      rd_.lqp->print();
+      for (int k = 0; k < step_count; ++k) {
+        fprintf(stderr, "rc qp %d:", k);
+        rd_.peers[k].qp->print();
       }
+    }
 
 #endif
   }
 
-  void debug_check_output(){
+  void debug_check_output() {
 #ifdef VALIDITY_CHECK
 
     unsigned step_count = 0;
@@ -371,8 +333,5 @@ protected:
   int mone;
   int pipeline;
 };
-
-
-
 
 } // namespace gloo
