@@ -15,8 +15,9 @@
 #include "gloo/allreduce_ring.h"
 #include "gloo/allreduce_ring_chunked.h"
 
-#include "gloo/allreduce_new.h"
 
+#include "gloo/pcx_allreduce_king.h"
+#include "gloo/pcx_allreduce_ring.h"
 
 #include "gloo/barrier_all_to_all.h"
 #include "gloo/barrier_all_to_one.h"
@@ -216,10 +217,15 @@ class ReduceScatterBenchmark : public Benchmark<T> {
       return gloo::make_unique<                                            \
           AllreduceBenchmark<AllreduceRingChunked<T>, T>>(context, x);     \
     };                                                                     \
-  } else if (x.benchmark == "allreduce_new") {                    \
+  } else if (x.benchmark == "pcx_allreduce_king") {                             \
     fn = [&](std::shared_ptr<Context>& context) {                          \
       return gloo::make_unique<                                            \
-          AllreduceBenchmark<AllreduceNew<T>, T>>(context, x);     \
+          AllreduceBenchmark<PcxAllreduceRing<T>, T>>(context, x);             \
+    };                                                                     \
+  } else if (x.benchmark == "pcx_allreduce_ring") {                             \
+    fn = [&](std::shared_ptr<Context>& context) {                          \
+      return gloo::make_unique<                                            \
+          AllreduceBenchmark<PcxAllreduceKing<T>, T>>(context, x);             \
     };                                                                     \
   } else if (x.benchmark == "allreduce_halving_doubling") {                \
     fn = [&](std::shared_ptr<Context>& context) {                          \
