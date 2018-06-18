@@ -23,8 +23,10 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_local.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_ring.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_ring_chunked.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/allreduce_new.h"
 
+
+  "${CMAKE_CURRENT_SOURCE_DIR}/pcx_allreduce_king.h"
+  "${CMAKE_CURRENT_SOURCE_DIR}/pcx_allreduce_ring.h"
 
   "${CMAKE_CURRENT_SOURCE_DIR}/barrier.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/barrier_all_to_all.h"

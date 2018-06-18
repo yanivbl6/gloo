@@ -161,7 +161,7 @@ void runBenchmark(options& x) {
       return std::unique_ptr<Benchmark<T>>(
         new CudaBroadcastOneToAllBenchmark<T>(context, x, builder));
     };
-  } else if (beginsWith(x.benchmark, std::string("cuda_allreduce_")) || (x.benchmark == "allreduce_new")){
+  } else if (beginsWith(x.benchmark, std::string("cuda_allreduce_")) || beginsWith(x.benchmark, std::string("pcx_allreduce_"))){
     auto builder = gloo::AllreduceBuilder<T>();
     if (x.gpuDirect) {
       builder.setGPUDirect(true);
@@ -178,9 +178,12 @@ void runBenchmark(options& x) {
     } else if (x.benchmark == "cuda_allreduce_ring_chunked") {
       builder.setImplementation(
         gloo::AllreduceBuilder<T>::RingChunked);
-    } else if (x.benchmark == "allreduce_new") {
+    } else if (x.benchmark == "pcx_allreduce_king") {
       builder.setImplementation(
-        gloo::AllreduceBuilder<T>::OffloadDoubling);
+        gloo::AllreduceBuilder<T>::PcxKing);
+    } else if (x.benchmark == "pcx_allreduce_ring") {
+      builder.setImplementation(
+        gloo::AllreduceBuilder<T>::PcxRing);
     } else {
       GLOO_ENFORCE(false, "Invalid algorithm: ", x.benchmark);
     }
