@@ -220,12 +220,12 @@ class ReduceScatterBenchmark : public Benchmark<T> {
   } else if (x.benchmark == "pcx_allreduce_king") {                             \
     fn = [&](std::shared_ptr<Context>& context) {                          \
       return gloo::make_unique<                                            \
-          AllreduceBenchmark<PcxAllreduceRing<T>, T>>(context, x);             \
+          AllreduceBenchmark<PcxAllreduceKing<T>, T>>(context, x);             \
     };                                                                     \
   } else if (x.benchmark == "pcx_allreduce_ring") {                             \
     fn = [&](std::shared_ptr<Context>& context) {                          \
       return gloo::make_unique<                                            \
-          AllreduceBenchmark<PcxAllreduceKing<T>, T>>(context, x);             \
+          AllreduceBenchmark<PcxAllreduceRing<T>, T>>(context, x);             \
     };                                                                     \
   } else if (x.benchmark == "allreduce_halving_doubling") {                \
     fn = [&](std::shared_ptr<Context>& context) {                          \
