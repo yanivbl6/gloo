@@ -163,14 +163,14 @@ public:
     uint32_t slot1 = this->context_->nextSlot();
     uint32_t slot2 = this->context_->nextSlot();
 
-    rd_.pqp = new RingPair(sess, &ring_exchange, (void *)&(this->context_), myRank, step_count , slot1,slot2, mem_.tmpMem); 
+    rd_.pqp = new RingPair(sess, &ring_exchange, (void *)&(this->context_), myRank, step_count , slot1 , slot2 , mem_.tmpMem); 
     PRINT("RC ring Qps created");
 
     RingQp* right = rd_.pqp->right;
     RingQp* left = rd_.pqp->left;
 
     for (step_idx = 0; step_idx < step_count; step_idx++) {
-      size_t piece = (step_idx + myRank) % step_count;
+      size_t piece = (step_count + myRank - step_idx) % step_count;
       for (int k = 0; k < inputs; ++k) {
         rd_.iters[step_idx].umr_iov.push_back(new RefMem((*mem_.usr_vec[k])[piece]));
       }
