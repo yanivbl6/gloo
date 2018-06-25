@@ -394,6 +394,8 @@ template void Runner::run(BenchmarkFn<float>& fn);
 template void Runner::run(BenchmarkFn<float>& fn, int n);
 template void Runner::run(BenchmarkFn<float16>& fn);
 template void Runner::run(BenchmarkFn<float16>& fn, int n);
+template void Runner::run(BenchmarkFn<int>& fn);
+template void Runner::run(BenchmarkFn<int>& fn, int n);
 
 RunnerThread::RunnerThread() : stop_(false), job_(nullptr) {
   thread_ = std::thread(&RunnerThread::spawn, this);
