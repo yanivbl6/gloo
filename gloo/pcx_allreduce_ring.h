@@ -8,7 +8,7 @@
 
 #pragma once
 
-#define PIPELINE_DEPTH 1
+#define RING_PIPELINE_DEPTH 1
 
 #include <alloca.h>
 #include <stddef.h>
@@ -131,7 +131,7 @@ public:
 
     /* Step #2: Register existing memory buffers with UMR */
 
-    pipeline = PIPELINE_DEPTH;
+    pipeline = RING_PIPELINE_DEPTH;
     while (step_count % pipeline) {
       --pipeline;
     }
@@ -144,7 +144,10 @@ public:
       mem_.usr_vec.push_back(new PipeMem((void*) ptrs_[buf_idx], pieceSize , (size_t) step_count, ibv_));
     }
 
-    mem_.tmpMem = new PipeMem(pieceSize, pipeline, ibv_);
+    int temp_type = PCX_MEMORY_TYPE_MEMIC;
+    //temp_type = PCX_MEMORY_TYPE_HOST;
+
+    mem_.tmpMem = new PipeMem(pieceSize, pipeline, ibv_,   temp_type );
 
 
     /* Create a loopback QP */

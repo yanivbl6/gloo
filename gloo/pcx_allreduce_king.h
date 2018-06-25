@@ -9,7 +9,7 @@
 
 #pragma once
 
-#define PIPELINE_DEPTH 1
+#define PIPELINE_DEPTH 3
 
 #include <alloca.h>
 #include <stddef.h>
@@ -133,7 +133,7 @@ public:
     mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
     PRINT("UMR success");
 
-    mem_.tmpMem = new PipeMem(bytes_, pipeline, ibv_);
+    mem_.tmpMem = new PipeMem(bytes_, pipeline, ibv_, PCX_MEMORY_TYPE_MEMIC);
   }
 
   void deregister_memory() {
