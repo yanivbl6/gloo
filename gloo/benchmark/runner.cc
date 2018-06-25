@@ -22,8 +22,6 @@
 
 #if GLOO_USE_REDIS
 #include "gloo/rendezvous/redis_store.h"
-#else
-#warning "NO REDIS" 
 #endif
 
 #if GLOO_USE_MPI
@@ -203,9 +201,11 @@ void Runner::run(BenchmarkFn<T>& fn) {
   }
 
   // Run sweep over number of elements
-  for (int i = 16; i <= 1 << 14 ; i *= 2) {
-    //std::vector<int> js = {i * 1, i * 2, i * 5};
-    run(fn, i);
+  for (int i = 100; i <= 1000000; i *= 10) {
+    std::vector<int> js = {i * 1, i * 2, i * 5};
+    for (auto& j : js) {
+      run(fn, j);
+    }
   }
 }
 
@@ -347,10 +347,7 @@ void Runner::printHeader() {
   std::cout << std::right;
   std::cout << std::setw(11) << "elements";
   std::cout << std::setw(11) << ("min " + suffix);
-  std::cout << std::setw(11) << ("p25 " + suffix);
   std::cout << std::setw(11) << ("p50 " + suffix);
-//  std::cout << std::setw(11) << ("p75 " + suffix);
-//  std::cout << std::setw(11) << ("p85 " + suffix);
   std::cout << std::setw(11) << ("p99 " + suffix);
   std::cout << std::setw(11) << ("max " + suffix);
   std::cout << std::setw(13) << ("avg " + bwSuffix);
@@ -381,10 +378,7 @@ void Runner::printDistribution(
 
   std::cout << std::setw(11) << elements;
   std::cout << std::setw(11) << (latency.min() / div);
-  std::cout << std::setw(11) << (latency.percentile(0.25) / div);
   std::cout << std::setw(11) << (latency.percentile(0.50) / div);
-//  std::cout << std::setw(11) << (latency.percentile(0.75) / div);
-//  std::cout << std::setw(11) << (latency.percentile(0.85) / div);
   std::cout << std::setw(11) << (latency.percentile(0.99) / div);
   std::cout << std::setw(11) << (latency.max() / div);
   std::cout << std::fixed << std::setprecision(3);
@@ -399,10 +393,6 @@ template void Runner::run(BenchmarkFn<float>& fn);
 template void Runner::run(BenchmarkFn<float>& fn, size_t n);
 template void Runner::run(BenchmarkFn<float16>& fn);
 template void Runner::run(BenchmarkFn<float16>& fn, size_t n);
-
-
-template void Runner::run(BenchmarkFn<int>& fn);
-template void Runner::run(BenchmarkFn<int>& fn, int n);
 
 RunnerThread::RunnerThread() : stop_(false), job_(nullptr) {
   thread_ = std::thread(&RunnerThread::spawn, this);
