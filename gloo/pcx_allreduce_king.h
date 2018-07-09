@@ -9,7 +9,7 @@
 
 #pragma once
 
-#define PIPELINE_DEPTH 3
+#define PIPELINE_DEPTH 1
 
 #include <alloca.h>
 #include <stddef.h>
@@ -33,13 +33,26 @@ typedef struct mem_registration {
 
 int p2p_exchange(void *comm, volatile void *send_buf, volatile void *recv_buf,
                  size_t size, uint32_t peer, uint32_t tag) {
+
+//  fprintf(stderr,"p2p_exchange called: size %d, peer %d, tag %d\n");
+
+
   std::shared_ptr<Context> *ctx = static_cast<std::shared_ptr<Context> *>(comm);
   auto &pair = (*ctx)->getPair(peer);
   auto sendBuf = pair->createSendBuffer(tag, (void *)send_buf, size);
   auto recvBuf = pair->createRecvBuffer(tag, (void *)recv_buf, size);
+
   sendBuf->send();
+//  fprintf(stderr,"p2p_exchange sent\n");
+
   sendBuf->waitSend();
+
+//  fprintf(stderr,"p2p_exchange wait sent done\n");
+
   recvBuf->waitRecv();
+
+//  fprintf(stderr,"p2p_exchange wait recv done\n");
+
 }
 
 class rd_peer_t {
@@ -95,6 +108,7 @@ public:
   }
 
   void run() {
+    PRINT("allreduce started");
     debug_write_input();
     rd_.graph->mqp->qp->db();
     rd_.graph->mqp->qp->rearm();
@@ -110,6 +124,7 @@ public:
     }
     debug_check_output();
     ++mone;
+    PRINT("allreduce done"); 
   }
 
   void register_memory() {
