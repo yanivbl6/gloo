@@ -112,13 +112,10 @@ public:
     debug_write_input();
     rd_.graph->mqp->qp->db();
     rd_.graph->mqp->qp->rearm();
-
     int res = 0;
     uint64_t count = 0;
-
     while (!res) {
       res = rd_.lqp->qp->poll();
-
       ++count;
       debug_hang_report(count);
     }
@@ -148,7 +145,10 @@ public:
     mem_.umr_mem = new UmrMem(mem_.usr_vec, ibv_);
     PRINT("UMR success");
 
-    mem_.tmpMem = new PipeMem(bytes_, pipeline, ibv_, PCX_MEMORY_TYPE_MEMIC);
+    int mem_type = PCX_MEMORY_TYPE_MEMIC;
+    mem_type = PCX_MEMORY_TYPE_HOST;
+
+    mem_.tmpMem = new PipeMem(bytes_, pipeline, ibv_, mem_type);
   }
 
   void deregister_memory() {
@@ -269,11 +269,10 @@ public:
       ;
 
     if (count == 1000000000) {
-
       fprintf(stderr, "iteration: %d\n", mone);
+      fprintf(stderr, "poll cnt: %d\n", rd_.lqp->qp->get_poll_cnt());
       fprintf(stderr, "managment qp:");
       rd_.graph->mqp->print();
-
       fprintf(stderr, "loopback qp:");
       rd_.lqp->print();
       for (int k = 0; k < step_count; ++k) {

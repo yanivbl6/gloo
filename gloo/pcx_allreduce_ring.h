@@ -145,7 +145,7 @@ public:
     }
 
     int temp_type = PCX_MEMORY_TYPE_MEMIC;
-    //temp_type = PCX_MEMORY_TYPE_HOST;
+    temp_type = PCX_MEMORY_TYPE_HOST;
 
     mem_.tmpMem = new PipeMem(pieceSize, pipeline, ibv_,   temp_type );
 
@@ -245,7 +245,6 @@ public:
 
     PRINT("allgather");
 
-
     if (credits != pipeline){
       left->sendCredit();
       sess->wait(right);
@@ -281,6 +280,7 @@ public:
 #ifdef HANG_REPORT
     if (count == 1000000000) {
       fprintf(stderr, "iteration: %d\n", mone);
+      fprintf(stderr, "poll cnt: %d\n", rd_.lqp->qp->get_poll_cnt());
       fprintf(stderr, "managment qp:\n");
       rd_.graph->mqp->print();
       fprintf(stderr, "loopback qp:\n");
@@ -289,6 +289,7 @@ public:
       rd_.pqp->right->print();
       fprintf(stderr, "left qp:\n");
       rd_.pqp->left->print();
+
     }
 #endif
   }
