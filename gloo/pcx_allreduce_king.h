@@ -108,7 +108,7 @@ public:
   }
 
   void run() {
-    PRINT("allreduce started");
+    //PRINT("allreduce started");
     debug_write_input();
     rd_.graph->mqp->qp->db();
     rd_.graph->mqp->qp->rearm();
@@ -121,7 +121,7 @@ public:
     }
     debug_check_output();
     ++mone;
-    PRINT("allreduce done"); 
+    //PRINT("allreduce done"); 
   }
 
   void register_memory() {
