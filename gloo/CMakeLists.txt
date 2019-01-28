@@ -51,7 +51,6 @@ list(APPEND GLOO_HDRS
   "${CMAKE_CURRENT_SOURCE_DIR}/reduce_scatter.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/scatter.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
-  "${CMAKE_CURRENT_SOURCE_DIR}/testbuild.h"
 
 
   "${CMAKE_CURRENT_SOURCE_DIR}/pcx_allreduce_king.h"
